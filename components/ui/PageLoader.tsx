@@ -55,7 +55,7 @@ export function PageLoader({
         }}
         className="mb-6"
       >
-        <GovEmblem size="lg" variant="color" />
+        <GovEmblem size="lg" variant="default" />
       </motion.div>
 
       {/* Spinner Ring */}

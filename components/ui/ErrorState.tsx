@@ -128,7 +128,7 @@ export function ErrorState({
           transition={{ delay: 0.2 }}
           className="absolute opacity-[0.03] pointer-events-none"
         >
-          <GovEmblem size="xl" variant="monochrome" />
+          <GovEmblem size="xl" variant="mono" />
         </motion.div>
       )}
 

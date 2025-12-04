@@ -53,7 +53,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     locales.forEach((locale) => {
       sitemap.push({
         url: `${BASE_URL}/${locale}/articles/${article.id}`,
-        lastModified: article.lastUpdated ? new Date(article.lastUpdated) : now,
+        lastModified: article.updatedAt ? new Date(article.updatedAt) : now,
         changeFrequency: 'monthly',
         priority: 0.9,
         alternates: {

@@ -39,7 +39,7 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
           title: getLocalizedText(article.title, locale),
           content: getLocalizedText(article.content, locale),
           excerpt: getLocalizedText(article.excerpt, locale),
-          lastUpdated: article.lastUpdated,
+          lastUpdated: article.updatedAt,
           section: {
             number: article.section.number,
             title: getLocalizedText(article.section.title, locale),
@@ -82,26 +82,11 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
             </motion.section>
 
             {/* Author Commentary */}
-            {article.hasAuthorComment && (
-              <motion.section
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <AuthorCommentary article={article} locale={locale} />
-              </motion.section>
-            )}
+            {/* Author Commentary */}
+            <AuthorCommentary locale={locale} hasCommentary={article.hasAuthorComment} />
 
             {/* Expert Commentary */}
-            {article.hasExpertComment && (
-              <motion.section
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <ExpertCommentary article={article} locale={locale} />
-              </motion.section>
-            )}
+            <ExpertCommentary locale={locale} hasCommentary={article.hasExpertComment} />
 
             {/* Related Articles */}
             <motion.section
