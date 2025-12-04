@@ -24,3 +24,4 @@ export const fontVariables = `${inter.variable} ${plusJakartaSans.variable}`;
 
 
 
+
