@@ -1,0 +1,141 @@
+{
+  "common": {
+    "search": "Search",
+    "language": "Language",
+    "home": "Home",
+    "articles": "Articles",
+    "about": "About",
+    "contact": "Contact",
+    "loading": "Loading...",
+    "readMore": "Read More",
+    "viewAll": "View All",
+    "backToHome": "Back to Home",
+    "verifiedByGov": "Verified by Government",
+    "officialPortal": "Official Portal",
+    "allRightsReserved": "All rights reserved"
+  },
+  "header": {
+    "title": "Labor Code Commentary",
+    "subtitle": "Ministry of Employment and Labor Relations of the Republic of Uzbekistan",
+    "hotline": "Hotline",
+    "searchPlaceholder": "Enter article number or title..."
+  },
+  "hero": {
+    "title": "Labor Code Commentary Platform",
+    "subtitle": "Commentaries, explanations, and expert annotations on all articles of the Labor Code of the Republic of Uzbekistan",
+    "description": "Legal advice and professional analysis of labor legislation",
+    "searchBtn": "Search Articles",
+    "exploreBtn": "Explore Sections",
+    "cta": "View Articles",
+    "secondaryCta": "How it works?"
+  },
+  "nav": {
+    "home": "Home",
+    "articles": "Article Commentaries",
+    "about": "About",
+    "contact": "Contact",
+    "faq": "FAQ"
+  },
+  "sections": {
+    "title": "Sections",
+    "chapters": "Chapters",
+    "articles": "Articles"
+  },
+  "article": {
+    "content": "Article Content",
+    "authorComment": "Author Commentary",
+    "expertComment": "Expert Commentary",
+    "relatedArticles": "Related Articles",
+    "articleNumber": "Article",
+    "section": "Section",
+    "chapter": "Chapter",
+    "lastUpdated": "Last updated",
+    "filterByChapter": "Filter by chapter",
+    "allChapters": "All chapters",
+    "noResults": "No results found",
+    "searchArticles": "Search articles",
+    "title": "Article Commentaries",
+    "subtitle": "Professional commentaries on all articles of the Labor Code",
+    "readMore": "Read More",
+    "filters": "Filters",
+    "clearFilters": "Clear Filters",
+    "applyFilters": "Apply",
+    "allSections": "All Sections",
+    "allLanguages": "All Languages",
+    "commentType": "Comment Type",
+    "translation": "Translation Language",
+    "resultsFound": "results found",
+    "showing": "Showing",
+    "of": "of",
+    "results": "results",
+    "perPage": "Show",
+    "gridView": "Grid View",
+    "listView": "List View"
+  },
+  "chat": {
+    "title": "Have Questions?",
+    "aiTitle": "AI Assistant",
+    "placeholder": "Type your question...",
+    "name": "Your Name",
+    "email": "Your Email",
+    "phone": "Your Phone",
+    "send": "Send",
+    "success": "Your question has been received!",
+    "online": "Online",
+    "thinking": "Preparing response..."
+  },
+  "stats": {
+    "totalArticles": "Total Articles",
+    "totalComments": "Total Comments",
+    "experts": "Experts",
+    "translations": "Translations",
+    "articles": "Articles",
+    "commentaries": "Commentaries",
+    "users": "Users"
+  },
+  "features": {
+    "title": "Portal Features",
+    "subtitle": "Professional legal assistance and consultations",
+    "official": {
+      "title": "Official Sources",
+      "description": "Government-approved legislation and official commentaries"
+    },
+    "expert": {
+      "title": "Expert Analysis",
+      "description": "Professional interpretations from qualified lawyers"
+    },
+    "search": {
+      "title": "Convenient Search",
+      "description": "Find the article you need quickly and easily"
+    },
+    "updates": {
+      "title": "Updates",
+      "description": "Stay informed about legislative changes"
+    }
+  },
+  "footer": {
+    "ministry": "Ministry of Employment and Labor Relations of the Republic of Uzbekistan",
+    "address": "5 Independence Square, Tashkent",
+    "workHours": "Working Hours: Mon-Fri, 09:00-18:00",
+    "copyright": "All rights reserved",
+    "about": "About Portal",
+    "aboutText": "Labor Code Commentary - the official platform for commentary and analysis of labor legislation of the Republic of Uzbekistan.",
+    "quickLinks": "Quick Links",
+    "legal": "Legal Information",
+    "legalResources": "Legal Resources",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Use",
+    "accessibility": "Accessibility",
+    "contact": "Contact",
+    "phone": "Phone",
+    "email": "Email",
+    "newsletter": "Subscribe to Updates",
+    "newsletterDesc": "Stay informed about legislative changes",
+    "subscribe": "Subscribe",
+    "subscribeSuccess": "Successfully subscribed!",
+    "viewOnMap": "View on map",
+    "hotline": "Hotline",
+    "backToTop": "Back to top",
+    "followUs": "Follow us"
+  }
+}

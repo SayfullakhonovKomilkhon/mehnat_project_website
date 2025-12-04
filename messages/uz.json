@@ -1,0 +1,141 @@
+{
+  "common": {
+    "search": "Qidirish",
+    "language": "Til",
+    "home": "Bosh sahifa",
+    "articles": "Moddalar",
+    "about": "Biz haqimizda",
+    "contact": "Aloqa",
+    "loading": "Yuklanmoqda...",
+    "readMore": "Batafsil",
+    "viewAll": "Barchasini ko'rish",
+    "backToHome": "Bosh sahifaga qaytish",
+    "verifiedByGov": "Davlat tomonidan tasdiqlangan",
+    "officialPortal": "Rasmiy portal",
+    "allRightsReserved": "Barcha huquqlar himoyalangan"
+  },
+  "header": {
+    "title": "Mehnat Kodeksiga Sharh",
+    "subtitle": "O'zbekiston Respublikasi Mehnat va aholini ijtimoiy muhofaza vazirligi",
+    "hotline": "Ishonch telefoni",
+    "searchPlaceholder": "Modda raqami yoki sarlavhasini kiriting..."
+  },
+  "hero": {
+    "title": "Mehnat Kodeksiga Sharh Platformasi",
+    "subtitle": "O'zbekiston Respublikasi Mehnat kodeksining barcha moddalariga sharhlar, tushuntirishlar va ekspert izohlari",
+    "description": "Huquqiy maslahat va mehnat qonunchiligi bo'yicha professional tahlillar",
+    "searchBtn": "Modda qidirish",
+    "exploreBtn": "Bo'limlarni ko'rish",
+    "cta": "Moddalarni ko'rish",
+    "secondaryCta": "Qanday ishlaydi?"
+  },
+  "nav": {
+    "home": "Bosh sahifa",
+    "articles": "Moddalar sharhi",
+    "about": "Portal haqida",
+    "contact": "Bog'lanish",
+    "faq": "Savol-javob"
+  },
+  "sections": {
+    "title": "Bo'limlar",
+    "chapters": "Boblar",
+    "articles": "Moddalar"
+  },
+  "article": {
+    "content": "Modda mazmuni",
+    "authorComment": "Muallif sharhi",
+    "expertComment": "Ekspert sharhi",
+    "relatedArticles": "Bog'liq moddalar",
+    "articleNumber": "Modda",
+    "section": "Bo'lim",
+    "chapter": "Bob",
+    "lastUpdated": "Oxirgi yangilanish",
+    "filterByChapter": "Bob bo'yicha saralash",
+    "allChapters": "Barcha boblar",
+    "noResults": "Natija topilmadi",
+    "searchArticles": "Moddalarni qidiring",
+    "title": "Moddalar sharhi",
+    "subtitle": "Mehnat kodeksining barcha moddalari bo'yicha professional sharhlar",
+    "readMore": "Batafsil",
+    "filters": "Filterlar",
+    "clearFilters": "Filterlarni tozalash",
+    "applyFilters": "Qo'llash",
+    "allSections": "Barcha bo'limlar",
+    "allLanguages": "Barcha tillar",
+    "commentType": "Sharh turi",
+    "translation": "Tarjima tili",
+    "resultsFound": "natija topildi",
+    "showing": "Ko'rsatilmoqda",
+    "of": "dan",
+    "results": "natija",
+    "perPage": "Ko'rsatish",
+    "gridView": "Katak ko'rinishi",
+    "listView": "Ro'yxat ko'rinishi"
+  },
+  "chat": {
+    "title": "Savolingiz bormi?",
+    "aiTitle": "AI Yordamchi",
+    "placeholder": "Savolingizni yozing...",
+    "name": "Ismingiz",
+    "email": "Email manzilingiz",
+    "phone": "Telefon raqamingiz",
+    "send": "Yuborish",
+    "success": "Savolingiz qabul qilindi!",
+    "online": "Onlayn",
+    "thinking": "Javob tayyorlanmoqda..."
+  },
+  "stats": {
+    "totalArticles": "Jami moddalar",
+    "totalComments": "Jami sharhlar",
+    "experts": "Ekspertlar",
+    "translations": "Tarjimalar",
+    "articles": "Moddalar",
+    "commentaries": "Sharhlar",
+    "users": "Foydalanuvchilar"
+  },
+  "features": {
+    "title": "Portal imkoniyatlari",
+    "subtitle": "Professional huquqiy yordam va maslahatlar",
+    "official": {
+      "title": "Rasmiy manbalar",
+      "description": "Davlat tasdiqlagan qonunchilik va rasmiy sharhlar"
+    },
+    "expert": {
+      "title": "Ekspert tahlillari",
+      "description": "Malakali huquqshunoslardan professional izohlar"
+    },
+    "search": {
+      "title": "Qulay qidiruv",
+      "description": "Kerakli moddani tez va oson toping"
+    },
+    "updates": {
+      "title": "Yangiliklar",
+      "description": "Qonunchilik o'zgarishlaridan xabardor bo'ling"
+    }
+  },
+  "footer": {
+    "ministry": "O'zbekiston Respublikasi Mehnat va aholini ijtimoiy muhofaza vazirligi",
+    "address": "Toshkent shahri, Mustaqillik maydoni, 5-uy",
+    "workHours": "Ish vaqti: Dushanba-Juma, 09:00-18:00",
+    "copyright": "Barcha huquqlar himoyalangan",
+    "about": "Portal haqida",
+    "aboutText": "Mehnat Kodeksiga Sharh - O'zbekiston Respublikasi mehnat qonunchiligi bo'yicha rasmiy sharh va tahlillar platformasi.",
+    "quickLinks": "Foydali havolalar",
+    "legal": "Huquqiy ma'lumot",
+    "legalResources": "Huquqiy manbalar",
+    "privacy": "Maxfiylik siyosati",
+    "terms": "Foydalanish shartlari",
+    "accessibility": "Maxsus imkoniyatlar",
+    "contact": "Bog'lanish",
+    "phone": "Telefon",
+    "email": "Elektron pochta",
+    "newsletter": "Yangiliklar uchun obuna bo'ling",
+    "newsletterDesc": "Qonunchilik yangiliklari va o'zgarishlaridan xabardor bo'ling",
+    "subscribe": "Obuna",
+    "subscribeSuccess": "Obuna muvaffaqiyatli amalga oshirildi!",
+    "viewOnMap": "Xaritada ko'rish",
+    "hotline": "Ishonch telefoni",
+    "backToTop": "Yuqoriga qaytish",
+    "followUs": "Bizni kuzating"
+  }
+}

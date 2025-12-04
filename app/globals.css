@@ -1,0 +1,574 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fonts are now loaded via next/font for better performance */
+
+@layer base {
+  :root {
+    /* Primary Colors */
+    --color-primary-50: #EFF6FF;
+    --color-primary-100: #DBEAFE;
+    --color-primary-500: #3B82F6;
+    --color-primary-600: #2563EB;
+    --color-primary-700: #1D4ED8;
+    --color-primary-800: #1E3A8A;
+    --color-primary-900: #1E3A5F;
+    
+    /* Accent Colors */
+    --color-accent-gold: #F59E0B;
+    --color-accent-amber: #D97706;
+    
+    /* Government Colors */
+    --color-gov-blue: #1E3A8A;
+    --color-gov-light: #F8FAFC;
+    --color-gov-border: #E2E8F0;
+    --color-gov-surface: #FFFFFF;
+    
+    /* Text Colors */
+    --color-text-primary: #0F172A;
+    --color-text-secondary: #64748B;
+    --color-text-muted: #94A3B8;
+    
+    /* Semantic Colors */
+    --color-success: #10B981;
+    --color-error: #EF4444;
+    
+    /* Spacing */
+    --header-height: 4.5rem;
+    --container-max: 1280px;
+    --container-padding: 1.5rem;
+  }
+
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-gov-light text-text-primary antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    @apply font-semibold tracking-tight;
+  }
+
+  /* Focus Styles for Accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+  }
+
+  /* Selection */
+  ::selection {
+    @apply bg-primary-500/20;
+  }
+}
+
+@layer components {
+  /* Government Badge */
+  .gov-badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium;
+    @apply bg-primary-800 text-white;
+  }
+  
+  .gov-badge-gold {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium;
+    @apply bg-accent-gold text-white;
+  }
+
+  /* Card Variants */
+  .card {
+    @apply bg-gov-surface rounded-xl border border-gov-border shadow-card;
+    @apply transition-shadow duration-200;
+  }
+  
+  .card-hover:hover {
+    @apply shadow-card-hover;
+  }
+
+  /* Section Container */
+  .section-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Government Header Stripe */
+  .gov-stripe {
+    @apply h-1 bg-gradient-to-r from-primary-800 via-primary-600 to-accent-gold;
+  }
+
+  /* Decorative Elements */
+  .ornament-line {
+    @apply h-px bg-gradient-to-r from-transparent via-gov-border to-transparent;
+  }
+
+  /* Government Seal Ring */
+  .seal-ring {
+    @apply absolute inset-0 rounded-full border-2 border-accent-gold/30;
+    animation: spin 30s linear infinite;
+  }
+}
+
+@layer utilities {
+  /* Simple Fade In Animation */
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Text Balance for Headings */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Hide Scrollbar */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Gradient Text */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-800 to-primary-600;
+  }
+
+  /* Animation Delays */
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+
+  /* Skeleton Wave Animation */
+  .skeleton-wave {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .skeleton-wave::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    );
+    animation: skeleton-wave 1.5s infinite;
+  }
+}
+
+/* Skeleton Wave Keyframes */
+@keyframes skeleton-wave {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Spin Animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Custom Scrollbar for Light Theme */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-gov-light;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gov-border rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-text-secondary/30;
+  }
+}
+
+/* Safe Area Insets for Mobile */
+.safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-inset-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Legal Text Typography */
+.prose-legal {
+  font-family: 'Noto Serif', Georgia, serif;
+  line-height: 1.8;
+  font-size: 1.0625rem;
+}
+
+.prose-legal p {
+  margin-bottom: 1rem;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.prose-legal strong {
+  @apply text-primary-800 font-semibold;
+}
+
+.prose-legal ol {
+  counter-reset: item;
+  padding-left: 0;
+}
+
+.prose-legal ol > li {
+  display: block;
+  position: relative;
+  padding-left: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.prose-legal ol > li::before {
+  content: counter(item) ")";
+  counter-increment: item;
+  position: absolute;
+  left: 0;
+  @apply font-semibold text-primary-700;
+}
+
+/* Line Clamp Utilities */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ==========================================
+   ACCESSIBILITY STYLES
+   ========================================== */
+
+/* Font Sizes */
+html.font-size-small {
+  font-size: 14px;
+}
+
+html.font-size-normal {
+  font-size: 16px;
+}
+
+html.font-size-large {
+  font-size: 18px;
+}
+
+html.font-size-xlarge {
+  font-size: 20px;
+}
+
+/* High Contrast Mode */
+html.contrast-high {
+  --color-bg: #000000;
+  --color-surface: #000000;
+  --color-text: #FFFFFF;
+  --color-text-secondary: #FFFF00;
+  --color-primary: #FFFF00;
+  --color-link: #00FFFF;
+  --color-border: #FFFFFF;
+}
+
+html.contrast-high body {
+  background-color: #000000 !important;
+  color: #FFFFFF !important;
+}
+
+html.contrast-high .bg-gov-surface,
+html.contrast-high .bg-gov-light,
+html.contrast-high .bg-white {
+  background-color: #000000 !important;
+}
+
+html.contrast-high .bg-primary-800,
+html.contrast-high .bg-primary-700,
+html.contrast-high .bg-primary-600 {
+  background-color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.contrast-high .text-text-primary,
+html.contrast-high .text-text-secondary,
+html.contrast-high .text-primary-800,
+html.contrast-high .text-primary-700 {
+  color: #FFFFFF !important;
+}
+
+html.contrast-high .text-primary-600,
+html.contrast-high .text-accent-gold {
+  color: #FFFF00 !important;
+}
+
+html.contrast-high a {
+  color: #00FFFF !important;
+}
+
+html.contrast-high a:hover {
+  color: #FFFF00 !important;
+}
+
+html.contrast-high .border-gov-border,
+html.contrast-high .border {
+  border-color: #FFFFFF !important;
+}
+
+html.contrast-high button,
+html.contrast-high .btn {
+  border: 2px solid #FFFFFF !important;
+}
+
+html.contrast-high input,
+html.contrast-high textarea,
+html.contrast-high select {
+  background-color: #000000 !important;
+  color: #FFFFFF !important;
+  border: 2px solid #FFFFFF !important;
+}
+
+html.contrast-high input::placeholder,
+html.contrast-high textarea::placeholder {
+  color: #CCCCCC !important;
+}
+
+html.contrast-high .shadow-card,
+html.contrast-high .shadow-lg,
+html.contrast-high .shadow-2xl {
+  box-shadow: 0 0 0 2px #FFFFFF !important;
+}
+
+/* Dark Mode */
+html.contrast-dark {
+  --color-bg: #1a1a2e;
+  --color-surface: #16213e;
+  --color-text: #e8e8e8;
+  --color-text-secondary: #a0a0a0;
+  --color-primary: #4a90d9;
+  --color-border: #2a2a4a;
+}
+
+html.contrast-dark body {
+  background-color: #1a1a2e !important;
+  color: #e8e8e8 !important;
+}
+
+html.contrast-dark .bg-gov-surface,
+html.contrast-dark .bg-white {
+  background-color: #16213e !important;
+}
+
+html.contrast-dark .bg-gov-light {
+  background-color: #1a1a2e !important;
+}
+
+html.contrast-dark .bg-primary-50,
+html.contrast-dark .bg-primary-100 {
+  background-color: #2a2a4a !important;
+}
+
+html.contrast-dark .text-text-primary {
+  color: #e8e8e8 !important;
+}
+
+html.contrast-dark .text-text-secondary,
+html.contrast-dark .text-text-muted {
+  color: #a0a0a0 !important;
+}
+
+html.contrast-dark .text-primary-800,
+html.contrast-dark .text-primary-700,
+html.contrast-dark .text-primary-600 {
+  color: #4a90d9 !important;
+}
+
+html.contrast-dark .border-gov-border {
+  border-color: #2a2a4a !important;
+}
+
+html.contrast-dark .shadow-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Text Spacing - Increased */
+html.text-spacing-increased {
+  --line-height-multiplier: 1.8;
+  --letter-spacing: 0.05em;
+  --word-spacing: 0.1em;
+}
+
+html.text-spacing-increased body {
+  line-height: 1.8 !important;
+  letter-spacing: 0.05em !important;
+  word-spacing: 0.1em !important;
+}
+
+html.text-spacing-increased p,
+html.text-spacing-increased li,
+html.text-spacing-increased span {
+  line-height: 1.8 !important;
+}
+
+/* Dyslexia-Friendly Font */
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Bold.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+html.dyslexic-font body,
+html.dyslexic-font p,
+html.dyslexic-font span,
+html.dyslexic-font li,
+html.dyslexic-font a,
+html.dyslexic-font button,
+html.dyslexic-font input,
+html.dyslexic-font textarea {
+  font-family: 'OpenDyslexic', sans-serif !important;
+}
+
+html.dyslexic-font h1,
+html.dyslexic-font h2,
+html.dyslexic-font h3,
+html.dyslexic-font h4,
+html.dyslexic-font h5,
+html.dyslexic-font h6 {
+  font-family: 'OpenDyslexic', sans-serif !important;
+}
+
+/* Reduced Motion */
+html.reduced-motion *,
+html.reduced-motion *::before,
+html.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Highlight Links */
+html.highlight-links a {
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+  text-underline-offset: 3px !important;
+}
+
+html.highlight-links a:hover {
+  text-decoration-color: currentColor !important;
+}
+
+html.highlight-links a:focus {
+  outline: 3px solid currentColor !important;
+  outline-offset: 2px !important;
+}
+
+/* Prefers Reduced Motion - System Setting */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Prefers Contrast - System Setting */
+@media (prefers-contrast: more) {
+  :root {
+    --color-text-primary: #000000;
+    --color-text-secondary: #333333;
+  }
+  
+  * {
+    border-color: currentColor !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+  
+  h1 { font-size: 18pt; }
+  h2 { font-size: 14pt; }
+  h3 { font-size: 12pt; }
+  
+  .shadow-card,
+  .shadow-card-hover {
+    box-shadow: none !important;
+  }
+  
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+}
+

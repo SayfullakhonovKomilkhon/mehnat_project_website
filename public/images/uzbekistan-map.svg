@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="currentColor" opacity="0.5">
+  <!-- Simplified Uzbekistan Map Shape -->
+  <path d="
+    M200 200
+    L280 180
+    L320 160
+    L380 150
+    L420 140
+    L480 145
+    L520 160
+    L580 180
+    L620 200
+    L650 230
+    L670 270
+    L680 320
+    L670 360
+    L650 400
+    L620 430
+    L580 450
+    L520 460
+    L460 455
+    L400 445
+    L340 430
+    L280 410
+    L230 380
+    L200 340
+    L180 290
+    L185 240
+    Z
+  " fill="white" stroke="white" stroke-width="2"/>
+  
+  <!-- Tashkent Star -->
+  <circle cx="520" cy="220" r="8" fill="white"/>
+  
+  <!-- Decorative dots for major cities -->
+  <circle cx="400" cy="350" r="5" fill="white" opacity="0.7"/>
+  <circle cx="320" cy="300" r="5" fill="white" opacity="0.7"/>
+  <circle cx="480" cy="380" r="5" fill="white" opacity="0.7"/>
+  <circle cx="580" cy="320" r="5" fill="white" opacity="0.7"/>
+  <circle cx="350" cy="220" r="5" fill="white" opacity="0.7"/>
+</svg>
+
+
+
