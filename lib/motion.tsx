@@ -1,7 +1,7 @@
 'use client';
 
-import { forwardRef, ComponentPropsWithoutRef, ElementType, ReactNode } from 'react';
-import { motion, MotionProps, Variants } from 'framer-motion';
+import { forwardRef, ReactNode, HTMLAttributes } from 'react';
+import { motion, Variants } from 'framer-motion';
 import { useReducedMotion } from './useReducedMotion';
 
 // Check if user prefers reduced motion
@@ -53,19 +53,26 @@ export function useFadeInProps(delay = 0) {
 }
 
 // Lightweight motion div that respects prefers-reduced-motion
-interface SafeMotionProps extends ComponentPropsWithoutRef<'div'> {
+interface SafeMotionProps {
   children: ReactNode;
   animate?: boolean;
   delay?: number;
+  className?: string;
+  style?: React.CSSProperties;
+  id?: string;
+  'aria-label'?: string;
+  'aria-hidden'?: boolean;
+  role?: string;
+  onClick?: () => void;
 }
 
 export const SafeMotionDiv = forwardRef<HTMLDivElement, SafeMotionProps>(
-  ({ children, animate = true, delay = 0, className, ...props }, ref) => {
+  ({ children, animate = true, delay = 0, className, style, ...props }, ref) => {
     const shouldAnimate = useMotionSafe();
     
     if (!shouldAnimate || !animate) {
       return (
-        <div ref={ref} className={className} {...props}>
+        <div ref={ref} className={className} style={style} {...props}>
           {children}
         </div>
       );
@@ -78,6 +85,7 @@ export const SafeMotionDiv = forwardRef<HTMLDivElement, SafeMotionProps>(
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay }}
         className={className}
+        style={style}
         {...props}
       >
         {children}
