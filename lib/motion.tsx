@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, ReactNode, HTMLAttributes } from 'react';
+import { forwardRef, ReactNode } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { useReducedMotion } from './useReducedMotion';
 
@@ -60,19 +60,15 @@ interface SafeMotionProps {
   className?: string;
   style?: React.CSSProperties;
   id?: string;
-  'aria-label'?: string;
-  'aria-hidden'?: boolean;
-  role?: string;
-  onClick?: () => void;
 }
 
 export const SafeMotionDiv = forwardRef<HTMLDivElement, SafeMotionProps>(
-  ({ children, animate = true, delay = 0, className, style, ...props }, ref) => {
+  function SafeMotionDivInner({ children, animate = true, delay = 0, className, style, id }, ref) {
     const shouldAnimate = useMotionSafe();
     
     if (!shouldAnimate || !animate) {
       return (
-        <div ref={ref} className={className} style={style} {...props}>
+        <div ref={ref} className={className} style={style} id={id}>
           {children}
         </div>
       );
@@ -86,7 +82,7 @@ export const SafeMotionDiv = forwardRef<HTMLDivElement, SafeMotionProps>(
         transition={{ duration: 0.3, delay }}
         className={className}
         style={style}
-        {...props}
+        id={id}
       >
         {children}
       </motion.div>
