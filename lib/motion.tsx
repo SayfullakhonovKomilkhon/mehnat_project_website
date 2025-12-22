@@ -93,5 +93,6 @@ export const SafeMotionDiv = forwardRef<HTMLDivElement, SafeMotionProps>(
 SafeMotionDiv.displayName = 'SafeMotionDiv';
 
 // Export minimal motion components for critical animations only
+// Fixed: Removed conflicting HTML props to avoid TypeScript errors with framer-motion
 export { motion } from 'framer-motion';
 
