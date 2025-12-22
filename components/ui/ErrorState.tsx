@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { 
   FileQuestion, 
   ServerCrash, 
@@ -34,57 +34,6 @@ interface ErrorStateProps {
   locale?: string;
 }
 
-const errorConfig: Record<ErrorType, {
-  icon: typeof FileQuestion;
-  title: string;
-  description: string;
-  iconBg: string;
-  iconColor: string;
-}> = {
-  '404': {
-    icon: FileQuestion,
-    title: 'Sahifa topilmadi',
-    description: 'Siz qidirayotgan sahifa mavjud emas yoki ko\'chirilgan bo\'lishi mumkin.',
-    iconBg: 'bg-primary-100',
-    iconColor: 'text-primary-600',
-  },
-  '500': {
-    icon: ServerCrash,
-    title: 'Xatolik yuz berdi',
-    description: 'Serverda kutilmagan xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko\'ring.',
-    iconBg: 'bg-error-light',
-    iconColor: 'text-error',
-  },
-  'empty': {
-    icon: Database,
-    title: "Ma'lumot topilmadi",
-    description: "Bu bo'limda hozircha ma'lumot mavjud emas.",
-    iconBg: 'bg-gov-border',
-    iconColor: 'text-text-muted',
-  },
-  'no-results': {
-    icon: SearchX,
-    title: 'Qidiruv natijalari topilmadi',
-    description: "Siz kiritgan so'rov bo'yicha hech qanday natija topilmadi.",
-    iconBg: 'bg-accent-light',
-    iconColor: 'text-accent-amber',
-  },
-  'offline': {
-    icon: ServerCrash,
-    title: 'Internet aloqasi yo\'q',
-    description: 'Iltimos, internet ulanishingizni tekshiring va qayta urinib ko\'ring.',
-    iconBg: 'bg-error-light',
-    iconColor: 'text-error',
-  },
-  'permission': {
-    icon: FileQuestion,
-    title: 'Ruxsat berilmagan',
-    description: 'Siz ushbu sahifani ko\'rish uchun ruxsatga ega emassiz.',
-    iconBg: 'bg-accent-light',
-    iconColor: 'text-accent-amber',
-  },
-};
-
 export function ErrorState({
   type = 'empty',
   title,
@@ -95,73 +44,109 @@ export function ErrorState({
   className,
   locale = 'uz',
 }: ErrorStateProps) {
+  const t = useTranslations();
+
+  const errorConfig: Record<ErrorType, {
+    icon: typeof FileQuestion;
+    title: string;
+    description: string;
+    iconBg: string;
+    iconColor: string;
+  }> = {
+    '404': {
+      icon: FileQuestion,
+      title: t('errors.404.title'),
+      description: t('errors.404.description'),
+      iconBg: 'bg-primary-100',
+      iconColor: 'text-primary-600',
+    },
+    '500': {
+      icon: ServerCrash,
+      title: t('errors.500.title'),
+      description: t('errors.500.description'),
+      iconBg: 'bg-error-light',
+      iconColor: 'text-error',
+    },
+    'empty': {
+      icon: Database,
+      title: t('errors.empty.title'),
+      description: t('errors.empty.description'),
+      iconBg: 'bg-gov-border',
+      iconColor: 'text-text-muted',
+    },
+    'no-results': {
+      icon: SearchX,
+      title: t('errors.noResults.title'),
+      description: t('errors.noResults.description'),
+      iconBg: 'bg-accent-light',
+      iconColor: 'text-accent-amber',
+    },
+    'offline': {
+      icon: ServerCrash,
+      title: t('errors.offline.title'),
+      description: t('errors.offline.description'),
+      iconBg: 'bg-error-light',
+      iconColor: 'text-error',
+    },
+    'permission': {
+      icon: FileQuestion,
+      title: t('errors.permission.title'),
+      description: t('errors.permission.description'),
+      iconBg: 'bg-accent-light',
+      iconColor: 'text-accent-amber',
+    },
+  };
+
   const config = errorConfig[type];
   const IconComponent = config.icon;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+    <div
       className={cn(
-        'flex flex-col items-center justify-center text-center py-16 px-4',
+        'flex flex-col items-center justify-center text-center py-16 px-4 animate-fadeIn',
         className
       )}
     >
       {/* Icon */}
-      <motion.div
-        initial={{ scale: 0.8 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 0.1 }}
+      <div
         className={cn(
           'w-24 h-24 rounded-2xl flex items-center justify-center mb-6',
           config.iconBg
         )}
       >
         <IconComponent className={cn('w-12 h-12', config.iconColor)} />
-      </motion.div>
+      </div>
 
       {/* Government Emblem for 404/500 */}
       {(type === '404' || type === '500') && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.3 }}
-          transition={{ delay: 0.2 }}
+        <div
           className="absolute opacity-[0.03] pointer-events-none"
         >
           <GovEmblem size="xl" variant="mono" />
-        </motion.div>
+        </div>
       )}
 
       {/* Title */}
-      <motion.h2
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
+      <h2
         className="font-heading text-2xl md:text-3xl font-bold text-text-primary mb-3"
       >
         {title || config.title}
-      </motion.h2>
+      </h2>
 
       {/* Description */}
-      <motion.p
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+      <p
         className="text-text-secondary max-w-md mb-8"
       >
         {description || config.description}
         {type === 'no-results' && searchQuery && (
           <span className="block mt-2 font-medium text-text-primary">
-            "{searchQuery}"
+            &quot;{searchQuery}&quot;
           </span>
         )}
-      </motion.p>
+      </p>
 
       {/* Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
+      <div
         className="flex flex-col sm:flex-row items-center gap-3"
       >
         {actions || (
@@ -172,7 +157,7 @@ export function ErrorState({
                 onClick={onRetry}
                 leftIcon={<RefreshCw className="w-4 h-4" />}
               >
-                Qayta urinish
+                {t('errors.retry')}
               </Button>
             )}
             
@@ -183,7 +168,7 @@ export function ErrorState({
                     variant="primary"
                     leftIcon={<Home className="w-4 h-4" />}
                   >
-                    Bosh sahifaga qaytish
+                    {t('errors.backToHome')}
                   </Button>
                 </Link>
                 <Link href={`/${locale}/search`}>
@@ -191,7 +176,7 @@ export function ErrorState({
                     variant="outline"
                     leftIcon={<Search className="w-4 h-4" />}
                   >
-                    Qidirish
+                    {t('errors.search')}
                   </Button>
                 </Link>
               </>
@@ -204,14 +189,14 @@ export function ErrorState({
                   onClick={() => window.location.reload()}
                   leftIcon={<RefreshCw className="w-4 h-4" />}
                 >
-                  Sahifani yangilash
+                  {t('errors.refresh')}
                 </Button>
                 <Link href={`/${locale}/contact`}>
                   <Button
                     variant="outline"
                     leftIcon={<MessageCircle className="w-4 h-4" />}
                   >
-                    Yordam olish
+                    {t('errors.getHelp')}
                   </Button>
                 </Link>
               </>
@@ -224,7 +209,7 @@ export function ErrorState({
                     variant="primary"
                     leftIcon={<FileText className="w-4 h-4" />}
                   >
-                    Barcha moddalar
+                    {t('errors.allArticles')}
                   </Button>
                 </Link>
                 <Link href={`/${locale}/sections`}>
@@ -232,7 +217,7 @@ export function ErrorState({
                     variant="outline"
                     leftIcon={<ArrowLeft className="w-4 h-4" />}
                   >
-                    Bo'limlarga qaytish
+                    {t('errors.backToSections')}
                   </Button>
                 </Link>
               </>
@@ -244,32 +229,29 @@ export function ErrorState({
                   variant="outline"
                   leftIcon={<ArrowLeft className="w-4 h-4" />}
                 >
-                  Orqaga qaytish
+                  {t('errors.goBack')}
                 </Button>
               </Link>
             )}
           </>
         )}
-      </motion.div>
+      </div>
 
       {/* Search Tips for no-results */}
       {type === 'no-results' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+        <div
           className="mt-8 p-4 bg-gov-light rounded-xl max-w-md"
         >
-          <h4 className="font-medium text-text-primary mb-2">Qidiruv bo'yicha maslahatlar:</h4>
+          <h4 className="font-medium text-text-primary mb-2">{t('search.searchTips')}</h4>
           <ul className="text-sm text-text-secondary text-left space-y-1">
-            <li>• Kalit so'zlarni qisqartiring</li>
-            <li>• Imlo xatolarini tekshiring</li>
-            <li>• Umumiy so'zlar ishlating</li>
-            <li>• Modda raqami bilan qidiring (masalan: "21")</li>
+            <li>• {t('search.tip1')}</li>
+            <li>• {t('search.tip2')}</li>
+            <li>• {t('search.tip3')}</li>
+            <li>• {t('search.tip4')}</li>
           </ul>
-        </motion.div>
+        </div>
       )}
-    </motion.div>
+    </div>
   );
 }
 
@@ -281,6 +263,8 @@ interface InlineErrorProps {
 }
 
 export function InlineError({ message, onRetry, className }: InlineErrorProps) {
+  const t = useTranslations();
+  
   return (
     <div className={cn(
       'flex items-center gap-3 p-4 rounded-lg',
@@ -297,7 +281,7 @@ export function InlineError({ message, onRetry, className }: InlineErrorProps) {
           leftIcon={<RefreshCw className="w-3 h-3" />}
           className="text-error hover:bg-error/10"
         >
-          Qayta
+          {t('errors.retry')}
         </Button>
       )}
     </div>
@@ -305,6 +289,3 @@ export function InlineError({ message, onRetry, className }: InlineErrorProps) {
 }
 
 export default ErrorState;
-
-
-

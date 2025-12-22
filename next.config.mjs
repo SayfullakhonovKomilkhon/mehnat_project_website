@@ -32,8 +32,15 @@ const nextConfig = {
 
   // Experimental features
   experimental: {
-    // Optimize package imports
-    optimizePackageImports: ['lucide-react', 'framer-motion'],
+    // Optimize package imports - reduce bundle size
+    optimizePackageImports: ['lucide-react', 'framer-motion', 'clsx', 'tailwind-merge'],
+  },
+
+  // Optimize module resolution
+  modularizeImports: {
+    'lucide-react': {
+      transform: 'lucide-react/dist/esm/icons/{{kebabCase member}}',
+    },
   },
 
   // Custom headers for caching and security

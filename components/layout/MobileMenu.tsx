@@ -112,6 +112,48 @@ export function MobileMenu({ isOpen, onClose, locale, navItems }: MobileMenuProp
     );
   };
 
+  // Handle language switch with seamless transition
+  const handleLanguageSwitch = (newLocale: string) => {
+    if (newLocale === locale) return;
+    
+    // Store preference in localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('preferred-locale', newLocale);
+    }
+    
+    // Create seamless transition overlay
+    let overlay = document.getElementById('language-transition-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'language-transition-overlay';
+      // Use the same background as the page for seamless transition
+      overlay.style.cssText = `
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 9999;
+        transition: opacity 200ms ease-out;
+      `;
+      document.body.appendChild(overlay);
+    }
+    
+    // Trigger instant fade in
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        overlay!.style.opacity = '1';
+        overlay!.style.pointerEvents = 'auto';
+      });
+    });
+    
+    // Wait for overlay to fully appear, then navigate
+    setTimeout(() => {
+      const newPath = pathname.replace(`/${locale}`, `/${newLocale}`);
+      window.location.href = newPath;
+    }, 200);
+  };
+
   // Handle pan gesture for swipe to close
   const handlePanEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     if (info.offset.x < -100 || info.velocity.x < -500) {
@@ -119,8 +161,15 @@ export function MobileMenu({ isOpen, onClose, locale, navItems }: MobileMenuProp
     }
   };
 
-  // Check if current page
-  const isCurrentPage = (href: string) => pathname === href;
+  // Check if current page (supports nested routes)
+  const isCurrentPage = (href: string) => {
+    // For home page, exact match
+    if (href === `/${locale}`) {
+      return pathname === `/${locale}` || pathname === `/${locale}/`;
+    }
+    // For other pages, check if pathname starts with href
+    return pathname.startsWith(href);
+  };
 
   // Handle search
   const handleSearch = () => {
@@ -166,28 +215,28 @@ export function MobileMenu({ isOpen, onClose, locale, navItems }: MobileMenuProp
             <div className="h-1 bg-gradient-to-r from-primary-800 via-primary-600 to-accent-gold" />
 
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-4 border-b border-gov-border">
-              <div className="flex items-center gap-3">
-                <GovEmblem size="md" />
+            <div className="flex items-center justify-between px-3 py-3 border-b border-gov-border">
+              {/* Logo & Title */}
+              <div className="flex items-center gap-2">
+                <GovEmblem size="sm" className="w-8 h-8" />
                 <div>
-                  <p className="font-heading font-bold text-primary-800 text-sm">
+                  <p className="font-heading font-bold text-primary-800 text-xs leading-tight">
                     {t('header.title')}
                   </p>
-                  <p className="text-[10px] text-text-secondary">
+                  <p className="text-[9px] text-text-secondary leading-tight">
                     {t('common.officialPortal')}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <LanguageSwitcher locale={locale} variant="minimal" />
-                <button
-                  onClick={onClose}
-                  className="p-2 rounded-lg hover:bg-gov-light text-text-secondary hover:text-text-primary transition-colors"
-                  aria-label="Close menu"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
+              
+              {/* Close button only */}
+              <button
+                onClick={onClose}
+                className="p-2 rounded-lg hover:bg-gov-light text-text-primary transition-colors"
+                aria-label="Close menu"
+              >
+                <X className="w-6 h-6" />
+              </button>
             </div>
 
             {/* Search Bar */}
@@ -232,18 +281,23 @@ export function MobileMenu({ isOpen, onClose, locale, navItems }: MobileMenuProp
                             onClick={() => toggleSubmenu(item.href)}
                             className={cn(
                               'w-full flex items-center gap-3 px-4 py-3 rounded-xl',
-                              'text-text-primary hover:bg-primary-50 hover:text-primary-800',
                               'transition-colors duration-200',
-                              isExpanded && 'bg-primary-50 text-primary-800'
+                              isCurrent 
+                                ? 'bg-primary-100 text-primary-800 font-bold'
+                                : 'text-text-primary hover:bg-primary-50 hover:text-primary-800',
+                              isExpanded && !isCurrent && 'bg-primary-50 text-primary-800'
                             )}
                           >
                             <span className={cn(
                               'w-10 h-10 rounded-xl flex items-center justify-center transition-colors',
-                              isExpanded ? 'bg-primary-100' : 'bg-gov-light'
+                              isCurrent ? 'bg-primary-200' : isExpanded ? 'bg-primary-100' : 'bg-gov-light'
                             )}>
-                              <item.icon className="w-5 h-5 text-primary-600" />
+                              <item.icon className={cn('w-5 h-5', isCurrent ? 'text-primary-700' : 'text-primary-600')} />
                             </span>
-                            <span className="font-medium flex-1 text-left">{item.label}</span>
+                            <span className={cn('flex-1 text-left', isCurrent ? 'font-bold' : 'font-medium')}>{item.label}</span>
+                            {isCurrent && (
+                              <span className="w-2 h-2 rounded-full bg-primary-600 animate-pulse mr-2" />
+                            )}
                             <ChevronDown className={cn(
                               'w-5 h-5 text-text-muted transition-transform duration-200',
                               isExpanded && 'rotate-180'
@@ -291,20 +345,22 @@ export function MobileMenu({ isOpen, onClose, locale, navItems }: MobileMenuProp
                           onClick={onClose}
                           className={cn(
                             'flex items-center gap-3 px-4 py-3 rounded-xl',
-                            'text-text-primary hover:bg-primary-50 hover:text-primary-800',
                             'transition-colors duration-200',
-                            isCurrent && 'bg-primary-100 text-primary-800'
+                            isCurrent 
+                              ? 'bg-primary-100 text-primary-800 font-bold' 
+                              : 'text-text-primary hover:bg-primary-50 hover:text-primary-800'
                           )}
+                          aria-current={isCurrent ? 'page' : undefined}
                         >
                           <span className={cn(
                             'w-10 h-10 rounded-xl flex items-center justify-center transition-colors',
-                            isCurrent ? 'bg-primary-200' : 'bg-gov-light group-hover:bg-primary-100'
+                            isCurrent ? 'bg-primary-200' : 'bg-gov-light'
                           )}>
-                            <item.icon className="w-5 h-5 text-primary-600" />
+                            <item.icon className={cn('w-5 h-5', isCurrent ? 'text-primary-700' : 'text-primary-600')} />
                           </span>
-                          <span className="font-medium flex-1">{item.label}</span>
+                          <span className={cn('flex-1', isCurrent ? 'font-bold' : 'font-medium')}>{item.label}</span>
                           {isCurrent && (
-                            <span className="w-2 h-2 rounded-full bg-primary-600" />
+                            <span className="w-2 h-2 rounded-full bg-primary-600 animate-pulse" />
                           )}
                         </Link>
                       )}
@@ -332,17 +388,53 @@ export function MobileMenu({ isOpen, onClose, locale, navItems }: MobileMenuProp
 
             {/* Language & Social */}
             <div className="bg-primary-800 text-white px-4 py-4">
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-xs text-primary-300 font-medium uppercase tracking-wider">
+              {/* Language Switcher Row */}
+              <div className="mb-4">
+                <p className="text-xs text-primary-300 font-medium uppercase tracking-wider mb-2">
                   {t('common.language')}
                 </p>
-                <LanguageSwitcher locale={locale} variant="buttons" />
+                {/* Fixed inline buttons - will never wrap */}
+                <div className="inline-flex items-center bg-primary-900/50 rounded-lg p-0.5">
+                  <button
+                    onClick={() => handleLanguageSwitch('uz')}
+                    className={cn(
+                      'px-4 py-2 text-sm font-medium rounded-md transition-all',
+                      locale === 'uz'
+                        ? 'bg-white text-primary-800'
+                        : 'text-white/80 hover:text-white'
+                    )}
+                  >
+                    UZ
+                  </button>
+                  <button
+                    onClick={() => handleLanguageSwitch('ru')}
+                    className={cn(
+                      'px-4 py-2 text-sm font-medium rounded-md transition-all',
+                      locale === 'ru'
+                        ? 'bg-white text-primary-800'
+                        : 'text-white/80 hover:text-white'
+                    )}
+                  >
+                    RU
+                  </button>
+                  <button
+                    onClick={() => handleLanguageSwitch('en')}
+                    className={cn(
+                      'px-4 py-2 text-sm font-medium rounded-md transition-all',
+                      locale === 'en'
+                        ? 'bg-white text-primary-800'
+                        : 'text-white/80 hover:text-white'
+                    )}
+                  >
+                    EN
+                  </button>
+                </div>
               </div>
               
               {/* Social Links */}
-              <div className="flex items-center gap-3 pt-3 border-t border-primary-700">
-                <span className="text-xs text-primary-300">Bizni kuzating:</span>
-                <div className="flex items-center gap-2">
+              <div className="pt-3 border-t border-primary-700">
+                <span className="text-xs text-primary-300 block mb-2">Bizni kuzating:</span>
+                <div className="flex gap-2">
                   <a
                     href="https://t.me/mehaboruz"
                     target="_blank"

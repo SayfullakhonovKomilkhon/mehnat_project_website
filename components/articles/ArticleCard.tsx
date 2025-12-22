@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { ArrowRight, MessageSquare, User, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui';
@@ -17,14 +18,8 @@ interface ArticleCardProps {
   variant?: 'default' | 'compact' | 'featured';
 }
 
-// Translation flags
-const translationFlags: Record<string, string> = {
-  uz: '🇺🇿',
-  ru: '🇷🇺',
-  en: '🇬🇧',
-};
-
 export function ArticleCard({ article, locale, variant = 'default' }: ArticleCardProps) {
+  const t = useTranslations('article');
   const title = getLocalizedText(article.title, locale);
   const excerpt = getLocalizedText(article.excerpt, locale);
   const sectionTitle = getLocalizedText(article.section.title, locale);
@@ -78,25 +73,14 @@ export function ArticleCard({ article, locale, variant = 'default' }: ArticleCar
         >
           <div className="flex items-start justify-between gap-4 mb-4">
             <Badge variant="primary" size="lg" className="font-heading">
-              {article.number}-modda
+              {article.number}-{t('articleNumber').toLowerCase()}
             </Badge>
-            <div className="flex items-center gap-1">
-              {article.translations.map(lang => (
-                <span 
-                  key={lang} 
-                  className="text-sm"
-                  title={lang.toUpperCase()}
-                >
-                  {translationFlags[lang]}
-                </span>
-              ))}
-            </div>
           </div>
           
           <div className="flex items-center gap-1.5 text-xs text-text-muted mb-3">
-            <span>{article.section.number}-bo'lim</span>
+            <span>{article.section.number}-{t('section').toLowerCase()}</span>
             <ChevronRight className="w-3 h-3" />
-            <span>{article.chapter.number}-bob</span>
+            <span>{article.chapter.number}-{t('chapter').toLowerCase()}</span>
           </div>
 
           <h3 className="font-heading text-xl font-semibold text-text-primary mb-3 group-hover:text-primary-700 transition-colors">
@@ -112,18 +96,18 @@ export function ArticleCard({ article, locale, variant = 'default' }: ArticleCar
               {article.hasAuthorComment && (
                 <Badge variant="primary" size="sm">
                   <User className="w-3 h-3 mr-1" />
-                  Muallif sharhi
+                  {t('authorComment')}
                 </Badge>
               )}
               {article.hasExpertComment && (
                 <Badge variant="gold" size="sm">
                   <MessageSquare className="w-3 h-3 mr-1" />
-                  Ekspert sharhi
+                  {t('expertComment')}
                 </Badge>
               )}
             </div>
             <span className="text-sm font-medium text-primary-600 group-hover:text-primary-700 flex items-center gap-1">
-              Batafsil
+              {t('readMore')}
               <ArrowRight className="w-4 h-4" />
             </span>
           </div>
@@ -145,26 +129,15 @@ export function ArticleCard({ article, locale, variant = 'default' }: ArticleCar
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
           <Badge variant="primary" size="lg" className="font-heading">
-            {article.number}-modda
+            {article.number}-{t('articleNumber').toLowerCase()}
           </Badge>
-          <div className="flex items-center gap-0.5">
-            {article.translations.map(lang => (
-              <span 
-                key={lang} 
-                className="text-xs"
-                title={lang.toUpperCase()}
-              >
-                {translationFlags[lang]}
-              </span>
-            ))}
-          </div>
         </div>
 
         {/* Breadcrumb */}
         <div className="flex items-center gap-1 text-xs text-text-muted mb-2">
           <span>{article.section.number}</span>
           <ChevronRight className="w-3 h-3" />
-          <span>{article.chapter.number}-bob</span>
+          <span>{article.chapter.number}-{t('chapter').toLowerCase()}</span>
         </div>
 
         {/* Title */}
@@ -181,18 +154,18 @@ export function ArticleCard({ article, locale, variant = 'default' }: ArticleCar
         <div className="flex items-center justify-between pt-3 border-t border-gov-border mt-auto">
           <div className="flex items-center gap-1.5">
             {article.hasAuthorComment && (
-              <span className="w-6 h-6 rounded-full bg-primary-50 flex items-center justify-center" title="Muallif sharhi">
+              <span className="w-6 h-6 rounded-full bg-primary-50 flex items-center justify-center" title={t('authorComment')}>
                 <User className="w-3 h-3 text-primary-600" />
               </span>
             )}
             {article.hasExpertComment && (
-              <span className="w-6 h-6 rounded-full bg-accent-gold/10 flex items-center justify-center" title="Ekspert sharhi">
+              <span className="w-6 h-6 rounded-full bg-accent-gold/10 flex items-center justify-center" title={t('expertComment')}>
                 <MessageSquare className="w-3 h-3 text-accent-amber" />
               </span>
             )}
           </div>
           <span className="text-sm font-medium text-primary-600 group-hover:text-primary-700 flex items-center gap-1">
-            Batafsil
+            {t('readMore')}
             <ArrowRight className="w-4 h-4" />
           </span>
         </div>

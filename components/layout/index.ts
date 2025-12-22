@@ -5,3 +5,4 @@ export { GovEmblem } from './GovEmblem';
 export { SearchOverlay } from './SearchOverlay';
 export { MobileMenu } from './MobileMenu';
 export { SectionsMegaMenu } from './SectionsMegaMenu';
+export { PageTransition } from './PageTransition';

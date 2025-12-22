@@ -50,6 +50,11 @@
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
+  /* Seamless language transition overlay */
+  #language-transition-overlay {
+    background: linear-gradient(to bottom, var(--color-gov-light) 0%, #f1f5f9 100%) !important;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     @apply font-semibold tracking-tight;
@@ -111,11 +116,66 @@
 }
 
 @layer utilities {
+  /* ==========================================
+     PERFORMANT CSS ANIMATIONS
+     ========================================== */
+  
   /* Simple Fade In Animation */
   .animate-fade-in {
     animation: fadeIn 0.4s ease-out forwards;
   }
   
+  .animate-fadeIn {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+  
+  .animate-slideUp {
+    animation: slideUp 0.5s ease-out forwards;
+  }
+  
+  .animate-slideUp-delay-1 {
+    animation: slideUp 0.5s ease-out 0.1s forwards;
+    opacity: 0;
+  }
+  
+  .animate-slideUp-delay-2 {
+    animation: slideUp 0.5s ease-out 0.2s forwards;
+    opacity: 0;
+  }
+  
+  .animate-slideUp-delay-3 {
+    animation: slideUp 0.5s ease-out 0.3s forwards;
+    opacity: 0;
+  }
+
+  /* Performant hover effects using CSS transforms */
+  .hover-lift {
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+    will-change: transform;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-4px);
+  }
+
+  /* CSS-only card hover effect */
+  .card-interactive {
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  }
+  
+  .card-interactive:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  }
+
+  /* Stagger animation classes */
+  .stagger-1 { animation-delay: 50ms; }
+  .stagger-2 { animation-delay: 100ms; }
+  .stagger-3 { animation-delay: 150ms; }
+  .stagger-4 { animation-delay: 200ms; }
+  .stagger-5 { animation-delay: 250ms; }
+  .stagger-6 { animation-delay: 300ms; }
+
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -125,6 +185,27 @@
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* GPU-accelerated pulse animation - lightweight */
+  .animate-pulse-soft {
+    animation: pulseSoft 3s ease-in-out infinite;
+  }
+  
+  @keyframes pulseSoft {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 0.3; }
   }
 
   /* Text Balance for Headings */
@@ -228,6 +309,43 @@
   padding-top: env(safe-area-inset-top);
 }
 
+/* Mobile viewport fix for address bar */
+@supports (height: 100dvh) {
+  .min-h-screen-safe {
+    min-height: 100dvh;
+  }
+  .h-screen-safe {
+    height: 100dvh;
+  }
+}
+
+/* Mobile touch-action optimization */
+@media (max-width: 768px) {
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+  
+  /* Prevent text selection on buttons */
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  
+  /* Better touch targets */
+  button, 
+  a, 
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Improve scrolling */
+  .overflow-y-auto,
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 /* Legal Text Typography */
 .prose-legal {
   font-family: 'Noto Serif', Georgia, serif;
@@ -306,84 +424,6 @@ html.font-size-large {
 
 html.font-size-xlarge {
   font-size: 20px;
-}
-
-/* High Contrast Mode */
-html.contrast-high {
-  --color-bg: #000000;
-  --color-surface: #000000;
-  --color-text: #FFFFFF;
-  --color-text-secondary: #FFFF00;
-  --color-primary: #FFFF00;
-  --color-link: #00FFFF;
-  --color-border: #FFFFFF;
-}
-
-html.contrast-high body {
-  background-color: #000000 !important;
-  color: #FFFFFF !important;
-}
-
-html.contrast-high .bg-gov-surface,
-html.contrast-high .bg-gov-light,
-html.contrast-high .bg-white {
-  background-color: #000000 !important;
-}
-
-html.contrast-high .bg-primary-800,
-html.contrast-high .bg-primary-700,
-html.contrast-high .bg-primary-600 {
-  background-color: #000000 !important;
-  border: 2px solid #FFFF00 !important;
-}
-
-html.contrast-high .text-text-primary,
-html.contrast-high .text-text-secondary,
-html.contrast-high .text-primary-800,
-html.contrast-high .text-primary-700 {
-  color: #FFFFFF !important;
-}
-
-html.contrast-high .text-primary-600,
-html.contrast-high .text-accent-gold {
-  color: #FFFF00 !important;
-}
-
-html.contrast-high a {
-  color: #00FFFF !important;
-}
-
-html.contrast-high a:hover {
-  color: #FFFF00 !important;
-}
-
-html.contrast-high .border-gov-border,
-html.contrast-high .border {
-  border-color: #FFFFFF !important;
-}
-
-html.contrast-high button,
-html.contrast-high .btn {
-  border: 2px solid #FFFFFF !important;
-}
-
-html.contrast-high input,
-html.contrast-high textarea,
-html.contrast-high select {
-  background-color: #000000 !important;
-  color: #FFFFFF !important;
-  border: 2px solid #FFFFFF !important;
-}
-
-html.contrast-high input::placeholder,
-html.contrast-high textarea::placeholder {
-  color: #CCCCCC !important;
-}
-
-html.contrast-high .shadow-card,
-html.contrast-high .shadow-lg,
-html.contrast-high .shadow-2xl {
-  box-shadow: 0 0 0 2px #FFFFFF !important;
 }
 
 /* Dark Mode */

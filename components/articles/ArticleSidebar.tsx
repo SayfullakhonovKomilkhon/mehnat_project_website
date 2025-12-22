@@ -2,16 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { 
   FileText, 
   User, 
   Scale, 
   Link2, 
   MessageCircle,
-  ChevronRight,
-  Globe
+  ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button, Badge } from '@/components/ui';
@@ -22,34 +21,27 @@ interface ArticleSidebarProps {
   locale: string;
 }
 
-const navItems = [
-  { id: 'content', label: 'Modda mazmuni', icon: FileText },
-  { id: 'author', label: 'Muallif sharhi', icon: User },
-  { id: 'expert', label: 'Ekspert sharhi', icon: Scale },
-  { id: 'related', label: "Bog'liq moddalar", icon: Link2 },
-];
-
-const languages = [
-  { code: 'uz', label: "O'zbekcha", flag: '🇺🇿' },
-  { code: 'ru', label: 'Русский', flag: '🇷🇺' },
-  { code: 'en', label: 'English', flag: '🇬🇧' },
+const navItemKeys = [
+  { id: 'content', labelKey: 'content', icon: FileText },
+  { id: 'author', labelKey: 'authorComment', icon: User },
+  { id: 'expert', labelKey: 'expertComment', icon: Scale },
+  { id: 'related', labelKey: 'relatedArticles', icon: Link2 },
 ];
 
 export function ArticleSidebar({ article, locale }: ArticleSidebarProps) {
+  const t = useTranslations('article');
   const [activeSection, setActiveSection] = useState('content');
-  const pathname = usePathname();
-  const router = useRouter();
 
   // Track scroll position to highlight active section
   useEffect(() => {
     const handleScroll = () => {
-      const sections = navItems.map(item => document.getElementById(item.id));
+      const sections = navItemKeys.map(item => document.getElementById(item.id));
       const scrollPosition = window.scrollY + 150;
 
       for (let i = sections.length - 1; i >= 0; i--) {
         const section = sections[i];
         if (section && section.offsetTop <= scrollPosition) {
-          setActiveSection(navItems[i].id);
+          setActiveSection(navItemKeys[i].id);
           break;
         }
       }
@@ -75,11 +67,6 @@ export function ArticleSidebar({ article, locale }: ArticleSidebarProps) {
     }
   };
 
-  const handleLanguageChange = (langCode: string) => {
-    const newPath = pathname.replace(`/${locale}/`, `/${langCode}/`);
-    router.push(newPath);
-  };
-
   // Get related articles (same chapter)
   const relatedArticles = allArticles
     .filter(a => a.chapter.id === article.chapter.id && a.id !== article.id)
@@ -95,10 +82,10 @@ export function ArticleSidebar({ article, locale }: ArticleSidebarProps) {
       >
         <h3 className="font-heading font-semibold text-text-primary mb-4 flex items-center gap-2">
           <FileText className="w-4 h-4 text-primary-600" />
-          Mundarija
+          {t('tableOfContents')}
         </h3>
         <nav className="space-y-1">
-          {navItems.map((item) => {
+          {navItemKeys.map((item) => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
             
@@ -114,7 +101,7 @@ export function ArticleSidebar({ article, locale }: ArticleSidebarProps) {
                 )}
               >
                 <Icon className="w-4 h-4 flex-shrink-0" />
-                <span>{item.label}</span>
+                <span>{t(item.labelKey)}</span>
                 {isActive && (
                   <ChevronRight className="w-4 h-4 ml-auto" />
                 )}
@@ -122,49 +109,6 @@ export function ArticleSidebar({ article, locale }: ArticleSidebarProps) {
             );
           })}
         </nav>
-      </motion.div>
-
-      {/* Language Switcher */}
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.1 }}
-        className="bg-gov-surface rounded-xl border border-gov-border p-4"
-      >
-        <h3 className="font-heading font-semibold text-text-primary mb-4 flex items-center gap-2">
-          <Globe className="w-4 h-4 text-primary-600" />
-          Tilni o'zgartirish
-        </h3>
-        <div className="space-y-2">
-          {languages.map((lang) => {
-            const isAvailable = article.translations.includes(lang.code as 'uz' | 'ru' | 'en');
-            const isActive = locale === lang.code;
-            
-            return (
-              <button
-                key={lang.code}
-                onClick={() => isAvailable && handleLanguageChange(lang.code)}
-                disabled={!isAvailable}
-                className={cn(
-                  'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm transition-colors',
-                  isActive
-                    ? 'bg-primary-100 text-primary-700 font-medium'
-                    : isAvailable
-                      ? 'text-text-secondary hover:bg-gov-light hover:text-text-primary'
-                      : 'text-text-muted cursor-not-allowed opacity-50'
-                )}
-              >
-                <span className="text-lg">{lang.flag}</span>
-                <span>{lang.label}</span>
-                {!isAvailable && (
-                  <Badge variant="default" size="sm" className="ml-auto">
-                    Mavjud emas
-                  </Badge>
-                )}
-              </button>
-            );
-          })}
-        </div>
       </motion.div>
 
       {/* Quick Links */}
@@ -177,7 +121,7 @@ export function ArticleSidebar({ article, locale }: ArticleSidebarProps) {
         >
           <h3 className="font-heading font-semibold text-text-primary mb-4 flex items-center gap-2">
             <Link2 className="w-4 h-4 text-primary-600" />
-            Tezkor havolalar
+            {t('quickLinks')}
           </h3>
           <div className="space-y-2">
             {relatedArticles.map((relArticle) => (
@@ -209,17 +153,17 @@ export function ArticleSidebar({ article, locale }: ArticleSidebarProps) {
       >
         <MessageCircle className="w-8 h-8 mb-3 opacity-80" />
         <h3 className="font-heading font-semibold mb-2">
-          Savolingiz bormi?
+          {t('haveQuestion')}
         </h3>
         <p className="text-sm text-white/80 mb-4">
-          Ushbu modda bo'yicha savolingiz bo'lsa, AI yordamchimizdan so'rang
+          {t('askAIDescription')}
         </p>
         <Button
           variant="outline"
           size="sm"
           className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20"
         >
-          Savol berish
+          {t('askQuestion')}
         </Button>
       </motion.div>
     </div>
@@ -227,6 +171,7 @@ export function ArticleSidebar({ article, locale }: ArticleSidebarProps) {
 }
 
 export default ArticleSidebar;
+
 
 
 

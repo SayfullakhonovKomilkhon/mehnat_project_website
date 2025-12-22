@@ -3,19 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, 
-  Filter, 
   X, 
-  ChevronDown, 
   Grid3X3, 
   List,
   SlidersHorizontal,
-  Check
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button, Badge, Input } from '@/components/ui';
+import { Button } from '@/components/ui';
 import { sections, chapters, getLocalizedText } from '@/lib/mock-data';
 
 interface ArticleFiltersProps {
@@ -34,19 +30,37 @@ interface FilterState {
   translation: string;
 }
 
+// Initial empty state to avoid hydration mismatch
+const initialFilters: FilterState = {
+  search: '',
+  sectionId: '',
+  chapterId: '',
+  hasAuthorComment: '',
+  hasExpertComment: '',
+  translation: '',
+};
+
 export function ArticleFilters({ locale, totalResults, view, onViewChange }: ArticleFiltersProps) {
   const t = useTranslations();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [filters, setFilters] = useState<FilterState>({
-    search: searchParams.get('search') || '',
-    sectionId: searchParams.get('section') || '',
-    chapterId: searchParams.get('chapter') || '',
-    hasAuthorComment: searchParams.get('authorComment') || '',
-    hasExpertComment: searchParams.get('expertComment') || '',
-    translation: searchParams.get('translation') || '',
-  });
+  // Initialize with empty state, sync from URL in useEffect
+  const [filters, setFilters] = useState<FilterState>(initialFilters);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Sync filters from URL after hydration
+  useEffect(() => {
+    setFilters({
+      search: searchParams.get('search') || '',
+      sectionId: searchParams.get('section') || '',
+      chapterId: searchParams.get('chapter') || '',
+      hasAuthorComment: searchParams.get('authorComment') || '',
+      hasExpertComment: searchParams.get('expertComment') || '',
+      translation: searchParams.get('translation') || '',
+    });
+    setIsHydrated(true);
+  }, [searchParams]);
 
   // Get chapters for selected section
   const availableChapters = filters.sectionId 
@@ -104,115 +118,113 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
   };
 
   return (
-    <div className="bg-gov-surface rounded-xl border border-gov-border shadow-card mb-6">
+    <div className="bg-gov-surface rounded-xl border border-gov-border shadow-card mb-4 sm:mb-6">
       {/* Main Filter Bar */}
-      <div className="p-4">
-        <div className="flex flex-col lg:flex-row gap-4">
-          {/* Search Input */}
-          <div className="flex-1 relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
-            <input
-              type="text"
-              value={filters.search}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              onKeyDown={handleSearchKeyDown}
-              placeholder={t('header.searchPlaceholder')}
-              className={cn(
-                'w-full h-11 pl-11 pr-4 rounded-lg',
-                'bg-gov-light border border-gov-border',
-                'text-text-primary placeholder:text-text-muted',
-                'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500',
-                'transition-all duration-200'
-              )}
-            />
-          </div>
+      <div className="p-3 sm:p-4">
+        {/* Search Input */}
+        <div className="relative mb-3">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-text-muted" />
+          <input
+            type="text"
+            value={filters.search}
+            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            onKeyDown={handleSearchKeyDown}
+            placeholder={t('header.searchPlaceholder')}
+            className={cn(
+              'w-full h-10 sm:h-11 pl-9 sm:pl-11 pr-4 rounded-lg text-sm sm:text-base',
+              'bg-gov-light border border-gov-border',
+              'text-text-primary placeholder:text-text-muted',
+              'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500',
+              'transition-all duration-200'
+            )}
+          />
+        </div>
 
-          {/* Quick Actions */}
+        {/* Quick Actions - Responsive */}
+        <div className="flex items-center justify-between gap-2">
+          {/* Filter Toggle */}
+          <Button
+            variant={isExpanded ? 'primary' : 'outline'}
+            size="sm"
+            onClick={() => setIsExpanded(!isExpanded)}
+            leftIcon={<SlidersHorizontal className="w-4 h-4" />}
+            className="relative text-sm"
+          >
+            {t('article.filters')}
+            {activeFilterCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-accent-gold text-white text-[10px] sm:text-xs rounded-full flex items-center justify-center">
+                {activeFilterCount}
+              </span>
+            )}
+          </Button>
+
           <div className="flex items-center gap-2">
-            {/* Filter Toggle */}
-            <Button
-              variant={isExpanded ? 'primary' : 'outline'}
-              size="md"
-              onClick={() => setIsExpanded(!isExpanded)}
-              leftIcon={<SlidersHorizontal className="w-4 h-4" />}
-              className="relative"
-            >
-              Filterlar
-              {activeFilterCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-accent-gold text-white text-xs rounded-full flex items-center justify-center">
-                  {activeFilterCount}
-                </span>
-              )}
-            </Button>
-
             {/* View Toggle */}
             <div className="flex items-center border border-gov-border rounded-lg overflow-hidden">
               <button
                 onClick={() => onViewChange('grid')}
                 className={cn(
-                  'p-2.5 transition-colors',
+                  'p-2 sm:p-2.5 transition-colors',
                   view === 'grid' 
                     ? 'bg-primary-800 text-white' 
                     : 'bg-gov-surface text-text-secondary hover:bg-gov-light'
                 )}
-                aria-label="Grid view"
+                aria-label={t('article.gridView')}
               >
-                <Grid3X3 className="w-5 h-5" />
+                <Grid3X3 className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
               <button
                 onClick={() => onViewChange('list')}
                 className={cn(
-                  'p-2.5 transition-colors',
+                  'p-2 sm:p-2.5 transition-colors',
                   view === 'list' 
                     ? 'bg-primary-800 text-white' 
                     : 'bg-gov-surface text-text-secondary hover:bg-gov-light'
                 )}
-                aria-label="List view"
+                aria-label={t('article.listView')}
               >
-                <List className="w-5 h-5" />
+                <List className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
 
             {/* Search Button */}
-            <Button variant="primary" size="md" onClick={applyFilters}>
+            <Button variant="primary" size="sm" onClick={applyFilters} className="text-sm">
               {t('common.search')}
             </Button>
           </div>
         </div>
 
         {/* Results Count */}
-        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gov-border">
-          <p className="text-sm text-text-secondary">
-            <span className="font-medium text-text-primary">{totalResults}</span> natija topildi
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-gov-border">
+          <p className="text-xs sm:text-sm text-text-secondary">
+            {t('article.resultsFound', { count: totalResults })}
           </p>
           
           {activeFilterCount > 0 && (
             <button
               onClick={clearFilters}
-              className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+              className="text-xs sm:text-sm text-primary-600 hover:text-primary-700 font-medium"
             >
-              Barchasini tozalash
+              {t('article.clearAll')}
             </button>
           )}
         </div>
       </div>
 
-      {/* Expanded Filters */}
-      <AnimatePresence>
+      {/* Expanded Filters - CSS animation */}
+      <div 
+        className={cn(
+          'overflow-hidden transition-all duration-200 ease-out',
+          isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+        )}
+      >
         {isExpanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="p-4 pt-0 border-t border-gov-border mt-0">
+          <div className="p-4 pt-0 border-t border-gov-border mt-0">
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
                 {/* Section Filter */}
                 <div>
                   <label className="block text-sm font-medium text-text-primary mb-1.5">
-                    Bo'lim
+                    {t('article.section')}
                   </label>
                   <select
                     value={filters.sectionId}
@@ -224,7 +236,7 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
                       'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500'
                     )}
                   >
-                    <option value="">Barcha bo'limlar</option>
+                    <option value="">{t('article.allSections')}</option>
                     {sections.map(section => (
                       <option key={section.id} value={section.id}>
                         {section.number}. {getLocalizedText(section.title, locale)}
@@ -236,7 +248,7 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
                 {/* Chapter Filter */}
                 <div>
                   <label className="block text-sm font-medium text-text-primary mb-1.5">
-                    Bob
+                    {t('article.chapter')}
                   </label>
                   <select
                     value={filters.chapterId}
@@ -248,10 +260,10 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
                       'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500'
                     )}
                   >
-                    <option value="">Barcha boblar</option>
+                    <option value="">{t('article.allChapters')}</option>
                     {availableChapters.map(chapter => (
                       <option key={chapter.id} value={chapter.id}>
-                        {chapter.number}-bob. {getLocalizedText(chapter.title, locale)}
+                        {chapter.number}-{t('article.chapter').toLowerCase()}. {getLocalizedText(chapter.title, locale)}
                       </option>
                     ))}
                   </select>
@@ -260,7 +272,7 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
                 {/* Comment Type Filter */}
                 <div>
                   <label className="block text-sm font-medium text-text-primary mb-1.5">
-                    Sharh turi
+                    {t('article.commentType')}
                   </label>
                   <select
                     value={filters.hasAuthorComment || filters.hasExpertComment}
@@ -279,16 +291,16 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
                       'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500'
                     )}
                   >
-                    <option value="">Barcha moddalar</option>
-                    <option value="author">Muallif sharhi bor</option>
-                    <option value="expert">Ekspert sharhi bor</option>
+                    <option value="">{t('article.allArticles')}</option>
+                    <option value="author">{t('article.hasAuthorComment')}</option>
+                    <option value="expert">{t('article.hasExpertComment')}</option>
                   </select>
                 </div>
 
                 {/* Translation Filter */}
                 <div>
                   <label className="block text-sm font-medium text-text-primary mb-1.5">
-                    Tarjima tili
+                    {t('article.translation')}
                   </label>
                   <select
                     value={filters.translation}
@@ -300,8 +312,8 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
                       'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500'
                     )}
                   >
-                    <option value="">Barcha tillar</option>
-                    <option value="uz">🇺🇿 O'zbekcha</option>
+                    <option value="">{t('article.allLanguages')}</option>
+                    <option value="uz">🇺🇿 O&apos;zbekcha</option>
                     <option value="ru">🇷🇺 Русский</option>
                     <option value="en">🇬🇧 English</option>
                   </select>
@@ -311,13 +323,12 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
               {/* Apply Button */}
               <div className="mt-4 flex justify-end">
                 <Button variant="primary" onClick={applyFilters}>
-                  Qo'llash
+                  {t('article.applyFilters')}
                 </Button>
               </div>
             </div>
-          </motion.div>
         )}
-      </AnimatePresence>
+      </div>
 
       {/* Active Filters Chips */}
       {activeFilterCount > 0 && !isExpanded && (
@@ -325,37 +336,37 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
           <div className="flex flex-wrap gap-2">
             {filters.search && (
               <FilterChip
-                label={`Qidiruv: "${filters.search}"`}
+                label={`${t('article.searchLabel')}: "${filters.search}"`}
                 onRemove={() => removeFilter('search')}
               />
             )}
             {filters.sectionId && (
               <FilterChip
-                label={`Bo'lim: ${sections.find(s => s.id === parseInt(filters.sectionId))?.number}`}
+                label={`${t('article.sectionLabel')}: ${sections.find(s => s.id === parseInt(filters.sectionId))?.number}`}
                 onRemove={() => removeFilter('sectionId')}
               />
             )}
             {filters.chapterId && (
               <FilterChip
-                label={`Bob: ${chapters.find(c => c.id === parseInt(filters.chapterId))?.number}`}
+                label={`${t('article.chapterLabel')}: ${chapters.find(c => c.id === parseInt(filters.chapterId))?.number}`}
                 onRemove={() => removeFilter('chapterId')}
               />
             )}
             {filters.hasAuthorComment && (
               <FilterChip
-                label="Muallif sharhi"
+                label={t('article.authorComment')}
                 onRemove={() => removeFilter('hasAuthorComment')}
               />
             )}
             {filters.hasExpertComment && (
               <FilterChip
-                label="Ekspert sharhi"
+                label={t('article.expertComment')}
                 onRemove={() => removeFilter('hasExpertComment')}
               />
             )}
             {filters.translation && (
               <FilterChip
-                label={`Til: ${filters.translation.toUpperCase()}`}
+                label={`${t('article.languageLabel')}: ${filters.translation.toUpperCase()}`}
                 onRemove={() => removeFilter('translation')}
               />
             )}
@@ -383,7 +394,3 @@ function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }
 }
 
 export default ArticleFilters;
-
-
-
-

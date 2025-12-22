@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { ChevronDown, ChevronUp, User, Calendar, Quote, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui';
+import { formatDate } from '@/lib/date-utils';
 
 interface AuthorCommentaryProps {
   locale: string;
@@ -182,10 +183,12 @@ export function AuthorCommentary({ locale, hasCommentary }: AuthorCommentaryProp
                 </p>
               </div>
 
-              {/* Date */}
+              {/* Date - using suppressHydrationWarning to avoid mismatch */}
               <div className="hidden sm:flex items-center gap-1.5 text-sm text-text-muted">
                 <Calendar className="w-4 h-4" />
-                {new Date(authorData.date).toLocaleDateString('uz-UZ')}
+                <span suppressHydrationWarning>
+                  {formatDate(authorData.date)}
+                </span>
               </div>
             </div>
           </div>
@@ -206,6 +209,7 @@ export function AuthorCommentary({ locale, hasCommentary }: AuthorCommentaryProp
 }
 
 export default AuthorCommentary;
+
 
 
 

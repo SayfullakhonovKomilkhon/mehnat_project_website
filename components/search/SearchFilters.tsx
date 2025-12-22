@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { Filter, ChevronDown, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui';
@@ -21,6 +21,7 @@ export function SearchFiltersPanel({
   locale,
   resultCount
 }: SearchFiltersProps) {
+  const t = useTranslations();
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Get chapters for selected section
@@ -60,165 +61,158 @@ export function SearchFiltersPanel({
   };
 
   return (
-    <div className="bg-gov-surface rounded-xl border border-gov-border">
+    <div className="bg-gov-surface rounded-lg sm:rounded-xl border border-gov-border">
       {/* Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-4 text-left"
+        className="w-full flex items-center justify-between p-3 sm:p-4 text-left"
       >
         <div className="flex items-center gap-2">
-          <Filter className="w-5 h-5 text-primary-600" />
-          <span className="font-medium text-text-primary">Filterlar</span>
+          <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600" />
+          <span className="font-medium text-sm sm:text-base text-text-primary">{t('article.filters')}</span>
           {activeFilterCount > 0 && (
-            <span className="w-5 h-5 rounded-full bg-primary-600 text-white text-xs flex items-center justify-center">
+            <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-primary-600 text-white text-[10px] sm:text-xs flex items-center justify-center">
               {activeFilterCount}
             </span>
           )}
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-text-muted">
-            {resultCount} natija
+        <div className="flex items-center gap-2 sm:gap-3">
+          <span className="text-xs sm:text-sm text-text-muted hidden sm:block">
+            {t('article.resultsCount', { count: resultCount })}
           </span>
           <ChevronDown className={cn(
-            'w-5 h-5 text-text-muted transition-transform',
+            'w-4 h-4 sm:w-5 sm:h-5 text-text-muted transition-transform',
             isExpanded && 'rotate-180'
           )} />
         </div>
       </button>
 
-      {/* Filters Content */}
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="px-4 pb-4 space-y-4 border-t border-gov-border pt-4">
-              {/* Content Type */}
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-2">
-                  Kontent turi
-                </label>
-                <div className="space-y-2">
-                  {[
-                    { value: 'all', label: 'Hammasi' },
-                    { value: 'article', label: 'Modda matni' },
-                    { value: 'authorComment', label: 'Muallif sharhi' },
-                    { value: 'expertComment', label: 'Ekspert sharhi' },
-                  ].map((option) => (
-                    <label
-                      key={option.value}
-                      className="flex items-center gap-2 cursor-pointer"
-                    >
-                      <input
-                        type="radio"
-                        name="type"
-                        value={option.value}
-                        checked={filters.type === option.value}
-                        onChange={() => handleTypeChange(option.value as SearchFiltersType['type'])}
-                        className="w-4 h-4 text-primary-600 border-gov-border focus:ring-primary-500"
-                      />
-                      <span className="text-sm text-text-secondary">{option.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Section Filter */}
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-2">
-                  Bo'lim
-                </label>
-                <select
-                  value={filters.section || ''}
-                  onChange={(e) => handleSectionChange(e.target.value)}
-                  className={cn(
-                    'w-full h-10 px-3 rounded-lg',
-                    'bg-gov-light border border-gov-border',
-                    'text-text-primary text-sm',
-                    'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500'
-                  )}
-                >
-                  <option value="">Barcha bo'limlar</option>
-                  {sections.map(section => (
-                    <option key={section.id} value={section.id}>
-                      {section.number}. {getLocalizedText(section.title, locale)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Chapter Filter */}
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-2">
-                  Bob
-                </label>
-                <select
-                  value={filters.chapter || ''}
-                  onChange={(e) => handleChapterChange(e.target.value)}
-                  className={cn(
-                    'w-full h-10 px-3 rounded-lg',
-                    'bg-gov-light border border-gov-border',
-                    'text-text-primary text-sm',
-                    'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500'
-                  )}
-                >
-                  <option value="">Barcha boblar</option>
-                  {availableChapters.map(chapter => (
-                    <option key={chapter.id} value={chapter.id}>
-                      {chapter.number}-bob. {getLocalizedText(chapter.title, locale)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Language Filter */}
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-2">
-                  Tarjima tili
-                </label>
-                <select
-                  value={filters.language || ''}
-                  onChange={(e) => handleLanguageChange(e.target.value)}
-                  className={cn(
-                    'w-full h-10 px-3 rounded-lg',
-                    'bg-gov-light border border-gov-border',
-                    'text-text-primary text-sm',
-                    'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500'
-                  )}
-                >
-                  <option value="">Barcha tillar</option>
-                  <option value="uz">🇺🇿 O'zbekcha</option>
-                  <option value="ru">🇷🇺 Русский</option>
-                  <option value="en">🇬🇧 English</option>
-                </select>
-              </div>
-
-              {/* Clear Filters */}
-              {activeFilterCount > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleClearFilters}
-                  leftIcon={<X className="w-4 h-4" />}
-                  className="w-full"
-                >
-                  Filterlarni tozalash
-                </Button>
-              )}
-            </div>
-          </motion.div>
+      {/* Filters Content - CSS animation instead of Framer Motion */}
+      <div 
+        className={cn(
+          'overflow-hidden transition-all duration-200 ease-out',
+          isExpanded ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
         )}
-      </AnimatePresence>
+      >
+        {isExpanded && (
+          <div className="px-3 sm:px-4 pb-3 sm:pb-4 space-y-3 sm:space-y-4 border-t border-gov-border pt-3 sm:pt-4">
+            {/* Content Type */}
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-text-primary mb-1.5 sm:mb-2">
+                {t('search.contentType')}
+              </label>
+              <div className="space-y-1.5 sm:space-y-2">
+                {[
+                  { value: 'all', label: t('search.all') },
+                  { value: 'article', label: t('search.articleText') },
+                  { value: 'authorComment', label: t('article.authorComment') },
+                  { value: 'expertComment', label: t('article.expertComment') },
+                ].map((option) => (
+                  <label
+                    key={option.value}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <input
+                      type="radio"
+                      name="type"
+                      value={option.value}
+                      checked={filters.type === option.value}
+                      onChange={() => handleTypeChange(option.value as SearchFiltersType['type'])}
+                      className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600 border-gov-border focus:ring-primary-500"
+                    />
+                    <span className="text-xs sm:text-sm text-text-secondary">{option.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Section Filter */}
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-text-primary mb-1.5 sm:mb-2">
+                {t('article.section')}
+              </label>
+              <select
+                value={filters.section || ''}
+                onChange={(e) => handleSectionChange(e.target.value)}
+                className={cn(
+                  'w-full h-9 sm:h-10 px-2.5 sm:px-3 rounded-lg',
+                  'bg-gov-light border border-gov-border',
+                  'text-text-primary text-xs sm:text-sm',
+                  'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500'
+                )}
+              >
+                <option value="">{t('article.allSections')}</option>
+                {sections.map(section => (
+                  <option key={section.id} value={section.id}>
+                    {section.number}. {getLocalizedText(section.title, locale)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Chapter Filter */}
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-text-primary mb-1.5 sm:mb-2">
+                {t('article.chapter')}
+              </label>
+              <select
+                value={filters.chapter || ''}
+                onChange={(e) => handleChapterChange(e.target.value)}
+                className={cn(
+                  'w-full h-9 sm:h-10 px-2.5 sm:px-3 rounded-lg',
+                  'bg-gov-light border border-gov-border',
+                  'text-text-primary text-xs sm:text-sm',
+                  'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500'
+                )}
+              >
+                <option value="">{t('article.allChapters')}</option>
+                {availableChapters.map(chapter => (
+                  <option key={chapter.id} value={chapter.id}>
+                    {chapter.number}-{t('article.chapter').toLowerCase()}. {getLocalizedText(chapter.title, locale)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Language Filter */}
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-text-primary mb-1.5 sm:mb-2">
+                {t('article.translation')}
+              </label>
+              <select
+                value={filters.language || ''}
+                onChange={(e) => handleLanguageChange(e.target.value)}
+                className={cn(
+                  'w-full h-9 sm:h-10 px-2.5 sm:px-3 rounded-lg',
+                  'bg-gov-light border border-gov-border',
+                  'text-text-primary text-xs sm:text-sm',
+                  'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500'
+                )}
+              >
+                <option value="">{t('article.allLanguages')}</option>
+                <option value="uz">🇺🇿 O&apos;zbekcha</option>
+                <option value="ru">🇷🇺 Русский</option>
+                <option value="en">🇬🇧 English</option>
+              </select>
+            </div>
+
+            {/* Clear Filters */}
+            {activeFilterCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClearFilters}
+                leftIcon={<X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                className="w-full text-xs sm:text-sm"
+              >
+                {t('article.clearFilters')}
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
 export default SearchFiltersPanel;
-
-
-
-

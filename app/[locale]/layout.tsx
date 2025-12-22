@@ -6,13 +6,13 @@ import { notFound } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { locales, type Locale } from '@/lib/i18n';
 import { inter, plusJakartaSans, fontVariables } from '@/lib/fonts';
-import { Header, Footer } from '@/components/layout';
-import { BackToTop, ToastProvider } from '@/components/ui';
+import { Header, Footer, PageTransition } from '@/components/layout';
+import { ToastProvider } from '@/components/ui';
 import { OrganizationSchema, WebsiteSchema } from '@/components/seo';
 import { AccessibilityProvider } from '@/lib/accessibility-context';
 import '@/app/globals.css';
 
-// Dynamic imports for heavy components (not needed immediately)
+// Dynamic imports for non-critical components - loaded after main content
 const FloatingChatWidget = dynamic(
   () => import('@/components/chat').then(mod => mod.FloatingChatWidget),
   { 
@@ -23,6 +23,15 @@ const FloatingChatWidget = dynamic(
 
 const OfflineIndicator = dynamic(
   () => import('@/components/ui').then(mod => mod.OfflineIndicator),
+  { 
+    ssr: false,
+    loading: () => null,
+  }
+);
+
+// Lazy load BackToTop - not critical for initial render
+const BackToTop = dynamic(
+  () => import('@/components/ui').then(mod => mod.BackToTop),
   { 
     ssr: false,
     loading: () => null,
@@ -173,6 +182,9 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           <AccessibilityProvider>
             <ToastProvider position="top-right">
+              {/* Page Transition Handler - removes overlay on page load */}
+              <PageTransition />
+              
               {/* Structured Data */}
               <OrganizationSchema baseUrl={BASE_URL} />
               <WebsiteSchema baseUrl={BASE_URL} locale={locale} />

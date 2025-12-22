@@ -69,7 +69,7 @@ export function Statistics() {
               >
                 {stat.value}
               </motion.div>
-              <div className="text-primary-200 font-medium">
+              <div className="text-white font-medium">
                 {t(stat.key)}
               </div>
             </motion.div>

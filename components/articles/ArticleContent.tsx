@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { ChevronDown, ChevronUp, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Article, getLocalizedText } from '@/lib/mock-data';
@@ -61,6 +62,7 @@ This article was developed in accordance with Article 37 of the Constitution of 
 };
 
 export function ArticleContent({ article, locale }: ArticleContentProps) {
+  const t = useTranslations('article');
   const [isExpanded, setIsExpanded] = useState(true);
   
   // Use mock legal text for demonstration
@@ -124,7 +126,7 @@ export function ArticleContent({ article, locale }: ArticleContentProps) {
         <div className="flex items-center gap-3">
           <FileText className="w-5 h-5" />
           <h2 className="font-heading text-lg font-semibold">
-            Modda mazmuni
+            {t('content')}
           </h2>
         </div>
         {isExpanded ? (
@@ -172,6 +174,7 @@ export function ArticleContent({ article, locale }: ArticleContentProps) {
 }
 
 export default ArticleContent;
+
 
 
 

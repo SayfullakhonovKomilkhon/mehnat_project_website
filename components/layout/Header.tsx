@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { 
   Menu, 
@@ -10,7 +11,6 @@ import {
   Facebook,
   Instagram,
   Send,
-  Shield,
   Home,
   FileText,
   Layers,
@@ -18,7 +18,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { GovVerifiedBadge, AccessibilityPanel } from '@/components/ui';
+import { AccessibilityPanel } from '@/components/ui';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { GovEmblem } from './GovEmblem';
 import { SearchOverlay } from './SearchOverlay';
@@ -30,9 +30,20 @@ interface HeaderProps {
 
 export function Header({ locale }: HeaderProps) {
   const t = useTranslations();
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // Check if a nav item is active
+  const isActive = useCallback((href: string) => {
+    // For home page, exact match
+    if (href === `/${locale}`) {
+      return pathname === `/${locale}` || pathname === `/${locale}/`;
+    }
+    // For other pages, check if pathname starts with href
+    return pathname.startsWith(href);
+  }, [pathname, locale]);
 
   // Handle scroll for sticky header
   useEffect(() => {
@@ -96,17 +107,17 @@ export function Header({ locale }: HeaderProps) {
             {/* Left: Logo & Branding */}
             <Link 
               href={`/${locale}`} 
-              className="flex items-center gap-3 lg:gap-4 group flex-shrink-0"
+              className="flex items-center gap-2 sm:gap-3 lg:gap-4 group flex-shrink-0"
               aria-label={t('header.title')}
             >
               <div className="transition-transform duration-200 group-hover:scale-105">
-                <GovEmblem size="lg" className="w-10 h-10 lg:w-12 lg:h-12" />
+                <GovEmblem size="lg" className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
               </div>
-              <div className="hidden sm:block">
-                <h1 className="font-heading text-base lg:text-lg font-bold text-primary-800 leading-tight">
+              <div>
+                <h1 className="font-heading text-sm sm:text-base lg:text-lg font-bold text-primary-800 leading-tight">
                   {t('header.title')}
                 </h1>
-                <p className="text-[10px] lg:text-xs text-text-secondary leading-tight max-w-[200px] lg:max-w-none truncate">
+                <p className="hidden sm:block text-[10px] lg:text-xs text-text-secondary leading-tight max-w-[200px] lg:max-w-none truncate">
                   {t('common.officialPortal')}
                 </p>
               </div>
@@ -114,21 +125,31 @@ export function Header({ locale }: HeaderProps) {
 
             {/* Center: Desktop Navigation */}
             <nav className="hidden xl:flex items-center gap-1" role="navigation" aria-label="Main navigation">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  prefetch={true}
-                  className={cn(
-                    'flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium',
-                    'text-text-secondary hover:text-primary-800 hover:bg-primary-50',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500'
-                  )}
-                >
-                  <item.icon className="w-4 h-4" />
-                  {item.label}
-                </Link>
-              ))}
+              {navItems.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    prefetch={true}
+                    className={cn(
+                      'relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-colors',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
+                      active
+                        ? 'text-primary-800 font-bold bg-primary-50'
+                        : 'text-text-secondary font-medium hover:text-primary-800 hover:bg-primary-50'
+                    )}
+                    aria-current={active ? 'page' : undefined}
+                  >
+                    <item.icon className={cn('w-4 h-4', active && 'text-primary-600')} />
+                    {item.label}
+                    {/* Active indicator line */}
+                    {active && (
+                      <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-primary-600 rounded-full" />
+                    )}
+                  </Link>
+                );
+              })}
             </nav>
 
             {/* Right: Actions */}
@@ -150,14 +171,6 @@ export function Header({ locale }: HeaderProps) {
               {/* Language Switcher - Desktop */}
               <div className="hidden md:block">
                 <LanguageSwitcher locale={locale} variant="buttons" />
-              </div>
-
-              {/* Verified Badge - Desktop */}
-              <div className="hidden lg:block">
-                <GovVerifiedBadge size="sm">
-                  <Shield className="w-3.5 h-3.5" />
-                  {t('common.verifiedByGov')}
-                </GovVerifiedBadge>
               </div>
 
               {/* Mobile Menu Toggle */}
@@ -258,11 +271,6 @@ function TopBar({ locale }: { locale: string }) {
                 <Send className="w-4 h-4" />
               </a>
             </div>
-
-            <div className="h-4 w-px bg-primary-600" />
-
-            {/* Language Switcher - Minimal */}
-            <LanguageSwitcher locale={locale} variant="minimal" />
           </div>
         </div>
       </div>

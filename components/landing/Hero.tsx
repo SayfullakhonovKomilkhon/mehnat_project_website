@@ -91,20 +91,6 @@ export function Hero({ locale }: HeroProps) {
                 </form>
               </div>
 
-              {/* Popular searches */}
-              <div className="mb-8 flex flex-wrap gap-2 justify-center lg:justify-start">
-                <span className="text-sm text-text-muted">Mashhur:</span>
-                {['mehnat shartnomasi', 'ish vaqti', 'dam olish', 'mehnat haqi'].map((term) => (
-                  <Link 
-                    key={term}
-                    href={`/${locale}/search?q=${encodeURIComponent(term)}`}
-                    className="px-3 py-1 text-sm bg-white rounded-full border border-gov-border text-text-secondary hover:border-primary-500 hover:text-primary-600 transition-colors"
-                  >
-                    {term}
-                  </Link>
-                ))}
-              </div>
-
               {/* CTAs */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Link href={`/${locale}/sections`}>

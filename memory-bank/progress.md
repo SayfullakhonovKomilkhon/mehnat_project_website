@@ -96,10 +96,77 @@
 | Search System | ✅ Complete | Header, Hero, Results page |
 | UI Components | ✅ Complete | Full component library |
 | Loading/Error States | ✅ Complete | PageLoader, Spinner, ErrorState, Toast, Skeletons |
-| SEO & Performance | ✅ Complete | Metadata, Schema.org, sitemap, robots, fonts, bundle analyzer |
+| SEO & Performance | ✅ Optimized | Metadata, Schema.org, sitemap, robots, fonts, bundle analyzer |
 | Types & Mock Data | ✅ Complete | Full TypeScript types, 50+ articles, API mocks |
 | Testing & QA | ✅ Complete | Vitest, CI/CD, Husky, Documentation |
 | Real Content | ❌ Not Started | Using mock data |
+| Performance Optimization | ✅ Complete | Server components, CSS animations, reduced client JS |
+
+## Performance Optimization (December 22, 2025)
+
+### Changes Made
+
+1. **Converted Client Components to Server Components**
+   - `HeroSection.tsx` - Now async server component with CSS animations
+   - `StatisticsSection.tsx` - Removed Framer Motion, uses static values
+   - `SectionsGrid.tsx` - Server component with CSS-only animations
+   - `Features.tsx` - Server component with CSS transitions
+   
+2. **Replaced Framer Motion with CSS Animations**
+   - Added CSS animation utilities to `globals.css`:
+     - `.animate-fadeIn` - Fade in with slight Y translation
+     - `.animate-slideUp` - Slide up animation
+     - `.animate-slideUp-delay-N` - Staggered slide animations
+     - `.card-interactive` - CSS-only hover effects
+   - Removed infinite floating animations (performance heavy)
+   - Replaced `motion.div` with regular `div` + CSS classes
+   - Removed `AnimatePresence` from non-critical components
+   
+3. **Lazy Loading & Code Splitting**
+   - `FloatingChatWidget` - Dynamic import, SSR disabled
+   - `OfflineIndicator` - Dynamic import, SSR disabled  
+   - `BackToTop` - Dynamic import, SSR disabled
+   - Added Suspense boundaries for client components
+
+4. **Font Optimization**
+   - Reduced font weights loaded (Inter: 400, 500, 600; Plus Jakarta Sans: 600, 700)
+   - Better system font fallbacks
+
+5. **Next.js Config Optimization**
+   - Added `modularizeImports` for lucide-react (tree-shaking)
+   - Optimized package imports for clsx, tailwind-merge
+
+6. **Hydration Error Fixes**
+   - Wrapped `useSearchParams()` usage in Suspense boundaries
+   - Initialized state with stable values, synced from URL in useEffect
+   - Articles page now uses proper SSR/CSR split
+
+### Files Modified
+- `next.config.mjs` - Added modularizeImports
+- `lib/fonts.ts` - Reduced font weights
+- `lib/motion.tsx` - New lightweight motion utilities
+- `lib/useReducedMotion.ts` - Hook for respecting user preferences
+- `app/globals.css` - Added CSS animations
+- `app/[locale]/layout.tsx` - Dynamic imports for non-critical components
+- `app/[locale]/articles/page.tsx` - Server component with Suspense
+- `app/[locale]/articles/ArticlesContent.tsx` - Client component for articles
+- `components/landing/HeroSection.tsx` - Server component
+- `components/landing/HeroSearchWrapper.tsx` - Client wrapper for search
+- `components/landing/StatisticsSection.tsx` - Server component
+- `components/landing/SectionsGrid.tsx` - Server component
+- `components/landing/Features.tsx` - Server component
+- `components/layout/Footer.tsx` - CSS accordion animations
+- `components/search/HeroSearch.tsx` - CSS animations
+- `components/search/SearchAutocomplete.tsx` - CSS transitions
+- `components/articles/ArticleListCard.tsx` - CSS animations
+- `components/articles/ArticleFilters.tsx` - Hydration-safe state
+
+### Performance Benefits
+- Reduced JS bundle size (Framer Motion tree-shaking)
+- Faster initial page load (more server-rendered content)
+- Smoother animations (CSS uses GPU acceleration)
+- Respects `prefers-reduced-motion` setting
+- No hydration errors on main pages
 
 ## Evolution of Decisions
 

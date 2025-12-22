@@ -249,9 +249,9 @@ export function FloatingChatWidget() {
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            className="fixed bottom-6 right-6 z-50"
+            className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50"
           >
-            {/* Tooltip */}
+            {/* Tooltip - Hidden on small mobile */}
             <AnimatePresence>
               {showTooltip && (
                 <motion.div
@@ -260,9 +260,10 @@ export function FloatingChatWidget() {
                   exit={{ opacity: 0, x: 10, scale: 0.9 }}
                   className={cn(
                     'absolute right-full mr-3 top-1/2 -translate-y-1/2',
-                    'bg-gov-surface px-4 py-2 rounded-lg shadow-lg',
+                    'bg-gov-surface px-3 py-2 rounded-lg shadow-lg',
                     'border border-gov-border whitespace-nowrap',
-                    'text-sm text-text-primary font-medium'
+                    'text-xs sm:text-sm text-text-primary font-medium',
+                    'hidden sm:block' // Hide on very small screens
                   )}
                 >
                   {t('title')}
@@ -279,7 +280,7 @@ export function FloatingChatWidget() {
               whileTap={{ scale: 0.95 }}
               onClick={() => setChatState('form')}
               className={cn(
-                'relative w-14 h-14 rounded-full',
+                'relative w-12 h-12 sm:w-14 sm:h-14 rounded-full',
                 'bg-gradient-to-br from-primary-600 to-primary-800',
                 'text-white shadow-lg shadow-primary-500/30',
                 'flex items-center justify-center',
@@ -292,7 +293,7 @@ export function FloatingChatWidget() {
               <span className="absolute inset-0 rounded-full bg-primary-500 animate-ping opacity-20" />
               <span className="absolute inset-0 rounded-full bg-primary-600 animate-pulse opacity-30" />
               
-              <MessageCircle className="w-6 h-6 relative z-10" />
+              <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 relative z-10" />
               
               {/* Pending Badge */}
               {pendingCount > 0 && (
@@ -326,12 +327,13 @@ export function FloatingChatWidget() {
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               className={cn(
                 'fixed z-50',
-                // Mobile: Full screen
-                'inset-4 md:inset-auto',
+                // Mobile: Almost full screen with safe areas
+                'inset-2 sm:inset-4 md:inset-auto',
                 // Desktop: Bottom right
                 'md:bottom-6 md:right-6',
                 'md:w-[380px] md:h-[520px]',
-                'bg-gov-surface rounded-2xl shadow-2xl',
+                'max-h-[calc(100vh-1rem)] sm:max-h-[calc(100vh-2rem)] md:max-h-[520px]',
+                'bg-gov-surface rounded-xl sm:rounded-2xl shadow-2xl',
                 'border border-gov-border',
                 'flex flex-col overflow-hidden'
               )}
@@ -704,6 +706,7 @@ export function FloatingChatWidget() {
 }
 
 export default FloatingChatWidget;
+
 
 
 

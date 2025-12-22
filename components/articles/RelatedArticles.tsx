@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { ArrowRight, Link2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui';
@@ -14,6 +15,7 @@ interface RelatedArticlesProps {
 }
 
 export function RelatedArticles({ article, locale }: RelatedArticlesProps) {
+  const t = useTranslations('article');
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Get related articles from same chapter + some from same section
@@ -57,7 +59,7 @@ export function RelatedArticles({ article, locale }: RelatedArticlesProps) {
       <div className="flex items-center justify-between mb-6">
         <h2 className="font-heading text-xl font-semibold text-text-primary flex items-center gap-2">
           <Link2 className="w-5 h-5 text-primary-600" />
-          Bog'liq moddalar
+          {t('relatedArticles')}
         </h2>
         
         {/* Scroll Controls - Desktop */}
@@ -107,13 +109,6 @@ export function RelatedArticles({ article, locale }: RelatedArticlesProps) {
                   <Badge variant="primary" size="lg" className="font-heading">
                     {relArticle.number}
                   </Badge>
-                  <div className="flex items-center gap-1 text-xs">
-                    {relArticle.translations.map(lang => (
-                      <span key={lang} className="opacity-60">
-                        {lang === 'uz' ? '🇺🇿' : lang === 'ru' ? '🇷🇺' : '🇬🇧'}
-                      </span>
-                    ))}
-                  </div>
                 </div>
 
                 {/* Title */}
@@ -123,19 +118,19 @@ export function RelatedArticles({ article, locale }: RelatedArticlesProps) {
 
                 {/* Section/Chapter */}
                 <p className="text-xs text-text-muted mb-3">
-                  {relArticle.section.number}-bo'lim → {relArticle.chapter.number}-bob
+                  {relArticle.section.number}-{t('section').toLowerCase()} → {relArticle.chapter.number}-{t('chapter').toLowerCase()}
                 </p>
 
                 {/* Comment Indicators */}
                 <div className="flex items-center gap-2">
                   {relArticle.hasAuthorComment && (
                     <Badge variant="secondary" size="sm">
-                      Muallif
+                      {t('authorComment')}
                     </Badge>
                   )}
                   {relArticle.hasExpertComment && (
                     <Badge variant="gold" size="sm">
-                      Ekspert
+                      {t('expertComment')}
                     </Badge>
                   )}
                 </div>
@@ -143,7 +138,7 @@ export function RelatedArticles({ article, locale }: RelatedArticlesProps) {
                 {/* Read More */}
                 <div className="mt-4 pt-3 border-t border-gov-border">
                   <span className="text-sm text-primary-600 group-hover:text-primary-700 font-medium flex items-center gap-1">
-                    O'qish
+                    {t('readMore')}
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </div>
@@ -159,7 +154,7 @@ export function RelatedArticles({ article, locale }: RelatedArticlesProps) {
           href={`/${locale}/articles?chapter=${article.chapter.id}`}
           className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium"
         >
-          {article.chapter.number}-bobdagi barcha moddalarni ko'rish
+          {t('viewAllChapter', { chapter: article.chapter.number })}
           <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
@@ -168,6 +163,7 @@ export function RelatedArticles({ article, locale }: RelatedArticlesProps) {
 }
 
 export default RelatedArticles;
+
 
 
 

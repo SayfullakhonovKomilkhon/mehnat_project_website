@@ -1,8 +1,5 @@
-'use client';
-
-import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { getTranslations } from 'next-intl/server';
 import { 
   BookOpen, 
   FileText, 
@@ -187,8 +184,9 @@ const colorMap: Record<string, { border: string; bg: string; text: string }> = {
   cyan: { border: 'border-l-cyan-600', bg: 'bg-cyan-50', text: 'text-cyan-600' },
 };
 
-export function SectionsGrid({ locale, showHeader = true, maxItems }: SectionsGridProps) {
-  const t = useTranslations();
+// Server component - no client JS needed
+export async function SectionsGrid({ locale, showHeader = true, maxItems }: SectionsGridProps) {
+  const t = await getTranslations();
   
   const displayedSections = maxItems ? sectionsData.slice(0, maxItems) : sectionsData;
 
@@ -222,47 +220,22 @@ export function SectionsGrid({ locale, showHeader = true, maxItems }: SectionsGr
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.08,
-        delayChildren: 0.1,
-      },
-    },
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
-    },
-  };
-
   return (
-    <section className="py-16 md:py-24 bg-gov-light">
+    <section className="py-10 sm:py-16 md:py-24 bg-gov-light">
       <div className="section-container">
         {/* Section Header */}
         {showHeader && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10"
-          >
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 sm:gap-4 mb-6 sm:mb-10 animate-fadeIn">
             <div>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-xl bg-primary-100 flex items-center justify-center">
-                  <Layers className="w-6 h-6 text-primary-700" />
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-primary-100 flex items-center justify-center">
+                  <Layers className="w-5 h-5 sm:w-6 sm:h-6 text-primary-700" />
                 </div>
                 <div>
-                  <h2 className="font-heading text-2xl md:text-3xl font-bold text-text-primary">
+                  <h2 className="font-heading text-xl sm:text-2xl md:text-3xl font-bold text-text-primary">
                     {t('sections.title')}
                   </h2>
-                  <p className="text-text-secondary text-sm">
+                  <p className="text-text-secondary text-xs sm:text-sm">
                     {locale === 'ru' ? 'Структура Трудового кодекса' : 
                      locale === 'en' ? 'Labor Code Structure' : 
                      'Mehnat kodeksi tuzilishi'}
@@ -273,109 +246,96 @@ export function SectionsGrid({ locale, showHeader = true, maxItems }: SectionsGr
             
             <Link 
               href={`/${locale}/sections`}
-              className="group inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium transition-colors"
+              className="group inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium text-sm sm:text-base transition-colors"
             >
               {t('common.viewAll')}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
-          </motion.div>
+          </div>
         )}
 
-        {/* Sections Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-50px' }}
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {displayedSections.map((section) => {
+        {/* Sections Grid - CSS animations */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+          {displayedSections.map((section, index) => {
             const Icon = iconMap[section.icon] || BookOpen;
             const colors = colorMap[section.color] || colorMap.blue;
 
             return (
-              <motion.div key={section.id} variants={cardVariants}>
+              <div 
+                key={section.id}
+                className="animate-fadeIn"
+                style={{ animationDelay: `${index * 0.05}s` }}
+              >
                 <Link href={`/${locale}/sections/${section.id}`}>
-                  <motion.article
-                    whileHover={{ y: -6, boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  <article
                     className={cn(
-                      'group relative bg-gov-surface rounded-xl overflow-hidden',
+                      'group relative bg-gov-surface rounded-lg sm:rounded-xl overflow-hidden',
                       'border border-gov-border border-l-4',
                       colors.border,
-                      'h-full cursor-pointer'
+                      'h-full cursor-pointer',
+                      'card-interactive' // CSS-only hover animation
                     )}
                   >
-                    <div className="p-6">
+                    <div className="p-4 sm:p-6">
                       {/* Header Row */}
-                      <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-start justify-between mb-3 sm:mb-4">
                         {/* Roman Numeral */}
-                        <span className="text-4xl font-heading font-bold text-gov-border select-none">
+                        <span className="text-2xl sm:text-4xl font-heading font-bold text-gov-border select-none">
                           {section.number}
                         </span>
                         
                         {/* Icon */}
-                        <motion.div
-                          whileHover={{ rotate: 5, scale: 1.1 }}
-                          transition={{ type: 'spring', stiffness: 400 }}
+                        <div
                           className={cn(
-                            'w-12 h-12 rounded-xl flex items-center justify-center',
+                            'w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center',
+                            'transition-transform duration-200 group-hover:scale-110',
                             colors.bg
                           )}
                         >
-                          <Icon className={cn('w-6 h-6', colors.text)} />
-                        </motion.div>
+                          <Icon className={cn('w-5 h-5 sm:w-6 sm:h-6', colors.text)} />
+                        </div>
                       </div>
 
                       {/* Title */}
-                      <h3 className="font-heading text-lg font-semibold text-text-primary mb-2 group-hover:text-primary-700 transition-colors line-clamp-2">
+                      <h3 className="font-heading text-base sm:text-lg font-semibold text-text-primary mb-1.5 sm:mb-2 group-hover:text-primary-700 transition-colors line-clamp-2">
                         {getLocalizedTitle(section)}
                       </h3>
 
                       {/* Description */}
-                      <p className="text-text-secondary text-sm leading-relaxed mb-4 line-clamp-2">
+                      <p className="text-text-secondary text-xs sm:text-sm leading-relaxed mb-3 sm:mb-4 line-clamp-2">
                         {getLocalizedDescription(section)}
                       </p>
 
                       {/* Stats & Arrow */}
-                      <div className="flex items-center justify-between pt-4 border-t border-gov-border">
-                        <span className="text-sm text-text-muted">
+                      <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-gov-border">
+                        <span className="text-xs sm:text-sm text-text-muted">
                           {getCountLabel(section.chaptersCount, section.articlesCount)}
                         </span>
-                        <motion.div
-                          initial={{ x: 0 }}
-                          whileHover={{ x: 4 }}
-                          className="text-primary-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <ChevronRight className="w-5 h-5" />
-                        </motion.div>
+                        <div className="text-primary-600 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                        </div>
                       </div>
                     </div>
 
                     {/* Hover Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-primary-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                  </motion.article>
+                  </article>
                 </Link>
-              </motion.div>
+              </div>
             );
           })}
-        </motion.div>
+        </div>
 
         {/* View All Button - Mobile */}
         {showHeader && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="mt-8 text-center sm:hidden"
-          >
+          <div className="mt-6 text-center sm:hidden animate-fadeIn" style={{ animationDelay: '0.3s' }}>
             <Link href={`/${locale}/sections`}>
-              <button className="inline-flex items-center gap-2 px-6 py-3 bg-primary-50 text-primary-700 rounded-xl font-medium hover:bg-primary-100 transition-colors">
+              <button className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-50 text-primary-700 rounded-lg font-medium text-sm hover:bg-primary-100 transition-colors active:bg-primary-100">
                 {t('common.viewAll')}
                 <ArrowRight className="w-4 h-4" />
               </button>
             </Link>
-          </motion.div>
+          </div>
         )}
       </div>
     </section>
@@ -383,7 +343,3 @@ export function SectionsGrid({ locale, showHeader = true, maxItems }: SectionsGr
 }
 
 export default SectionsGrid;
-
-
-
-

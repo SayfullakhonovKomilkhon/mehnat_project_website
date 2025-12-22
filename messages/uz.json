@@ -50,27 +50,87 @@
     "section": "Bo'lim",
     "chapter": "Bob",
     "lastUpdated": "Oxirgi yangilanish",
+    "tableOfContents": "Mundarija",
+    "quickLinks": "Tezkor havolalar",
+    "officialText": "Rasmiy matn",
+    "print": "Chop etish",
+    "share": "Ulashish",
+    "home": "Bosh sahifa",
+    "articles": "Moddalar",
+    "hasAuthorComment": "Muallif sharhi mavjud",
+    "hasExpertComment": "Ekspert sharhi mavjud",
+    "haveQuestion": "Savolingiz bormi?",
+    "askAIDescription": "Ushbu modda bo'yicha savolingiz bo'lsa, AI yordamchimizdan so'rang",
+    "askQuestion": "Savol berish",
+    "viewAllChapter": "{chapter}-bobdagi barcha moddalarni ko'rish",
     "filterByChapter": "Bob bo'yicha saralash",
     "allChapters": "Barcha boblar",
     "noResults": "Natija topilmadi",
+    "noResultsDescription": "Qidiruv so'rovingizga mos modda topilmadi. Filterlarni o'zgartirib ko'ring.",
     "searchArticles": "Moddalarni qidiring",
     "title": "Moddalar sharhi",
     "subtitle": "Mehnat kodeksining barcha moddalari bo'yicha professional sharhlar",
     "readMore": "Batafsil",
     "filters": "Filterlar",
     "clearFilters": "Filterlarni tozalash",
+    "clearAll": "Barchasini tozalash",
     "applyFilters": "Qo'llash",
     "allSections": "Barcha bo'limlar",
     "allLanguages": "Barcha tillar",
     "commentType": "Sharh turi",
     "translation": "Tarjima tili",
-    "resultsFound": "natija topildi",
+    "resultsFound": "{count} natija topildi",
+    "resultsCount": "{count} natija",
     "showing": "Ko'rsatilmoqda",
     "of": "dan",
     "results": "natija",
     "perPage": "Ko'rsatish",
     "gridView": "Katak ko'rinishi",
-    "listView": "Ro'yxat ko'rinishi"
+    "listView": "Ro'yxat ko'rinishi",
+    "allArticles": "Barcha moddalar",
+    "hasAuthorComment": "Muallif sharhi bor",
+    "hasExpertComment": "Ekspert sharhi bor",
+    "searchLabel": "Qidiruv",
+    "sectionLabel": "Bo'lim",
+    "chapterLabel": "Bob",
+    "languageLabel": "Til"
+  },
+  "search": {
+    "title": "Mehnat Kodeksidan qidiring",
+    "subtitle": "Modda raqami, sarlavha yoki kalit so'zlar bo'yicha qidiring",
+    "placeholder": "Qidiruv so'zini kiriting...",
+    "searchButton": "Qidirish",
+    "results": "Qidiruv natijalari",
+    "resultsFor": "Qidiruv:",
+    "resultsFound": "{count} ta natija topildi",
+    "noResults": "Natija topilmadi",
+    "noResultsFor": "\"{query}\" bo'yicha hech qanday modda topilmadi. Boshqa so'zlar bilan qidirib ko'ring yoki filterlarni o'zgartiring.",
+    "searchTips": "Qidiruv bo'yicha maslahatlar:",
+    "tip1": "Kalit so'zlarni qisqartiring",
+    "tip2": "Imlo xatolarini tekshiring",
+    "tip3": "Umumiy so'zlar ishlating",
+    "tip4": "Modda raqami bilan qidiring (masalan: \"21\")",
+    "articles": "Moddalar",
+    "viewAllResults": "Barcha natijalarni ko'rish",
+    "noResultsFound": "\"{query}\" bo'yicha natija topilmadi",
+    "tryDifferentWords": "Boshqa so'zlar bilan qidirib ko'ring",
+    "recentSearches": "So'nggi qidiruvlar",
+    "popularSearches": "Mashhur qidiruvlar",
+    "clear": "Tozalash",
+    "articlesList": "Moddalar ro'yxati",
+    "contentType": "Kontent turi",
+    "all": "Hammasi",
+    "articleText": "Modda matni",
+    "viewSections": "Bo'limlarni ko'rish",
+    "quickLinks": "Tezkor havolalar",
+    "sectionsCount": "{count} ta bo'lim",
+    "articlesCount": "{count}+ modda",
+    "professionalComments": "Professional sharhlar",
+    "inTitle": "Sarlavhada",
+    "inContent": "Matnda",
+    "inAuthorComment": "Muallif sharhida",
+    "inExpertComment": "Ekspert sharhida",
+    "relevant": "Mos keladi"
   },
   "chat": {
     "title": "Savolingiz bormi?",
@@ -136,6 +196,56 @@
     "viewOnMap": "Xaritada ko'rish",
     "hotline": "Ishonch telefoni",
     "backToTop": "Yuqoriga qaytish",
-    "followUs": "Bizni kuzating"
+    "followUs": "Bizni kuzating",
+    "laborCodePdf": "Mehnat kodeksi (PDF)",
+    "lexUz": "Lex.uz - Qonunchilik bazasi",
+    "govPortal": "O'zbekiston Hukumat portali"
+  },
+  "breadcrumb": {
+    "section": "bo'lim",
+    "chapter": "bob"
+  },
+  "badges": {
+    "article": "modda",
+    "readMore": "Batafsil"
+  },
+  "errors": {
+    "404": {
+      "title": "Sahifa topilmadi",
+      "description": "Siz qidirayotgan sahifa mavjud emas yoki ko'chirilgan bo'lishi mumkin."
+    },
+    "500": {
+      "title": "Xatolik yuz berdi",
+      "description": "Serverda kutilmagan xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko'ring."
+    },
+    "empty": {
+      "title": "Ma'lumot topilmadi",
+      "description": "Bu bo'limda hozircha ma'lumot mavjud emas."
+    },
+    "noResults": {
+      "title": "Qidiruv natijalari topilmadi",
+      "description": "Siz kiritgan so'rov bo'yicha hech qanday natija topilmadi."
+    },
+    "offline": {
+      "title": "Internet aloqasi yo'q",
+      "description": "Iltimos, internet ulanishingizni tekshiring va qayta urinib ko'ring."
+    },
+    "permission": {
+      "title": "Ruxsat berilmagan",
+      "description": "Siz ushbu sahifani ko'rish uchun ruxsatga ega emassiz."
+    },
+    "retry": "Qayta urinish",
+    "backToHome": "Bosh sahifaga qaytish",
+    "search": "Qidirish",
+    "refresh": "Sahifani yangilash",
+    "getHelp": "Yordam olish",
+    "allArticles": "Barcha moddalar",
+    "backToSections": "Bo'limlarga qaytish",
+    "goBack": "Orqaga qaytish"
+  },
+  "pagination": {
+    "from": "dan",
+    "results": "natija",
+    "show": "Ko'rsatish"
   }
 }

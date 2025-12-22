@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Globe, ChevronDown, Check } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { locales, localeNames, type Locale } from '@/lib/i18n';
 
@@ -24,13 +24,71 @@ const localeShort: Record<Locale, string> = {
   en: 'EN',
 };
 
+// Create seamless transition overlay for language switch
+function createTransitionOverlay() {
+  if (typeof document === 'undefined') return;
+  
+  // Check if overlay already exists
+  let overlay = document.getElementById('language-transition-overlay');
+  
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'language-transition-overlay';
+    // Use the same background as the page for seamless transition
+    overlay.style.cssText = `
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transition: opacity 200ms ease-out;
+    `;
+    document.body.appendChild(overlay);
+  }
+  
+  // Trigger instant fade in
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      overlay!.style.opacity = '1';
+      overlay!.style.pointerEvents = 'auto';
+    });
+  });
+  
+  return overlay;
+}
+
+// Remove transition overlay with fade
+function removeTransitionOverlay() {
+  if (typeof document === 'undefined') return;
+  
+  const overlay = document.getElementById('language-transition-overlay');
+  if (overlay) {
+    // Small delay to ensure content is rendered
+    setTimeout(() => {
+      overlay.style.transition = 'opacity 300ms ease-in';
+      overlay.style.opacity = '0';
+      overlay.style.pointerEvents = 'none';
+      setTimeout(() => {
+        overlay.remove();
+      }, 300);
+    }, 50);
+  }
+}
+
 export function LanguageSwitcher({ locale, variant = 'default' }: LanguageSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const router = useRouter();
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const currentLocale = locale as Locale;
+
+  // Remove overlay on mount (in case it was left over from navigation)
+  useEffect(() => {
+    removeTransitionOverlay();
+    setIsTransitioning(false);
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -44,37 +102,65 @@ export function LanguageSwitcher({ locale, variant = 'default' }: LanguageSwitch
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const switchLocale = (newLocale: Locale) => {
+  const switchLocale = useCallback((newLocale: Locale) => {
+    if (newLocale === currentLocale || isTransitioning) return;
+    
+    setIsTransitioning(true);
+    
     // Store preference in localStorage
     if (typeof window !== 'undefined') {
       localStorage.setItem('preferred-locale', newLocale);
     }
     
-    // Replace the current locale in the pathname
-    const newPath = pathname.replace(`/${locale}`, `/${newLocale}`);
-    router.push(newPath);
-    setIsOpen(false);
-  };
+    // Create seamless transition overlay
+    createTransitionOverlay();
+    
+    // Wait for overlay to fully appear, then navigate
+    setTimeout(() => {
+      const newPath = pathname.replace(`/${locale}`, `/${newLocale}`);
+      // Use window.location for full page reload to ensure all translations are updated
+      window.location.href = newPath;
+      setIsOpen(false);
+    }, 200);
+  }, [currentLocale, isTransitioning, pathname, locale]);
 
-  // Buttons variant - horizontal UZ | RU | EN buttons
+  // Buttons variant - horizontal UZ RU EN buttons (like screenshot)
   if (variant === 'buttons') {
     return (
-      <div className="flex items-center border border-gov-border rounded-lg overflow-hidden">
-        {locales.map((loc, index) => (
-          <button
-            key={loc}
-            onClick={() => switchLocale(loc)}
-            className={cn(
-              'px-3 py-1.5 text-sm font-semibold transition-colors',
-              loc === currentLocale
-                ? 'bg-primary-800 text-white'
-                : 'bg-gov-surface text-text-secondary hover:bg-primary-50 hover:text-primary-800',
-              index !== locales.length - 1 && 'border-r border-gov-border'
-            )}
-          >
-            {localeShort[loc]}
-          </button>
-        ))}
+      <div className="inline-flex items-center bg-gray-100 rounded-lg p-0.5">
+        <button
+          onClick={() => switchLocale('uz')}
+          className={cn(
+            'px-3 py-1.5 text-sm font-medium rounded-md transition-all',
+            currentLocale === 'uz'
+              ? 'bg-primary-700 text-white shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          )}
+        >
+          UZ
+        </button>
+        <button
+          onClick={() => switchLocale('ru')}
+          className={cn(
+            'px-3 py-1.5 text-sm font-medium rounded-md transition-all',
+            currentLocale === 'ru'
+              ? 'bg-primary-700 text-white shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          )}
+        >
+          RU
+        </button>
+        <button
+          onClick={() => switchLocale('en')}
+          className={cn(
+            'px-3 py-1.5 text-sm font-medium rounded-md transition-all',
+            currentLocale === 'en'
+              ? 'bg-primary-700 text-white shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          )}
+        >
+          EN
+        </button>
       </div>
     );
   }
@@ -102,28 +188,43 @@ export function LanguageSwitcher({ locale, variant = 'default' }: LanguageSwitch
     );
   }
 
-  // Minimal variant - just text for top bar (UZ | RU | EN)
+  // Minimal variant - same as buttons but for header (white background)
   if (variant === 'minimal') {
     return (
-      <div className="flex items-center gap-0 text-sm">
-        {locales.map((loc, index) => (
-          <span key={loc} className="flex items-center">
-            <button
-              onClick={() => switchLocale(loc)}
-              className={cn(
-                'px-2 py-1 font-medium transition-all',
-                loc === currentLocale 
-                  ? 'text-white' 
-                  : 'text-primary-200 hover:text-white'
-              )}
-            >
-              {localeShort[loc]}
-            </button>
-            {index < locales.length - 1 && (
-              <span className="text-primary-400">|</span>
-            )}
-          </span>
-        ))}
+      <div className="inline-flex items-center bg-gray-100 rounded-lg p-0.5">
+        <button
+          onClick={() => switchLocale('uz')}
+          className={cn(
+            'px-2.5 py-1 text-xs font-medium rounded-md transition-all',
+            currentLocale === 'uz'
+              ? 'bg-primary-700 text-white shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          )}
+        >
+          UZ
+        </button>
+        <button
+          onClick={() => switchLocale('ru')}
+          className={cn(
+            'px-2.5 py-1 text-xs font-medium rounded-md transition-all',
+            currentLocale === 'ru'
+              ? 'bg-primary-700 text-white shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          )}
+        >
+          RU
+        </button>
+        <button
+          onClick={() => switchLocale('en')}
+          className={cn(
+            'px-2.5 py-1 text-xs font-medium rounded-md transition-all',
+            currentLocale === 'en'
+              ? 'bg-primary-700 text-white shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          )}
+        >
+          EN
+        </button>
       </div>
     );
   }

@@ -5,7 +5,7 @@ import { createContext, useContext, useEffect, useState, useCallback, ReactNode 
 // Types
 export interface AccessibilitySettings {
   fontSize: 'small' | 'normal' | 'large' | 'xlarge';
-  contrast: 'normal' | 'high' | 'dark';
+  contrast: 'normal' | 'dark';
   textSpacing: 'normal' | 'increased';
   dyslexicFont: boolean;
   reducedMotion: boolean;
@@ -82,7 +82,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     // Remove all accessibility classes first
     html.classList.remove(
       'font-size-small', 'font-size-normal', 'font-size-large', 'font-size-xlarge',
-      'contrast-normal', 'contrast-high', 'contrast-dark',
+      'contrast-normal', 'contrast-dark',
       'text-spacing-normal', 'text-spacing-increased',
       'dyslexic-font',
       'reduced-motion',
@@ -200,6 +200,7 @@ export function useAccessibility() {
 
 // Export font size map for use in components
 export { fontSizeMap };
+
 
 
 

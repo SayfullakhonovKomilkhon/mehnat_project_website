@@ -1,8 +1,4 @@
-'use client';
-
-import { useState, useEffect, useRef } from 'react';
-import { useTranslations } from 'next-intl';
-import { motion, useInView } from 'framer-motion';
+import { Suspense } from 'react';
 import { 
   ArrowRight, 
   Layers, 
@@ -11,66 +7,38 @@ import {
   Users, 
   Award,
   Shield,
-  Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button, GovVerifiedBadge } from '@/components/ui';
 import { GovEmblem } from '@/components/layout';
-import { HeroSearch } from '@/components/search';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+
+// Import client search component
+import { HeroSearchWrapper } from './HeroSearchWrapper';
 
 interface HeroSectionProps {
   locale: string;
 }
 
-// Stats data
+// Stats data - static for SSR
 const statsData = [
-  { key: 'totalArticles', value: 350, suffix: '+', icon: FileText },
-  { key: 'totalComments', value: 1200, suffix: '+', icon: MessageSquare },
-  { key: 'users', value: 50000, suffix: '+', icon: Users },
-  { key: 'experts', value: 25, suffix: '+', icon: Award },
+  { key: 'totalArticles', value: '350+', icon: FileText },
+  { key: 'totalComments', value: '1,200+', icon: MessageSquare },
+  { key: 'users', value: '50,000+', icon: Users },
+  { key: 'experts', value: '25+', icon: Award },
 ];
 
-export function HeroSection({ locale }: HeroSectionProps) {
-  const t = useTranslations();
-  const statsRef = useRef<HTMLDivElement>(null);
-  const isStatsInView = useInView(statsRef, { once: true, margin: '-100px' });
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.12,
-        delayChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
-    },
-  };
-
-  const floatVariants = {
-    initial: { y: 0 },
-    animate: {
-      y: [-10, 10, -10],
-      transition: { duration: 6, repeat: Infinity, ease: 'easeInOut' },
-    },
-  };
+// Server component for hero section - no client JS needed for static content
+export async function HeroSection({ locale }: HeroSectionProps) {
+  const t = await getTranslations();
 
   return (
-    <section className="relative min-h-[90vh] lg:min-h-[85vh] overflow-hidden">
+    <section className="relative min-h-[auto] md:min-h-[85vh] overflow-hidden pb-8 md:pb-0">
       {/* Background Gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary-800 via-primary-700 to-primary-500" />
       
-      {/* Geometric Pattern Overlay */}
+      {/* Geometric Pattern Overlay - Static CSS */}
       <div 
         className="absolute inset-0 opacity-[0.07]"
         style={{
@@ -90,114 +58,60 @@ export function HeroSection({ locale }: HeroSectionProps) {
       {/* Subtle Map/Labor Imagery Overlay */}
       <div className="absolute inset-0 bg-[url('/images/uzbekistan-map.svg')] bg-no-repeat bg-center bg-contain opacity-[0.03]" />
 
-      {/* Gradient Orbs */}
-      <motion.div
-        variants={floatVariants}
-        initial="initial"
-        animate="animate"
-        className="absolute top-20 right-[10%] w-[500px] h-[500px] bg-accent-gold/20 rounded-full blur-[120px]"
-      />
-      <motion.div
-        variants={floatVariants}
-        initial="initial"
-        animate="animate"
-        style={{ animationDelay: '2s' }}
-        className="absolute bottom-0 left-[5%] w-[400px] h-[400px] bg-primary-400/30 rounded-full blur-[100px]"
-      />
+      {/* Static Gradient Orbs - CSS only, no animation */}
+      <div className="absolute top-20 right-[10%] w-[500px] h-[500px] bg-accent-gold/20 rounded-full blur-[120px] animate-pulse-soft" />
+      <div className="absolute bottom-0 left-[5%] w-[400px] h-[400px] bg-primary-400/30 rounded-full blur-[100px] animate-pulse-soft" style={{ animationDelay: '1.5s' }} />
 
-      {/* Floating Decorative Elements */}
-      <motion.div
-        animate={{ 
-          y: [0, -20, 0], 
-          rotate: [0, 10, 0],
-          scale: [1, 1.05, 1]
-        }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-[15%] right-[8%] hidden lg:block"
-      >
+      {/* Static Decorative Elements - No infinite animations */}
+      <div className="absolute top-[15%] right-[8%] hidden lg:block">
         <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
           <FileText className="w-10 h-10 text-accent-gold" />
         </div>
-      </motion.div>
+      </div>
       
-      <motion.div
-        animate={{ 
-          y: [0, 15, 0], 
-          rotate: [0, -8, 0],
-        }}
-        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        className="absolute bottom-[25%] right-[15%] hidden lg:block"
-      >
+      <div className="absolute bottom-[25%] right-[15%] hidden lg:block">
         <div className="w-16 h-16 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
           <Shield className="w-8 h-8 text-white/80" />
         </div>
-      </motion.div>
-
-      <motion.div
-        animate={{ 
-          y: [0, 12, 0], 
-          x: [0, -5, 0],
-        }}
-        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-        className="absolute top-[30%] left-[5%] hidden lg:block"
-      >
-        <div className="w-14 h-14 rounded-lg bg-accent-gold/20 backdrop-blur-sm flex items-center justify-center border border-accent-gold/30">
-          <Sparkles className="w-7 h-7 text-accent-gold" />
-        </div>
-      </motion.div>
+      </div>
 
       {/* Main Content */}
       <div className="relative z-10 section-container">
-        <div className="pt-16 pb-8 lg:pt-24 lg:pb-16">
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="max-w-4xl mx-auto text-center"
-          >
+        <div className="pt-8 pb-6 sm:pt-12 sm:pb-8 lg:pt-24 lg:pb-16">
+          <div className="max-w-4xl mx-auto text-center px-2 sm:px-0">
             {/* Verified Badge */}
-            <motion.div variants={itemVariants} className="mb-6">
+            <div className="mb-4 sm:mb-6 animate-fadeIn">
               <GovVerifiedBadge size="md" className="inline-flex bg-white/10 backdrop-blur-sm border border-white/20">
                 <Shield className="w-4 h-4" />
                 {t('common.verifiedByGov')}
               </GovVerifiedBadge>
-            </motion.div>
+            </div>
 
             {/* Main Heading */}
-            <motion.h1
-              variants={itemVariants}
-              className="font-heading text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-6 leading-tight"
-            >
+            <h1 className="font-heading text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight animate-slideUp">
               {t('hero.title')}
-            </motion.h1>
+            </h1>
 
             {/* Subheading */}
-            <motion.p
-              variants={itemVariants}
-              className="text-lg sm:text-xl lg:text-2xl text-primary-100 mb-4 max-w-3xl mx-auto leading-relaxed"
-            >
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-primary-100 mb-3 sm:mb-4 max-w-3xl mx-auto leading-relaxed animate-slideUp-delay-1">
               {t('hero.subtitle')}
-            </motion.p>
+            </p>
 
             {/* Description */}
-            <motion.p
-              variants={itemVariants}
-              className="text-base text-primary-200 mb-10 max-w-2xl mx-auto"
-            >
+            <p className="text-sm sm:text-base text-primary-200 mb-6 sm:mb-10 max-w-2xl mx-auto animate-slideUp-delay-2">
               {t('hero.description')}
-            </motion.p>
+            </p>
 
-            {/* Hero Search */}
-            <motion.div variants={itemVariants} className="mb-10">
-              <HeroSearch locale={locale} />
-            </motion.div>
+            {/* Hero Search - Client Component */}
+            <div className="mb-6 sm:mb-10 animate-slideUp-delay-2">
+              <Suspense fallback={<SearchFallback />}>
+                <HeroSearchWrapper locale={locale} />
+              </Suspense>
+            </div>
 
             {/* CTA Buttons */}
-            <motion.div
-              variants={itemVariants}
-              className="flex flex-col sm:flex-row items-center justify-center gap-4"
-            >
-              <Link href={`/${locale}/articles`}>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 animate-slideUp-delay-3">
+              <Link href={`/${locale}/articles`} className="w-full sm:w-auto">
                 <Button 
                   variant="gold" 
                   size="lg" 
@@ -207,7 +121,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
                   {t('hero.cta')}
                 </Button>
               </Link>
-              <Link href={`/${locale}/sections`}>
+              <Link href={`/${locale}/sections`} className="w-full sm:w-auto">
                 <Button 
                   variant="outline" 
                   size="lg" 
@@ -217,35 +131,28 @@ export function HeroSection({ locale }: HeroSectionProps) {
                   {t('hero.exploreBtn')}
                 </Button>
               </Link>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
 
-        {/* Stats Strip */}
-        <motion.div
-          ref={statsRef}
-          initial={{ opacity: 0, y: 40 }}
-          animate={isStatsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="relative"
-        >
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-6 lg:p-8">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+        {/* Stats Strip - Static render, no animated counters */}
+        <div className="relative animate-fadeIn mt-6 sm:mt-8 lg:mt-0" style={{ animationDelay: '0.4s' }}>
+          <div className="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl border border-white/20 p-4 sm:p-6 lg:p-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               {statsData.map((stat, index) => (
                 <StatItem
                   key={stat.key}
                   stat={stat}
                   index={index}
-                  isInView={isStatsInView}
                   label={t(`stats.${stat.key}`)}
                 />
               ))}
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Bottom Wave Decoration */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 lg:h-24 overflow-hidden">
+        {/* Bottom Wave Decoration - Hidden on mobile */}
+        <div className="hidden md:block absolute bottom-0 left-0 right-0 h-16 lg:h-24 overflow-hidden">
           <svg
             className="absolute bottom-0 w-full h-full"
             viewBox="0 0 1440 120"
@@ -263,70 +170,45 @@ export function HeroSection({ locale }: HeroSectionProps) {
   );
 }
 
-// Animated Stat Item Component
+// Static Stat Item - No animated counter
 function StatItem({ 
   stat, 
   index, 
-  isInView, 
   label 
 }: { 
   stat: typeof statsData[0]; 
   index: number; 
-  isInView: boolean;
   label: string;
 }) {
-  const [count, setCount] = useState(0);
   const Icon = stat.icon;
 
-  useEffect(() => {
-    if (!isInView) return;
-
-    const duration = 2000; // 2 seconds
-    const steps = 60;
-    const stepDuration = duration / steps;
-    const increment = stat.value / steps;
-    
-    let currentStep = 0;
-    const timer = setInterval(() => {
-      currentStep++;
-      setCount(Math.min(Math.round(increment * currentStep), stat.value));
-      
-      if (currentStep >= steps) {
-        clearInterval(timer);
-      }
-    }, stepDuration);
-
-    return () => clearInterval(timer);
-  }, [isInView, stat.value]);
-
-  const formatNumber = (num: number) => {
-    if (num >= 1000) {
-      return num.toLocaleString();
-    }
-    return num.toString();
-  };
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="text-center"
+    <div 
+      className="text-center animate-fadeIn"
+      style={{ animationDelay: `${0.5 + index * 0.1}s` }}
     >
-      <div className="flex items-center justify-center mb-3">
-        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
-          <Icon className="w-6 h-6 text-accent-gold" />
+      <div className="flex items-center justify-center mb-2 sm:mb-3">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-white/10 flex items-center justify-center">
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-accent-gold" />
         </div>
       </div>
-      <div className="text-3xl lg:text-4xl font-heading font-bold text-white mb-1">
-        {formatNumber(count)}{stat.suffix}
+      <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-heading font-bold text-white mb-1 sm:mb-2">
+        {stat.value}
       </div>
-      <div className="text-sm text-primary-200 font-medium">
+      <div className="text-xs sm:text-sm text-white font-medium leading-tight">
         {label}
       </div>
-    </motion.div>
+    </div>
+  );
+}
+
+// Search fallback for Suspense
+function SearchFallback() {
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="h-14 bg-white/10 rounded-xl animate-pulse" />
+    </div>
   );
 }
 
 export default HeroSection;
-

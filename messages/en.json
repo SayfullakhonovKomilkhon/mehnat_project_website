@@ -50,27 +50,87 @@
     "section": "Section",
     "chapter": "Chapter",
     "lastUpdated": "Last updated",
+    "tableOfContents": "Table of Contents",
+    "quickLinks": "Quick Links",
+    "officialText": "Official text",
+    "print": "Print",
+    "share": "Share",
+    "home": "Home",
+    "articles": "Articles",
+    "hasAuthorComment": "Author commentary available",
+    "hasExpertComment": "Expert commentary available",
+    "haveQuestion": "Have a question?",
+    "askAIDescription": "If you have questions about this article, ask our AI assistant",
+    "askQuestion": "Ask a Question",
+    "viewAllChapter": "View all articles in chapter {chapter}",
     "filterByChapter": "Filter by chapter",
     "allChapters": "All chapters",
     "noResults": "No results found",
+    "noResultsDescription": "No articles match your search query. Try changing the filters.",
     "searchArticles": "Search articles",
     "title": "Article Commentaries",
     "subtitle": "Professional commentaries on all articles of the Labor Code",
     "readMore": "Read More",
     "filters": "Filters",
     "clearFilters": "Clear Filters",
+    "clearAll": "Clear all",
     "applyFilters": "Apply",
     "allSections": "All Sections",
     "allLanguages": "All Languages",
     "commentType": "Comment Type",
     "translation": "Translation Language",
-    "resultsFound": "results found",
+    "resultsFound": "{count} results found",
+    "resultsCount": "{count} results",
     "showing": "Showing",
     "of": "of",
     "results": "results",
     "perPage": "Show",
     "gridView": "Grid View",
-    "listView": "List View"
+    "listView": "List View",
+    "allArticles": "All articles",
+    "hasAuthorComment": "With author comment",
+    "hasExpertComment": "With expert comment",
+    "searchLabel": "Search",
+    "sectionLabel": "Section",
+    "chapterLabel": "Chapter",
+    "languageLabel": "Language"
+  },
+  "search": {
+    "title": "Search the Labor Code",
+    "subtitle": "Search by article number, title, or keywords",
+    "placeholder": "Enter search query...",
+    "searchButton": "Search",
+    "results": "Search Results",
+    "resultsFor": "Search:",
+    "resultsFound": "{count} results found",
+    "noResults": "No results found",
+    "noResultsFor": "No articles found for \"{query}\". Try different words or change the filters.",
+    "searchTips": "Search tips:",
+    "tip1": "Shorten keywords",
+    "tip2": "Check spelling",
+    "tip3": "Use general terms",
+    "tip4": "Search by article number (e.g., \"21\")",
+    "articles": "Articles",
+    "viewAllResults": "View all results",
+    "noResultsFound": "No results found for \"{query}\"",
+    "tryDifferentWords": "Try different words",
+    "recentSearches": "Recent searches",
+    "popularSearches": "Popular searches",
+    "clear": "Clear",
+    "articlesList": "Articles list",
+    "contentType": "Content type",
+    "all": "All",
+    "articleText": "Article text",
+    "viewSections": "View sections",
+    "quickLinks": "Quick Links",
+    "sectionsCount": "{count} sections",
+    "articlesCount": "{count}+ articles",
+    "professionalComments": "Professional comments",
+    "inTitle": "In title",
+    "inContent": "In content",
+    "inAuthorComment": "In author comment",
+    "inExpertComment": "In expert comment",
+    "relevant": "Relevant"
   },
   "chat": {
     "title": "Have Questions?",
@@ -136,6 +196,56 @@
     "viewOnMap": "View on map",
     "hotline": "Hotline",
     "backToTop": "Back to top",
-    "followUs": "Follow us"
+    "followUs": "Follow us",
+    "laborCodePdf": "Labor Code (PDF)",
+    "lexUz": "Lex.uz - Legislation Database",
+    "govPortal": "Uzbekistan Government Portal"
+  },
+  "breadcrumb": {
+    "section": "section",
+    "chapter": "chapter"
+  },
+  "badges": {
+    "article": "article",
+    "readMore": "Read More"
+  },
+  "errors": {
+    "404": {
+      "title": "Page not found",
+      "description": "The page you are looking for does not exist or has been moved."
+    },
+    "500": {
+      "title": "An error occurred",
+      "description": "An unexpected error occurred on the server. Please try again later."
+    },
+    "empty": {
+      "title": "No data found",
+      "description": "There is no data available in this section yet."
+    },
+    "noResults": {
+      "title": "Search results not found",
+      "description": "No results were found for your query."
+    },
+    "offline": {
+      "title": "No internet connection",
+      "description": "Please check your internet connection and try again."
+    },
+    "permission": {
+      "title": "Access denied",
+      "description": "You do not have permission to view this page."
+    },
+    "retry": "Retry",
+    "backToHome": "Back to home",
+    "search": "Search",
+    "refresh": "Refresh page",
+    "getHelp": "Get help",
+    "allArticles": "All articles",
+    "backToSections": "Back to sections",
+    "goBack": "Go back"
+  },
+  "pagination": {
+    "from": "of",
+    "results": "results",
+    "show": "Show"
   }
 }

@@ -1,9 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Mail, 
   Phone, 
@@ -53,7 +52,7 @@ interface FooterProps {
   locale: string;
 }
 
-// Mobile accordion section component
+// Mobile accordion section component - CSS-only animation
 function MobileAccordion({ 
   title, 
   children, 
@@ -64,6 +63,7 @@ function MobileAccordion({
   defaultOpen?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   return (
     <div className="border-b border-primary-700/50 md:border-0">
@@ -87,22 +87,25 @@ function MobileAccordion({
         {title}
       </h4>
 
-      {/* Content */}
-      <AnimatePresence initial={false}>
-        {(isOpen || typeof window !== 'undefined' && window.innerWidth >= 768) && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden md:!h-auto md:!opacity-100"
-          >
-            <div className="pb-4 md:pb-0">
-              {children}
-            </div>
-          </motion.div>
+      {/* Desktop: always visible */}
+      <div className="hidden md:block">
+        <div className="pb-4 md:pb-0">
+          {children}
+        </div>
+      </div>
+      
+      {/* Mobile: CSS-only accordion animation */}
+      <div 
+        ref={contentRef}
+        className={cn(
+          'md:hidden overflow-hidden transition-all duration-200 ease-out',
+          isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
         )}
-      </AnimatePresence>
+      >
+        <div className="pb-4">
+          {children}
+        </div>
+      </div>
     </div>
   );
 }
@@ -123,12 +126,12 @@ export function Footer({ locale }: FooterProps) {
     { href: `/${locale}/about`, label: t('nav.about') },
   ];
 
-  // Legal resources
+  // Legal resources - using translation keys
   const legalResources = [
-    { href: '/documents/mehnat-kodeksi.pdf', label: 'Mehnat kodeksi (PDF)', icon: FileText, external: false },
-    { href: 'https://lex.uz', label: 'Lex.uz - Qonunchilik bazasi', icon: Scale, external: true },
+    { href: '/documents/mehnat-kodeksi.pdf', labelKey: 'footer.laborCodePdf', icon: FileText, external: false },
+    { href: 'https://lex.uz', labelKey: 'footer.lexUz', icon: Scale, external: true },
     { href: 'https://my.gov.uz', label: 'my.gov.uz', icon: Building2, external: true },
-    { href: 'https://gov.uz', label: "O'zbekiston Hukumat portali", icon: Globe, external: true },
+    { href: 'https://gov.uz', labelKey: 'footer.govPortal', icon: Globe, external: true },
   ];
 
   // Social links
@@ -143,7 +146,7 @@ export function Footer({ locale }: FooterProps) {
   const bottomLinks = [
     { href: `/${locale}/privacy`, label: t('footer.privacy') },
     { href: `/${locale}/terms`, label: t('footer.terms') },
-    { href: `/${locale}/accessibility`, label: 'Maxsus imkoniyatlar' },
+    { href: `/${locale}/accessibility`, label: t('footer.accessibility') },
   ];
 
   const handleSubscribe = async (e: React.FormEvent) => {
@@ -179,10 +182,10 @@ export function Footer({ locale }: FooterProps) {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="text-center md:text-left">
               <h3 className="font-heading font-semibold text-lg mb-1">
-                Yangiliklar uchun obuna bo'ling
+                {t('footer.newsletter')}
               </h3>
               <p className="text-primary-200 text-sm">
-                Qonunchilik yangiliklari va o'zgarishlaridan xabardor bo'ling
+                {t('footer.newsletterDesc')}
               </p>
             </div>
             
@@ -194,7 +197,7 @@ export function Footer({ locale }: FooterProps) {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email manzilingiz"
+                    placeholder={t('footer.email')}
                     required
                     className={cn(
                       'w-full h-11 pl-10 pr-4 rounded-lg',
@@ -215,7 +218,7 @@ export function Footer({ locale }: FooterProps) {
                   ) : (
                     <>
                       <Send className="w-4 h-4 md:mr-2" />
-                      <span className="hidden md:inline">Obuna</span>
+                      <span className="hidden md:inline">{t('footer.subscribe')}</span>
                     </>
                   )}
                 </Button>
@@ -223,7 +226,7 @@ export function Footer({ locale }: FooterProps) {
             ) : (
               <div className="flex items-center gap-2 text-green-400">
                 <CheckCircle className="w-5 h-5" />
-                <span>Obuna muvaffaqiyatli amalga oshirildi!</span>
+                <span>{t('footer.subscribeSuccess')}</span>
               </div>
             )}
           </div>
@@ -300,10 +303,11 @@ export function Footer({ locale }: FooterProps) {
           </MobileAccordion>
 
           {/* Column 3 - Legal Resources */}
-          <MobileAccordion title="Huquqiy manbalar">
+          <MobileAccordion title={t('footer.legalResources')}>
             <ul className="space-y-2.5">
               {legalResources.map((link) => {
                 const Icon = link.icon;
+                const label = 'labelKey' in link ? t(link.labelKey as string) : link.label;
                 return (
                   <li key={link.href}>
                     <a
@@ -313,7 +317,7 @@ export function Footer({ locale }: FooterProps) {
                       className="text-primary-200 hover:text-white text-sm transition-colors duration-200 inline-flex items-center gap-2 group"
                     >
                       <Icon className="w-4 h-4 text-accent-gold flex-shrink-0" />
-                      <span>{link.label}</span>
+                      <span>{label}</span>
                       {link.external && (
                         <ExternalLink className="w-3 h-3 opacity-50" />
                       )}
@@ -337,7 +341,7 @@ export function Footer({ locale }: FooterProps) {
                     rel="noopener noreferrer"
                     className="text-xs text-accent-gold hover:text-accent-amber transition-colors inline-flex items-center gap-1 mt-1"
                   >
-                    Xaritada ko'rish
+                    {t('footer.viewOnMap')}
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
@@ -346,7 +350,7 @@ export function Footer({ locale }: FooterProps) {
                 <Phone className="w-4 h-4 text-accent-gold mt-0.5 flex-shrink-0" />
                 <div className="space-y-1">
                   <a href="tel:1172" className="text-primary-200 hover:text-white transition-colors block">
-                    <span className="text-accent-gold font-semibold">1172</span> - Ishonch telefoni
+                    <span className="text-accent-gold font-semibold">1172</span> - {t('footer.hotline')}
                   </a>
                   <a href="tel:+998712394848" className="text-primary-200 hover:text-white transition-colors block">
                     +998 71 239-48-48
@@ -414,20 +418,19 @@ export function Footer({ locale }: FooterProps) {
               </a>
               
               {/* Back to Top */}
-              <motion.button
+              <button
                 onClick={scrollToTop}
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.95 }}
                 className={cn(
                   'p-2 rounded-lg',
                   'bg-primary-700 hover:bg-primary-600',
-                  'transition-colors duration-200',
+                  'transition-all duration-200',
+                  'hover:-translate-y-0.5 active:scale-95',
                   'focus:outline-none focus:ring-2 focus:ring-accent-gold/50'
                 )}
-                aria-label="Yuqoriga qaytish"
+                aria-label={t('footer.backToTop')}
               >
                 <ArrowUp className="w-4 h-4" />
-              </motion.button>
+              </button>
             </div>
           </div>
         </div>

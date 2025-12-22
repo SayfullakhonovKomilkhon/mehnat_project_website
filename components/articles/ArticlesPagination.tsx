@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -24,6 +24,7 @@ export function ArticlesPagination({
   onPageChange,
   onItemsPerPageChange,
 }: ArticlesPaginationProps) {
+  const t = useTranslations();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -88,28 +89,25 @@ export function ArticlesPagination({
   if (totalPages <= 1) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-gov-border"
+    <div
+      className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gov-border animate-fadeIn"
     >
       {/* Results Info */}
-      <div className="flex items-center gap-4">
-        <p className="text-sm text-text-secondary">
+      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-4 text-xs sm:text-sm">
+        <p className="text-text-secondary">
           <span className="font-medium text-text-primary">{startItem}-{endItem}</span>
-          {' '}dan {' '}
+          {' '}{t('pagination.from')}{' '}
           <span className="font-medium text-text-primary">{totalItems}</span>
-          {' '}natija
         </p>
         
-        {/* Items per page */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-text-secondary">Ko'rsatish:</span>
+        {/* Items per page - Hidden on very small screens */}
+        <div className="hidden sm:flex items-center gap-2">
+          <span className="text-text-secondary">{t('pagination.show')}:</span>
           <select
             value={itemsPerPage}
             onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
             className={cn(
-              'h-8 px-2 rounded-lg text-sm',
+              'h-7 sm:h-8 px-2 rounded-lg text-xs sm:text-sm',
               'bg-gov-light border border-gov-border',
               'text-text-primary',
               'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500'
@@ -124,35 +122,35 @@ export function ArticlesPagination({
       </div>
 
       {/* Pagination Controls */}
-      <nav className="flex items-center gap-1" aria-label="Pagination">
+      <nav className="flex items-center gap-0.5 sm:gap-1" aria-label="Pagination">
         {/* Previous Button */}
         <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
           className={cn(
-            'p-2 rounded-lg transition-colors',
+            'p-1.5 sm:p-2 rounded-lg transition-colors',
             currentPage === 1
               ? 'text-text-muted cursor-not-allowed'
               : 'text-text-secondary hover:bg-primary-50 hover:text-primary-700'
           )}
           aria-label="Previous page"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
 
         {/* Page Numbers */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5 sm:gap-1">
           {getPageNumbers().map((page, index) => (
             page === 'ellipsis' ? (
-              <span key={`ellipsis-${index}`} className="px-2 text-text-muted">
-                <MoreHorizontal className="w-5 h-5" />
+              <span key={`ellipsis-${index}`} className="px-1 sm:px-2 text-text-muted">
+                <MoreHorizontal className="w-4 h-4 sm:w-5 sm:h-5" />
               </span>
             ) : (
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
                 className={cn(
-                  'min-w-[40px] h-10 px-3 rounded-lg text-sm font-medium transition-colors',
+                  'min-w-[32px] sm:min-w-[40px] h-8 sm:h-10 px-2 sm:px-3 rounded-lg text-xs sm:text-sm font-medium transition-colors',
                   page === currentPage
                     ? 'bg-primary-800 text-white'
                     : 'text-text-secondary hover:bg-primary-50 hover:text-primary-700'
@@ -171,22 +169,18 @@ export function ArticlesPagination({
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           className={cn(
-            'p-2 rounded-lg transition-colors',
+            'p-1.5 sm:p-2 rounded-lg transition-colors',
             currentPage === totalPages
               ? 'text-text-muted cursor-not-allowed'
               : 'text-text-secondary hover:bg-primary-50 hover:text-primary-700'
           )}
           aria-label="Next page"
         >
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
       </nav>
-    </motion.div>
+    </div>
   );
 }
 
 export default ArticlesPagination;
-
-
-
-

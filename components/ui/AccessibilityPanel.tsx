@@ -157,15 +157,15 @@ export function AccessibilityPanel({ className }: AccessibilityPanelProps) {
                     )}
                     aria-label="Shriftni kichiklashtirish"
                   >
-                    <span className="text-sm font-bold">A-</span>
+                    <span className="text-sm font-bold text-gray-700">A-</span>
                   </button>
                   
                   <div className="flex-1 mx-3">
                     <div className="text-center">
-                      <span className="text-sm font-medium text-text-primary">
+                      <span className="text-sm font-semibold text-gray-800">
                         {fontSizeMap[settings.fontSize].label}
                       </span>
-                      <span className="text-xs text-text-muted ml-1">
+                      <span className="text-xs text-gray-600 ml-1">
                         ({fontSizeMap[settings.fontSize].base}px)
                       </span>
                     </div>
@@ -196,7 +196,7 @@ export function AccessibilityPanel({ className }: AccessibilityPanelProps) {
                     )}
                     aria-label="Shriftni kattalashtirish"
                   >
-                    <span className="text-lg font-bold">A+</span>
+                    <span className="text-lg font-bold text-gray-700">A+</span>
                   </button>
                 </div>
               </SettingSection>
@@ -207,7 +207,7 @@ export function AccessibilityPanel({ className }: AccessibilityPanelProps) {
                 title="Kontrast rejimi"
                 description="Ranglar kontrastini o'zgartiring"
               >
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <ContrastButton
                     label="Oddiy"
                     value="normal"
@@ -216,17 +216,6 @@ export function AccessibilityPanel({ className }: AccessibilityPanelProps) {
                     preview={
                       <div className="w-full h-6 rounded bg-white border border-gray-200 flex items-center justify-center">
                         <div className="w-3 h-3 rounded-full bg-primary-600" />
-                      </div>
-                    }
-                  />
-                  <ContrastButton
-                    label="Yuqori"
-                    value="high"
-                    current={settings.contrast}
-                    onClick={() => updateSetting('contrast', 'high')}
-                    preview={
-                      <div className="w-full h-6 rounded bg-black flex items-center justify-center">
-                        <div className="w-3 h-3 rounded-full bg-yellow-400" />
                       </div>
                     }
                   />
@@ -338,8 +327,8 @@ function SettingSection({
           <Icon className="w-4 h-4 text-primary-600" />
         </div>
         <div>
-          <h3 className="font-medium text-text-primary text-sm">{title}</h3>
-          <p className="text-xs text-text-muted">{description}</p>
+          <h3 className="font-semibold text-gray-800 text-sm">{title}</h3>
+          <p className="text-xs text-gray-600">{description}</p>
         </div>
       </div>
       {children}
@@ -377,7 +366,7 @@ function ContrastButton({
       {preview}
       <span className={cn(
         'text-xs mt-1.5 block',
-        isActive ? 'text-primary-700 font-medium' : 'text-text-secondary'
+        isActive ? 'text-primary-700 font-semibold' : 'text-gray-700 font-medium'
       )}>
         {label}
       </span>
@@ -408,7 +397,7 @@ function ToggleButtons({
             'flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors',
             current === option.value
               ? 'bg-primary-600 text-white'
-              : 'bg-gov-light text-text-secondary hover:bg-primary-50 hover:text-primary-700'
+              : 'bg-gov-light text-gray-700 hover:bg-primary-50 hover:text-primary-700'
           )}
           aria-pressed={current === option.value}
         >
@@ -431,7 +420,7 @@ function ToggleSwitch({
 }) {
   return (
     <label className="flex items-center justify-between cursor-pointer">
-      <span className="text-sm text-text-secondary">{label}</span>
+      <span className="text-sm text-gray-700">{label}</span>
       <button
         role="switch"
         aria-checked={checked}
@@ -453,6 +442,7 @@ function ToggleSwitch({
 }
 
 export default AccessibilityPanel;
+
 
 
 

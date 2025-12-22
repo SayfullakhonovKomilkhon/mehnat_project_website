@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui';
+import { formatDate } from '@/lib/date-utils';
 
 interface ExpertCommentaryProps {
   locale: string;
@@ -242,10 +243,12 @@ export function ExpertCommentary({ locale, hasCommentary }: ExpertCommentaryProp
                 </p>
               </div>
 
-              {/* Date */}
+              {/* Date - using suppressHydrationWarning to avoid mismatch */}
               <div className="hidden sm:flex items-center gap-1.5 text-sm text-text-muted">
                 <Calendar className="w-4 h-4" />
-                {new Date(expertData.date).toLocaleDateString('uz-UZ')}
+                <span suppressHydrationWarning>
+                  {formatDate(expertData.date)}
+                </span>
               </div>
             </div>
           </div>
@@ -272,6 +275,7 @@ export function ExpertCommentary({ locale, hasCommentary }: ExpertCommentaryProp
 }
 
 export default ExpertCommentary;
+
 
 
 

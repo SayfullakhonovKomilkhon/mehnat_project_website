@@ -1,9 +1,7 @@
-'use client';
-
-import { useTranslations } from 'next-intl';
-import { motion } from 'framer-motion';
+import { getTranslations } from 'next-intl/server';
 import { Shield, BookOpen, Search, Bell } from 'lucide-react';
 import { Card } from '@/components/ui';
+import { cn } from '@/lib/utils';
 
 const features = [
   { key: 'official', icon: Shield, color: 'primary' },
@@ -25,95 +23,77 @@ const colorStyles = {
   },
 };
 
-export function Features() {
-  const t = useTranslations('features');
+// Server component - no client JS needed
+export async function Features() {
+  const t = await getTranslations('features');
 
   return (
-    <section className="py-20 md:py-28 bg-gov-light">
+    <section className="py-12 sm:py-16 md:py-28 bg-gov-light">
       <div className="section-container">
         {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <motion.span
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="inline-block px-4 py-1.5 bg-primary-100 text-primary-800 text-sm font-medium rounded-full mb-4"
-          >
+        <div className="text-center mb-8 sm:mb-12 md:mb-16 animate-fadeIn">
+          <span className="inline-block px-3 sm:px-4 py-1 sm:py-1.5 bg-primary-100 text-primary-800 text-xs sm:text-sm font-medium rounded-full mb-3 sm:mb-4">
             {t('subtitle')}
-          </motion.span>
-          <h2 className="font-heading text-3xl md:text-4xl font-bold text-text-primary mb-4 text-balance">
+          </span>
+          <h2 className="font-heading text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-text-primary mb-3 sm:mb-4 text-balance px-4">
             {t('title')}
           </h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-primary-600 to-accent-gold mx-auto rounded-full" />
-        </motion.div>
+          <div className="w-16 sm:w-20 h-1 bg-gradient-to-r from-primary-600 to-accent-gold mx-auto rounded-full" />
+        </div>
 
-        {/* Features Grid */}
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-50px' }}
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: { staggerChildren: 0.15 },
-            },
-          }}
-          className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8"
-        >
+        {/* Features Grid - CSS animations */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {features.map((feature, index) => {
             const colors = colorStyles[feature.color];
             const Icon = feature.icon;
 
             return (
-              <motion.div
+              <div
                 key={feature.key}
-                variants={{
-                  hidden: { opacity: 0, y: 30 },
-                  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-                }}
+                className="animate-fadeIn"
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <Card
                   hover
-                  className={`h-full group transition-all duration-300 ${colors.borderHover}`}
+                  className={cn(
+                    'h-full group transition-all duration-300',
+                    colors.borderHover
+                  )}
                 >
                   {/* Icon */}
-                  <motion.div
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    className={`w-14 h-14 rounded-xl ${colors.iconBg} flex items-center justify-center mb-5`}
+                  <div
+                    className={cn(
+                      'w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 md:mb-5',
+                      'transition-transform duration-200 group-hover:scale-110',
+                      colors.iconBg
+                    )}
                   >
-                    <Icon className={`w-7 h-7 ${colors.iconColor}`} />
-                  </motion.div>
+                    <Icon className={cn('w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7', colors.iconColor)} />
+                  </div>
 
                   {/* Content */}
-                  <h3 className="font-heading text-lg font-semibold text-text-primary mb-3 group-hover:text-primary-700 transition-colors">
+                  <h3 className="font-heading text-base sm:text-lg font-semibold text-text-primary mb-2 sm:mb-3 group-hover:text-primary-700 transition-colors">
                     {t(`${feature.key}.title`)}
                   </h3>
-                  <p className="text-text-secondary text-sm leading-relaxed">
+                  <p className="text-text-secondary text-xs sm:text-sm leading-relaxed">
                     {t(`${feature.key}.description`)}
                   </p>
 
                   {/* Decorative Element */}
-                  <div className="mt-5 pt-4 border-t border-gov-border">
-                    <div className={`w-8 h-1 rounded-full ${colors.iconBg} group-hover:w-full transition-all duration-500`} />
+                  <div className="mt-3 sm:mt-4 md:mt-5 pt-3 sm:pt-4 border-t border-gov-border">
+                    <div className={cn(
+                      'w-6 sm:w-8 h-1 rounded-full transition-all duration-500 group-hover:w-full',
+                      colors.iconBg
+                    )} />
                   </div>
                 </Card>
-              </motion.div>
+              </div>
             );
           })}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
 }
 
 export default Features;
-
-
-
-

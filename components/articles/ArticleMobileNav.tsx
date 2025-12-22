@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { 
   FileText, 
   User, 
@@ -21,14 +22,15 @@ interface ArticleMobileNavProps {
   locale: string;
 }
 
-const tabs = [
-  { id: 'content', label: 'Mazmun', icon: FileText },
-  { id: 'author', label: 'Muallif', icon: User },
-  { id: 'expert', label: 'Ekspert', icon: Scale },
-  { id: 'related', label: "Bog'liq", icon: Link2 },
+const tabKeys = [
+  { id: 'content', labelKey: 'content', icon: FileText },
+  { id: 'author', labelKey: 'authorComment', icon: User },
+  { id: 'expert', labelKey: 'expertComment', icon: Scale },
+  { id: 'related', labelKey: 'relatedArticles', icon: Link2 },
 ];
 
 export function ArticleMobileNav({ article, locale }: ArticleMobileNavProps) {
+  const t = useTranslations('article');
   const [activeTab, setActiveTab] = useState('content');
   const [showBackToTop, setShowBackToTop] = useState(false);
 
@@ -37,12 +39,18 @@ export function ArticleMobileNav({ article, locale }: ArticleMobileNavProps) {
   const prevArticle = currentIndex > 0 ? allArticles[currentIndex - 1] : null;
   const nextArticle = currentIndex < allArticles.length - 1 ? allArticles[currentIndex + 1] : null;
 
-  // Track scroll for back to top button
-  if (typeof window !== 'undefined') {
-    window.addEventListener('scroll', () => {
+  // Track scroll for back to top button - properly using useEffect
+  useEffect(() => {
+    const handleScroll = () => {
       setShowBackToTop(window.scrollY > 500);
-    });
-  }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    // Initial check
+    handleScroll();
+    
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const scrollToSection = (id: string) => {
     setActiveTab(id);
@@ -70,7 +78,7 @@ export function ArticleMobileNav({ article, locale }: ArticleMobileNavProps) {
       {/* Top Tabs - Mobile Only */}
       <div className="lg:hidden sticky top-16 z-30 bg-gov-surface border-b border-gov-border -mx-4 px-4">
         <div className="flex overflow-x-auto scrollbar-hide -mx-4 px-4 py-2 gap-1">
-          {tabs.map((tab) => {
+          {tabKeys.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             
@@ -86,7 +94,7 @@ export function ArticleMobileNav({ article, locale }: ArticleMobileNavProps) {
                 )}
               >
                 <Icon className="w-4 h-4" />
-                {tab.label}
+                {t(tab.labelKey)}
               </button>
             );
           })}
@@ -104,7 +112,7 @@ export function ArticleMobileNav({ article, locale }: ArticleMobileNavProps) {
             >
               <ChevronLeft className="w-5 h-5" />
               <span className="text-sm">
-                {prevArticle.number}-modda
+                {prevArticle.number}-{t('articleNumber').toLowerCase()}
               </span>
             </Link>
           ) : (
@@ -114,7 +122,7 @@ export function ArticleMobileNav({ article, locale }: ArticleMobileNavProps) {
           {/* Center - Article Number */}
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-text-primary">
-              {article.number}-modda
+              {article.number}-{t('articleNumber').toLowerCase()}
             </span>
           </div>
 
@@ -125,7 +133,7 @@ export function ArticleMobileNav({ article, locale }: ArticleMobileNavProps) {
               className="flex items-center gap-2 text-text-secondary hover:text-primary-600 transition-colors"
             >
               <span className="text-sm">
-                {nextArticle.number}-modda
+                {nextArticle.number}-{t('articleNumber').toLowerCase()}
               </span>
               <ChevronRight className="w-5 h-5" />
             </Link>
@@ -161,6 +169,7 @@ export function ArticleMobileNav({ article, locale }: ArticleMobileNavProps) {
 }
 
 export default ArticleMobileNav;
+
 
 
 

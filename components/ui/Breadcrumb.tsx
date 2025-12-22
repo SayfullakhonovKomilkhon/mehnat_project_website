@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { ChevronRight, Home } from 'lucide-react';
@@ -19,6 +20,12 @@ interface BreadcrumbProps {
 
 export function Breadcrumb({ items, locale, className, showHome = true }: BreadcrumbProps) {
   const t = useTranslations();
+  const [origin, setOrigin] = useState('');
+  
+  // Get window.location.origin on client side only
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
   
   // Build full breadcrumb list with home
   const allItems: BreadcrumbItem[] = showHome 
@@ -33,22 +40,24 @@ export function Breadcrumb({ items, locale, className, showHome = true }: Breadc
 
   return (
     <>
-      {/* Schema.org Breadcrumb Markup */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            "itemListElement": allItems.map((item, index) => ({
-              "@type": "ListItem",
-              "position": index + 1,
-              "name": item.label,
-              "item": item.href ? `${typeof window !== 'undefined' ? window.location.origin : ''}${item.href}` : undefined
-            }))
-          })
-        }}
-      />
+      {/* Schema.org Breadcrumb Markup - only render with origin on client */}
+      {origin && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              "itemListElement": allItems.map((item, index) => ({
+                "@type": "ListItem",
+                "position": index + 1,
+                "name": item.label,
+                "item": item.href ? `${origin}${item.href}` : undefined
+              }))
+            })
+          }}
+        />
+      )}
       
       {/* Visual Breadcrumb */}
       <nav 
@@ -128,6 +137,7 @@ export function Breadcrumb({ items, locale, className, showHome = true }: Breadc
 }
 
 export default Breadcrumb;
+
 
 
 

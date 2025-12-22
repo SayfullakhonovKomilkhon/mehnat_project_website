@@ -1,18 +1,19 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { 
   ChevronRight, 
   Calendar, 
   Printer, 
   Share2, 
   BookOpen,
-  Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge, GovVerifiedBadge } from '@/components/ui';
 import { Article, getLocalizedText } from '@/lib/mock-data';
+import { formatDate } from '@/lib/date-utils';
 
 interface ArticleHeaderProps {
   article: Article;
@@ -20,9 +21,20 @@ interface ArticleHeaderProps {
 }
 
 export function ArticleHeader({ article, locale }: ArticleHeaderProps) {
+  const t = useTranslations('article');
   const title = getLocalizedText(article.title, locale);
   const sectionTitle = getLocalizedText(article.section.title, locale);
   const chapterTitle = getLocalizedText(article.chapter.title, locale);
+  
+  // State for client-side date formatting to avoid hydration mismatch
+  const [formattedDate, setFormattedDate] = useState<string>('');
+  
+  // Format date only on client side for consistent rendering
+  useEffect(() => {
+    if (article.updatedAt) {
+      setFormattedDate(formatDate(article.updatedAt));
+    }
+  }, [article.updatedAt]);
 
   const handlePrint = () => {
     if (typeof window !== 'undefined') {
@@ -49,29 +61,25 @@ export function ArticleHeader({ article, locale }: ArticleHeaderProps) {
   };
 
   return (
-    <motion.header
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="mb-8"
-    >
+    <header className="mb-8 animate-fadeIn">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-text-secondary mb-6 flex-wrap" aria-label="Breadcrumb">
         <Link 
           href={`/${locale}`} 
           className="hover:text-primary-600 transition-colors"
         >
-          Bosh sahifa
+          {t('home')}
         </Link>
         <ChevronRight className="w-4 h-4 flex-shrink-0" />
         <Link 
           href={`/${locale}/articles`}
           className="hover:text-primary-600 transition-colors"
         >
-          Moddalar
+          {t('articles')}
         </Link>
         <ChevronRight className="w-4 h-4 flex-shrink-0" />
         <span className="text-text-primary font-medium">
-          {article.number}-modda
+          {article.number}-{t('articleNumber').toLowerCase()}
         </span>
       </nav>
 
@@ -90,10 +98,10 @@ export function ArticleHeader({ article, locale }: ArticleHeaderProps) {
               <div>
                 <Badge variant="primary" size="lg" className="mb-2">
                   <BookOpen className="w-4 h-4 mr-1" />
-                  {article.number}-modda
+                  {article.number}-{t('articleNumber').toLowerCase()}
                 </Badge>
                 <GovVerifiedBadge size="sm">
-                  Rasmiy matn
+                  {t('officialText')}
                 </GovVerifiedBadge>
               </div>
             </div>
@@ -109,12 +117,12 @@ export function ArticleHeader({ article, locale }: ArticleHeaderProps) {
                 href={`/${locale}/sections/${article.section.id}`}
                 className="flex items-center gap-1 hover:text-primary-600 transition-colors"
               >
-                <span className="font-medium">{article.section.number}-bo'lim:</span>
+                <span className="font-medium">{article.section.number}-{t('section').toLowerCase()}:</span>
                 <span>{sectionTitle}</span>
               </Link>
               <ChevronRight className="w-4 h-4" />
               <span className="flex items-center gap-1">
-                <span className="font-medium">{article.chapter.number}-bob:</span>
+                <span className="font-medium">{article.chapter.number}-{t('chapter').toLowerCase()}:</span>
                 <span>{chapterTitle}</span>
               </span>
             </div>
@@ -123,16 +131,20 @@ export function ArticleHeader({ article, locale }: ArticleHeaderProps) {
             <div className="flex flex-wrap items-center gap-4 text-sm text-text-muted">
               <span className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4" />
-                Oxirgi yangilanish: {new Date(article.updatedAt).toLocaleDateString('uz-UZ')}
+                <span>{t('lastUpdated')}:</span>
+                {/* Date formatted on client to avoid hydration mismatch */}
+                <span suppressHydrationWarning>
+                  {formattedDate || formatDate(article.updatedAt)}
+                </span>
               </span>
               {article.hasAuthorComment && (
                 <Badge variant="primary" size="sm">
-                  Muallif sharhi mavjud
+                  {t('hasAuthorComment')}
                 </Badge>
               )}
               {article.hasExpertComment && (
                 <Badge variant="gold" size="sm">
-                  Ekspert sharhi mavjud
+                  {t('hasExpertComment')}
                 </Badge>
               )}
             </div>
@@ -151,7 +163,7 @@ export function ArticleHeader({ article, locale }: ArticleHeaderProps) {
               aria-label="Print article"
             >
               <Printer className="w-5 h-5" />
-              <span className="hidden sm:inline">Chop etish</span>
+              <span className="hidden sm:inline">{t('print')}</span>
             </button>
             <button
               onClick={handleShare}
@@ -164,17 +176,13 @@ export function ArticleHeader({ article, locale }: ArticleHeaderProps) {
               aria-label="Share article"
             >
               <Share2 className="w-5 h-5" />
-              <span className="hidden sm:inline">Ulashish</span>
+              <span className="hidden sm:inline">{t('share')}</span>
             </button>
           </div>
         </div>
       </div>
-    </motion.header>
+    </header>
   );
 }
 
 export default ArticleHeader;
-
-
-
-

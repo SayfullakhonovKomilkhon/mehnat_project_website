@@ -264,3 +264,4 @@ export default function SectionDetailPage({ params: { locale, id } }: SectionDet
 
 
 
+

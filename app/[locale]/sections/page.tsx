@@ -71,19 +71,19 @@ export default function SectionsPage({ params: { locale } }: SectionsPageProps) 
   const t = useTranslations();
 
   return (
-    <main id="main-content" className="py-12 md:py-16 bg-gov-light min-h-screen">
+    <main id="main-content" className="py-8 sm:py-12 md:py-16 bg-gov-light min-h-screen">
       <div className="section-container">
         {/* Page Header */}
-        <div className="text-center mb-12">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-2xl bg-primary-100 flex items-center justify-center">
-              <Layers className="w-8 h-8 text-primary-700" />
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="flex justify-center mb-3 sm:mb-4">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-primary-100 flex items-center justify-center">
+              <Layers className="w-6 h-6 sm:w-8 sm:h-8 text-primary-700" />
             </div>
           </div>
-          <h1 className="font-heading text-3xl md:text-4xl font-bold text-text-primary mb-3">
+          <h1 className="font-heading text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-text-primary mb-2 sm:mb-3 px-4">
             {t('sections.title')}
           </h1>
-          <p className="text-text-secondary max-w-2xl mx-auto mb-4">
+          <p className="text-text-secondary text-sm sm:text-base max-w-2xl mx-auto mb-3 sm:mb-4 px-4">
             Mehnat kodeksining barcha bo'limlari va boblariga kirish
           </p>
           <GovVerifiedBadge>
@@ -92,7 +92,7 @@ export default function SectionsPage({ params: { locale } }: SectionsPageProps) 
         </div>
 
         {/* Sections Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {sectionsData.map((section) => (
             <Link 
               key={section.id} 
@@ -101,31 +101,31 @@ export default function SectionsPage({ params: { locale } }: SectionsPageProps) 
             >
               <Card hover className="h-full group">
                 {/* Section Number */}
-                <div className="flex items-center justify-between mb-4">
-                  <Badge variant="primary" size="lg">
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <Badge variant="primary" size="md" className="text-xs sm:text-sm">
                     {section.id}-bo'lim
                   </Badge>
-                  <ChevronRight className="w-5 h-5 text-text-muted group-hover:text-primary-600 transition-colors duration-150" />
+                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-text-muted group-hover:text-primary-600 transition-colors duration-150" />
                 </div>
 
                 {/* Title */}
-                <h2 className="font-heading text-xl font-semibold text-text-primary mb-2 group-hover:text-primary-700 transition-colors duration-150">
+                <h2 className="font-heading text-base sm:text-lg md:text-xl font-semibold text-text-primary mb-2 group-hover:text-primary-700 transition-colors duration-150">
                   {section.title}
                 </h2>
 
                 {/* Description */}
-                <p className="text-text-secondary text-sm mb-4 line-clamp-2">
+                <p className="text-text-secondary text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2">
                   {section.description}
                 </p>
 
                 {/* Stats */}
-                <div className="flex items-center gap-4 pt-4 border-t border-gov-border">
-                  <div className="flex items-center gap-1.5 text-sm text-text-muted">
-                    <BookOpen className="w-4 h-4" />
+                <div className="flex items-center gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-gov-border">
+                  <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm text-text-muted">
+                    <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     <span>{section.chapters} bob</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-sm text-text-muted">
-                    <FileText className="w-4 h-4" />
+                  <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm text-text-muted">
+                    <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     <span>{section.articles} modda</span>
                   </div>
                 </div>
