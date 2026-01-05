@@ -823,6 +823,20 @@ export async function adminDeleteUser(userId: number, locale: Locale = 'uz'): Pr
   }, locale);
 }
 
+/** Create user (via register endpoint) */
+export async function adminCreateUser(data: {
+  name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+  role_id?: number;
+}, locale: Locale = 'uz'): Promise<{ success: boolean; data?: any; error?: string }> {
+  return apiRequest<any>('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }, locale);
+}
+
 // ============================================
 // ADMIN API - COMMENTS
 // ============================================
