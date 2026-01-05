@@ -54,6 +54,20 @@ const translations = {
     approved: 'Tasdiqlandi',
     rejected: 'Rad etildi',
     pending: 'Kutilmoqda',
+    login: 'Tizimga kirdi',
+    logout: 'Tizimdan chiqdi',
+    translationSubmitted: 'Tarjima tekshiruvga yuborildi',
+    translationApproved: 'Tarjima tasdiqlandi',
+    translationRejected: 'Tarjima rad etildi',
+    articleCreated: 'Modda yaratildi',
+    articleUpdated: 'Modda yangilandi',
+    sectionCreated: "Bo'lim yaratildi",
+    chapterCreated: 'Bob yaratildi',
+    commentApproved: 'Sharh tasdiqlandi',
+    commentRejected: 'Sharh rad etildi',
+    roleChanged: "Rol o'zgartirildi",
+    userActivated: 'Foydalanuvchi faollashtirildi',
+    userDeactivated: 'Foydalanuvchi bloklandi',
     myArticles: 'Mening moddalarim',
     myComments: 'Mening sharhlarim',
     newComment: 'Yangi sharh',
@@ -92,6 +106,20 @@ const translations = {
     approved: 'Одобрено',
     rejected: 'Отклонено',
     pending: 'Ожидает',
+    login: 'Вошёл в систему',
+    logout: 'Вышел из системы',
+    translationSubmitted: 'Перевод отправлен на проверку',
+    translationApproved: 'Перевод одобрен',
+    translationRejected: 'Перевод отклонён',
+    articleCreated: 'Статья создана',
+    articleUpdated: 'Статья обновлена',
+    sectionCreated: 'Раздел создан',
+    chapterCreated: 'Глава создана',
+    commentApproved: 'Комментарий одобрен',
+    commentRejected: 'Комментарий отклонён',
+    roleChanged: 'Роль изменена',
+    userActivated: 'Пользователь активирован',
+    userDeactivated: 'Пользователь заблокирован',
     myArticles: 'Мои статьи',
     myComments: 'Мои комментарии',
     newComment: 'Новый комментарий',
@@ -130,6 +158,20 @@ const translations = {
     approved: 'Approved',
     rejected: 'Rejected',
     pending: 'Pending',
+    login: 'Logged in',
+    logout: 'Logged out',
+    translationSubmitted: 'Translation submitted for review',
+    translationApproved: 'Translation approved',
+    translationRejected: 'Translation rejected',
+    articleCreated: 'Article created',
+    articleUpdated: 'Article updated',
+    sectionCreated: 'Section created',
+    chapterCreated: 'Chapter created',
+    commentApproved: 'Comment approved',
+    commentRejected: 'Comment rejected',
+    roleChanged: 'Role changed',
+    userActivated: 'User activated',
+    userDeactivated: 'User deactivated',
     myArticles: 'My Articles',
     myComments: 'My Comments',
     newComment: 'New Comment',
@@ -279,14 +321,41 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
         myExpertReviews: 0,
       });
 
+      // Action name mapping
+      const actionLabels: Record<string, string> = {
+        login: t.login,
+        logout: t.logout,
+        create: t.created,
+        update: t.updated,
+        delete: t.rejected,
+        translation_submitted: t.translationSubmitted,
+        translation_approved: t.translationApproved,
+        translation_rejected: t.translationRejected,
+        article_created: t.articleCreated,
+        article_updated: t.articleUpdated,
+        section_created: t.sectionCreated,
+        chapter_created: t.chapterCreated,
+        approve_comment: t.commentApproved,
+        reject_comment: t.commentRejected,
+        change_role: t.roleChanged,
+        activate_user: t.userActivated,
+        deactivate_user: t.userDeactivated,
+      };
+
       // Format activity logs for display
       if (logsData && logsData.length > 0) {
         const formattedLogs = logsData.map((log: any) => ({
           id: log.id,
-          user: log.user?.name || 'Unknown',
-          action: log.action || 'updated',
-          article: log.description || `ID: ${log.model_id}`,
-          status: log.status || 'approved',
+          user: log.user?.name || 'System',
+          action: actionLabels[log.action] || log.action || t.updated,
+          article: log.description || `ID: ${log.model_id || '-'}`,
+          status: log.action?.includes('approved') || log.action === 'login' || log.action === 'create' 
+            ? 'approved' 
+            : log.action?.includes('rejected') || log.action === 'delete'
+            ? 'rejected'
+            : log.action?.includes('pending') || log.action?.includes('submitted')
+            ? 'pending'
+            : 'approved',
           date: new Date(log.created_at).toLocaleString('ru-RU'),
         }));
         setRecentUpdates(formattedLogs);
