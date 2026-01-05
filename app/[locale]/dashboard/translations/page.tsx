@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { RoleGuard } from '@/components/dashboard/RoleGuard';
 import { 
   Globe, 
@@ -10,7 +10,11 @@ import {
   ChevronRight,
   Book,
   Search,
+  Loader2,
+  RefreshCw,
 } from 'lucide-react';
+import { adminGetArticles } from '@/lib/api';
+import type { Locale } from '@/types';
 
 interface TranslationsPageProps {
   params: { locale: string };
@@ -139,8 +143,142 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
   const [activeTab, setActiveTab] = useState<'all' | 'needs_translation' | 'in_progress' | 'completed'>('needs_translation');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
+  const [articles, setArticles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Translation form state
+  const [translationRu, setTranslationRu] = useState('');
+  const [translationEn, setTranslationEn] = useState('');
+  const [originalText, setOriginalText] = useState('');
+  
+  // Load articles from API
+  const loadArticles = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await adminGetArticles(locale as Locale);
+      // Calculate translation progress for each article
+      const articlesWithProgress = data.map((article: any) => {
+        const hasRu = article.translations?.ru?.content || article.content?.ru;
+        const hasEn = article.translations?.en?.content || article.content?.en;
+        const hasUz = article.translations?.uz?.content || article.content?.uz;
+        
+        const ruProgress = hasRu ? 100 : 0;
+        const enProgress = hasEn ? 100 : 0;
+        
+        let status = 'needs_translation';
+        if (ruProgress === 100 && enProgress === 100) {
+          status = 'completed';
+        } else if (ruProgress > 0 || enProgress > 0) {
+          status = 'in_progress';
+        }
+        
+        return {
+          id: article.id,
+          number: article.article_number || article.number || String(article.id),
+          titleUz: article.translations?.uz?.title || article.title?.uz || article.title || 'Без названия',
+          contentUz: article.translations?.uz?.content || article.content?.uz || '',
+          contentRu: article.translations?.ru?.content || article.content?.ru || '',
+          contentEn: article.translations?.en?.content || article.content?.en || '',
+          ruProgress,
+          enProgress,
+          status,
+        };
+      });
+      setArticles(articlesWithProgress);
+    } catch (err) {
+      console.error('Error loading articles:', err);
+      // Fallback to mock data if API fails
+      setArticles(mockArticles);
+    } finally {
+      setLoading(false);
+    }
+  }, [locale]);
+  
+  useEffect(() => {
+    loadArticles();
+  }, [loadArticles]);
+  
+  // When article is selected, populate translation fields
+  useEffect(() => {
+    if (selectedArticle) {
+      setOriginalText(selectedArticle.contentUz || '');
+      setTranslationRu(selectedArticle.contentRu || '');
+      setTranslationEn(selectedArticle.contentEn || '');
+    }
+  }, [selectedArticle]);
+  
+  // Save translation
+  const handleSave = async () => {
+    if (!selectedArticle) return;
+    
+    setSaving(true);
+    try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api/v1';
+      const token = localStorage.getItem('auth_token');
+      
+      const response = await fetch(`${API_BASE_URL}/admin/articles/${selectedArticle.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Accept-Language': locale,
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          translations: {
+            uz: { content: originalText },
+            ru: { content: translationRu },
+            en: { content: translationEn },
+          },
+        }),
+      });
+      
+      if (response.ok) {
+        alert(locale === 'ru' ? 'Перевод сохранён!' : locale === 'en' ? 'Translation saved!' : 'Tarjima saqlandi!');
+        // Update local state
+        setArticles(prev => prev.map(a => 
+          a.id === selectedArticle.id 
+            ? { 
+                ...a, 
+                contentRu: translationRu, 
+                contentEn: translationEn,
+                ruProgress: translationRu ? 100 : 0,
+                enProgress: translationEn ? 100 : 0,
+                status: translationRu && translationEn ? 'completed' : (translationRu || translationEn ? 'in_progress' : 'needs_translation'),
+              } 
+            : a
+        ));
+      } else {
+        const data = await response.json();
+        alert(data.message || 'Error saving translation');
+      }
+    } catch (err) {
+      console.error('Save error:', err);
+      alert(locale === 'ru' ? 'Ошибка сохранения' : locale === 'en' ? 'Save error' : 'Saqlashda xatolik');
+    } finally {
+      setSaving(false);
+    }
+  };
+  
+  // Complete translation
+  const handleComplete = async () => {
+    if (!selectedArticle) return;
+    
+    // Check if both translations are filled
+    if (!translationRu.trim() || !translationEn.trim()) {
+      alert(locale === 'ru' ? 'Заполните оба перевода!' : locale === 'en' ? 'Fill in both translations!' : 'Ikkala tarjimani to\'ldiring!');
+      return;
+    }
+    
+    await handleSave();
+    setSelectedArticle(null);
+    await loadArticles();
+  };
 
-  const filteredArticles = mockArticles.filter(article => {
+  const filteredArticles = articles.filter(article => {
     const matchesTab = activeTab === 'all' || article.status === activeTab;
     const matchesSearch = article.number.includes(searchQuery) || 
                           article.titleUz.toLowerCase().includes(searchQuery.toLowerCase());
@@ -148,10 +286,10 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
   });
 
   const counts = {
-    needs_translation: mockArticles.filter(a => a.status === 'needs_translation').length,
-    in_progress: mockArticles.filter(a => a.status === 'in_progress').length,
-    completed: mockArticles.filter(a => a.status === 'completed').length,
-    all: mockArticles.length,
+    needs_translation: articles.filter(a => a.status === 'needs_translation').length,
+    in_progress: articles.filter(a => a.status === 'in_progress').length,
+    completed: articles.filter(a => a.status === 'completed').length,
+    all: articles.length,
   };
 
   const getStatusBadge = (status: string) => {
@@ -188,6 +326,7 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
           <button
             onClick={() => setSelectedArticle(null)}
             className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            disabled={saving}
           >
             ← {t.back}
           </button>
@@ -210,19 +349,9 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
                 <Book className="w-5 h-5 text-primary-600" />
                 {t.originalText}
               </h2>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-gray-700 leading-relaxed">
-                  Mehnat shartnomasini bekor qilish asoslari quyidagilar hisoblanadi:
-                  <br /><br />
-                  1) tomonlarning kelishuvi;
-                  <br />
-                  2) muddatli mehnat shartnomasi muddatining tugashi;
-                  <br />
-                  3) xodimning tashabbusi (iste'foga chiqish);
-                  <br />
-                  4) ish beruvchining tashabbusi;
-                  <br />
-                  5) xodimni boshqa korxonaga, muassasaga, tashkilotga o'tkazish...
+              <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto">
+                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {originalText || selectedArticle.contentUz || 'Контент отсутствует'}
                 </p>
               </div>
             </div>
@@ -237,8 +366,11 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
                 </h2>
                 <textarea
                   rows={8}
+                  value={translationRu}
+                  onChange={(e) => setTranslationRu(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                   placeholder="Введите перевод на русский язык..."
+                  disabled={saving}
                 />
               </div>
 
@@ -250,8 +382,11 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
                 </h2>
                 <textarea
                   rows={8}
+                  value={translationEn}
+                  onChange={(e) => setTranslationEn(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                   placeholder="Enter English translation..."
+                  disabled={saving}
                 />
               </div>
             </div>
@@ -259,12 +394,36 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
 
           {/* Action buttons */}
           <div className="flex justify-end gap-3">
-            <button className="px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <button 
+              onClick={handleSave}
+              disabled={saving}
+              className="px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+            >
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {t.save}
             </button>
-            <button className="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+            <button 
+              onClick={handleComplete}
+              disabled={saving}
+              className="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+            >
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {t.complete}
             </button>
+          </div>
+        </div>
+      </RoleGuard>
+    );
+  }
+  
+  // Loading state
+  if (loading) {
+    return (
+      <RoleGuard allowedRoles={['admin', 'tarjimon']}>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin text-primary-600 mx-auto mb-2" />
+            <p className="text-gray-500">{locale === 'ru' ? 'Загрузка...' : locale === 'en' ? 'Loading...' : 'Yuklanmoqda...'}</p>
           </div>
         </div>
       </RoleGuard>
