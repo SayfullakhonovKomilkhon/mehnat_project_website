@@ -1,42 +1,13 @@
-import { ReactNode, Suspense } from 'react';
+import { ReactNode } from 'react';
 import { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import { locales, type Locale } from '@/lib/i18n';
-import { inter, plusJakartaSans, fontVariables } from '@/lib/fonts';
-import { Header, Footer, PageTransition } from '@/components/layout';
-import { ToastProvider } from '@/components/ui';
+import { inter, fontVariables } from '@/lib/fonts';
+import { LayoutWrapper } from '@/components/layout';
 import { OrganizationSchema, WebsiteSchema } from '@/components/seo';
-import { AccessibilityProvider } from '@/lib/accessibility-context';
 import '@/app/globals.css';
-
-// Dynamic imports for non-critical components - loaded after main content
-const FloatingChatWidget = dynamic(
-  () => import('@/components/chat').then(mod => mod.FloatingChatWidget),
-  { 
-    ssr: false,
-    loading: () => null,
-  }
-);
-
-const OfflineIndicator = dynamic(
-  () => import('@/components/ui').then(mod => mod.OfflineIndicator),
-  { 
-    ssr: false,
-    loading: () => null,
-  }
-);
-
-// Lazy load BackToTop - not critical for initial render
-const BackToTop = dynamic(
-  () => import('@/components/ui').then(mod => mod.BackToTop),
-  { 
-    ssr: false,
-    loading: () => null,
-  }
-);
 
 interface LocaleLayoutProps {
   children: ReactNode;
@@ -180,40 +151,14 @@ export default async function LocaleLayout({
       </head>
       <body className={`min-h-screen flex flex-col ${inter.className}`} suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
-          <AccessibilityProvider>
-            <ToastProvider position="top-right">
-              {/* Page Transition Handler - removes overlay on page load */}
-              <PageTransition />
-              
-              {/* Structured Data */}
-              <OrganizationSchema baseUrl={BASE_URL} />
-              <WebsiteSchema baseUrl={BASE_URL} locale={locale} />
+          {/* Structured Data */}
+          <OrganizationSchema baseUrl={BASE_URL} />
+          <WebsiteSchema baseUrl={BASE_URL} locale={locale} />
 
-              {/* Offline Indicator - Lazy loaded */}
-              <Suspense fallback={null}>
-                <OfflineIndicator position="top" />
-              </Suspense>
-
-              {/* Header */}
-              <Header locale={locale} />
-
-              {/* Main Content */}
-              <div className="flex-1">
-                {children}
-              </div>
-
-              {/* Footer */}
-              <Footer locale={locale} />
-
-              {/* Back to Top Button */}
-              <BackToTop threshold={400} offset="bottom-24 right-6" />
-
-              {/* Floating Chat Widget - Lazy loaded */}
-              <Suspense fallback={null}>
-                <FloatingChatWidget />
-              </Suspense>
-            </ToastProvider>
-          </AccessibilityProvider>
+          {/* Layout Wrapper - handles public vs admin layouts */}
+          <LayoutWrapper locale={locale}>
+            {children}
+          </LayoutWrapper>
         </NextIntlClientProvider>
       </body>
     </html>

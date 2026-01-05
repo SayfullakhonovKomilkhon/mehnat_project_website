@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { articles, getLocalizedText } from '@/lib/mock-data';
+import { getArticle, getLocalizedText } from '@/lib/api';
 import ArticleDetailClient from './ArticleDetailClient';
+import type { Locale } from '@/types';
 
 interface ArticleDetailPageProps {
   params: {
@@ -12,20 +13,13 @@ interface ArticleDetailPageProps {
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://mehnat-kodeksi.uz';
 
-// Generate static params for all articles
-export async function generateStaticParams() {
-  return articles.map((article) => ({
-    id: article.id.toString(),
-  }));
-}
-
 // Generate metadata for each article
 export async function generateMetadata({ 
   params 
 }: ArticleDetailPageProps): Promise<Metadata> {
   const { locale, id } = params;
   const articleId = parseInt(id);
-  const article = articles.find(a => a.id === articleId);
+  const article = await getArticle(articleId, locale as Locale);
 
   if (!article) {
     return {
@@ -35,7 +29,7 @@ export async function generateMetadata({
   }
 
   const title = getLocalizedText(article.title, locale);
-  const excerpt = getLocalizedText(article.excerpt, locale);
+  const excerpt = article.excerpt ? getLocalizedText(article.excerpt, locale) : '';
   const sectionTitle = getLocalizedText(article.section.title, locale);
 
   const fullTitle = `${article.number}-modda. ${title}`;
@@ -84,12 +78,12 @@ export async function generateMetadata({
   };
 }
 
-export default function ArticleDetailPage({ params }: ArticleDetailPageProps) {
+export default async function ArticleDetailPage({ params }: ArticleDetailPageProps) {
   const { locale, id } = params;
   const articleId = parseInt(id);
   
-  // Find the article
-  const article = articles.find(a => a.id === articleId);
+  // Fetch the article from API
+  const article = await getArticle(articleId, locale as Locale);
   
   if (!article) {
     notFound();

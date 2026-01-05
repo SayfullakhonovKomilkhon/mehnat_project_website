@@ -18,6 +18,8 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getSections, getLocalizedText } from '@/lib/api';
+import type { Section, Locale } from '@/types';
 
 interface SectionsGridProps {
   locale: string;
@@ -25,8 +27,8 @@ interface SectionsGridProps {
   maxItems?: number;
 }
 
-// Labor Code Sections Data
-const sectionsData = [
+// Fallback sections data for when API is unavailable
+const fallbackSectionsData = [
   {
     id: 1,
     number: 'I',
@@ -184,14 +186,49 @@ const colorMap: Record<string, { border: string; bg: string; text: string }> = {
   cyan: { border: 'border-l-cyan-600', bg: 'bg-cyan-50', text: 'text-cyan-600' },
 };
 
-// Server component - no client JS needed
+// Convert API section to display format
+function sectionToDisplayFormat(section: Section, index: number) {
+  const colors = ['blue', 'indigo', 'emerald', 'amber', 'green', 'red', 'purple', 'rose', 'cyan'];
+  const icons = ['BookOpen', 'FileText', 'Clock', 'Coffee', 'Wallet', 'Shield', 'Scale', 'Heart', 'Users'];
+  
+  return {
+    id: section.id,
+    number: section.number,
+    title: section.title,
+    description: section.description,
+    chaptersCount: section.chaptersCount,
+    articlesCount: section.articlesCount,
+    icon: icons[index % icons.length],
+    color: colors[index % colors.length],
+  };
+}
+
+// Server component - fetches data from API
 export async function SectionsGrid({ locale, showHeader = true, maxItems }: SectionsGridProps) {
   const t = await getTranslations();
+  
+  // Try to fetch from API, fallback to static data
+  let sectionsData: any[] = [];
+  try {
+    const apiSections = await getSections(locale as Locale);
+    if (apiSections && apiSections.length > 0) {
+      sectionsData = apiSections.map((s, i) => sectionToDisplayFormat(s, i));
+    } else {
+      sectionsData = fallbackSectionsData;
+    }
+  } catch (error) {
+    console.error('Failed to fetch sections from API:', error);
+    sectionsData = fallbackSectionsData;
+  }
   
   const displayedSections = maxItems ? sectionsData.slice(0, maxItems) : sectionsData;
 
   // Get localized title
-  const getLocalizedTitle = (section: typeof sectionsData[0]) => {
+  const getLocalizedTitle = (section: any) => {
+    // Handle both API format (LocalizedString) and fallback format
+    if (section.title && typeof section.title === 'object') {
+      return getLocalizedText(section.title, locale);
+    }
     switch (locale) {
       case 'ru': return section.title_ru;
       case 'en': return section.title_en;
@@ -200,7 +237,11 @@ export async function SectionsGrid({ locale, showHeader = true, maxItems }: Sect
   };
 
   // Get localized description
-  const getLocalizedDescription = (section: typeof sectionsData[0]) => {
+  const getLocalizedDescription = (section: any) => {
+    // Handle both API format (LocalizedString) and fallback format
+    if (section.description && typeof section.description === 'object') {
+      return getLocalizedText(section.description, locale);
+    }
     switch (locale) {
       case 'ru': return section.description_ru;
       case 'en': return section.description_en;

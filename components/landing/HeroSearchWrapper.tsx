@@ -13,3 +13,6 @@ export function HeroSearchWrapper({ locale }: HeroSearchWrapperProps) {
 
 export default HeroSearchWrapper;
 
+
+
+

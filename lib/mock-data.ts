@@ -1,31 +1,31 @@
-// Mock Data Types
-export interface LocalizedString {
-  uz: string;
-  ru: string;
-  en: string;
-}
+// Re-export types from main types file for compatibility
+export type { LocalizedString, Section, Chapter, Article, Locale } from '@/types';
 
-export interface Section {
+// Re-export getLocalizedText from API for compatibility
+export { getLocalizedText } from '@/lib/api';
+
+// Local simplified types for mock data generation
+interface MockSection {
   id: number;
   number: string;
-  title: LocalizedString;
+  title: { uz: string; ru: string; en: string };
 }
 
-export interface Chapter {
+interface MockChapter {
   id: number;
   number: string;
-  title: LocalizedString;
+  title: { uz: string; ru: string; en: string };
   sectionId: number;
 }
 
-export interface Article {
+interface MockArticle {
   id: number;
   number: string;
-  section: Section;
-  chapter: Chapter;
-  title: LocalizedString;
-  content: LocalizedString;
-  excerpt: LocalizedString;
+  section: MockSection;
+  chapter: MockChapter;
+  title: { uz: string; ru: string; en: string };
+  content: { uz: string; ru: string; en: string };
+  excerpt: { uz: string; ru: string; en: string };
   hasAuthorComment: boolean;
   hasExpertComment: boolean;
   translations: ('uz' | 'ru' | 'en')[];
@@ -34,8 +34,8 @@ export interface Article {
   updatedAt: string;
 }
 
-// Sections Data
-export const sections: Section[] = [
+// Sections Data (used as fallback when API is unavailable)
+export const sections: MockSection[] = [
   { id: 1, number: 'I', title: { uz: "Umumiy qoidalar", ru: "Общие положения", en: "General Provisions" } },
   { id: 2, number: 'II', title: { uz: "Mehnat shartnomasi", ru: "Трудовой договор", en: "Employment Contract" } },
   { id: 3, number: 'III', title: { uz: "Ish vaqti", ru: "Рабочее время", en: "Working Hours" } },
@@ -44,8 +44,8 @@ export const sections: Section[] = [
   { id: 6, number: 'VI', title: { uz: "Mehnat intizomi", ru: "Трудовая дисциплина", en: "Labor Discipline" } },
 ];
 
-// Chapters Data
-export const chapters: Chapter[] = [
+// Chapters Data (used as fallback when API is unavailable)
+export const chapters: MockChapter[] = [
   { id: 1, number: '1', title: { uz: "Mehnat qonunchiligi", ru: "Трудовое законодательство", en: "Labor Legislation" }, sectionId: 1 },
   { id: 2, number: '2', title: { uz: "Mehnat munosabatlari", ru: "Трудовые отношения", en: "Labor Relations" }, sectionId: 1 },
   { id: 3, number: '3', title: { uz: "Ijtimoiy sheriklik", ru: "Социальное партнерство", en: "Social Partnership" }, sectionId: 1 },
@@ -58,8 +58,8 @@ export const chapters: Chapter[] = [
   { id: 10, number: '10', title: { uz: "Mehnat ta'tili", ru: "Трудовой отпуск", en: "Labor Vacation" }, sectionId: 4 },
 ];
 
-// Generate Mock Articles
-export const articles: Article[] = [
+// Generate Mock Articles (used as fallback when API is unavailable)
+export const articles: MockArticle[] = [
   {
     id: 1,
     number: '1',
@@ -233,13 +233,9 @@ for (let i = 6; i <= 50; i++) {
   });
 }
 
-// Helper functions
-export function getLocalizedText(obj: LocalizedString, locale: string): string {
-  return obj[locale as keyof LocalizedString] || obj.uz;
-}
-
+// Filter function for mock articles
 export function filterArticles(
-  articles: Article[],
+  articles: MockArticle[],
   filters: {
     search?: string;
     sectionId?: number;

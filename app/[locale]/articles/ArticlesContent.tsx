@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { FileText, ChevronRight } from 'lucide-react';
+import { FileText, ChevronRight, Loader2 } from 'lucide-react';
 import { ArticleFilters, ArticleListCard, ArticlesPagination } from '@/components/articles';
-import { articles, filterArticles } from '@/lib/mock-data';
+import { getArticles } from '@/lib/api';
 import { cn } from '@/lib/utils';
+import type { Article, Locale } from '@/types';
 
 interface ArticlesContentProps {
   locale: string;
@@ -21,9 +22,13 @@ export default function ArticlesContent({ locale }: ArticlesContentProps) {
   const t = useTranslations();
   const searchParams = useSearchParams();
   
-  // State - use stable initial values
+  // State
   const [view, setView] = useState<'grid' | 'list'>('list');
   const [isHydrated, setIsHydrated] = useState(false);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Parse URL params only after hydration for consistency
   const currentPage = isHydrated ? parseInt(searchParams.get('page') || '1') : INITIAL_PAGE;
@@ -48,25 +53,42 @@ export default function ArticlesContent({ locale }: ArticlesContentProps) {
     }
   }, [searchParams]);
 
-  // Filter articles
-  const filteredArticles = useMemo(() => {
-    return filterArticles(articles, {
-      search: searchQuery,
-      sectionId,
-      chapterId,
-      hasAuthorComment,
-      hasExpertComment,
-      translation,
-    });
-  }, [searchQuery, sectionId, chapterId, hasAuthorComment, hasExpertComment, translation]);
+  // Fetch articles from API
+  const fetchArticles = useCallback(async () => {
+    if (!isHydrated) return;
+    
+    setIsLoading(true);
+    try {
+      const result = await getArticles({
+        page: currentPage,
+        limit: itemsPerPage,
+        chapterId,
+        sectionId,
+        search: searchQuery,
+        hasAuthorComment,
+        hasExpertComment,
+        language: translation as Locale | undefined,
+      }, locale as Locale);
+      
+      setArticles(result.data);
+      setTotalItems(result.pagination.total);
+      setTotalPages(result.pagination.totalPages);
+    } catch (error) {
+      console.error('Failed to fetch articles:', error);
+      setArticles([]);
+      setTotalItems(0);
+      setTotalPages(0);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isHydrated, currentPage, itemsPerPage, chapterId, sectionId, searchQuery, hasAuthorComment, hasExpertComment, translation, locale]);
 
-  // Paginate
-  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
-  const paginatedArticles = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    return filteredArticles.slice(start, end);
-  }, [filteredArticles, currentPage, itemsPerPage]);
+  useEffect(() => {
+    fetchArticles();
+  }, [fetchArticles]);
+
+  // Use fetched articles
+  const paginatedArticles = articles;
 
   return (
     <div className="py-8 md:py-12 bg-gov-light min-h-screen">
@@ -106,14 +128,21 @@ export default function ArticlesContent({ locale }: ArticlesContentProps) {
         <div className="animate-fadeIn" style={{ animationDelay: '0.1s' }}>
           <ArticleFilters
             locale={locale}
-            totalResults={filteredArticles.length}
+            totalResults={totalItems}
             view={view}
             onViewChange={setView}
           />
         </div>
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+          </div>
+        )}
+
         {/* Articles List/Grid */}
-        {paginatedArticles.length > 0 ? (
+        {!isLoading && paginatedArticles.length > 0 ? (
           <div
             className={cn(
               view === 'grid'
@@ -131,7 +160,7 @@ export default function ArticlesContent({ locale }: ArticlesContentProps) {
               />
             ))}
           </div>
-        ) : (
+        ) : !isLoading ? (
           <div className="text-center py-16 animate-fadeIn">
             <div className="w-16 h-16 rounded-full bg-gov-border mx-auto mb-4 flex items-center justify-center">
               <FileText className="w-8 h-8 text-text-muted" />
@@ -143,15 +172,15 @@ export default function ArticlesContent({ locale }: ArticlesContentProps) {
               {t('article.noResultsDescription')}
             </p>
           </div>
-        )}
+        ) : null}
 
         {/* Pagination */}
-        {filteredArticles.length > 0 && (
+        {!isLoading && totalItems > 0 && (
           <ArticlesPagination
             locale={locale}
             currentPage={currentPage}
             totalPages={totalPages}
-            totalItems={filteredArticles.length}
+            totalItems={totalItems}
             itemsPerPage={itemsPerPage}
           />
         )}

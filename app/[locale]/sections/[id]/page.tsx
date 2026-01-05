@@ -1,8 +1,6 @@
-'use client';
-
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { notFound } from 'next/navigation';
 import { 
   ChevronRight, 
   FileText, 
@@ -11,120 +9,43 @@ import {
   Shield
 } from 'lucide-react';
 import { Card, Badge, Button, GovVerifiedBadge } from '@/components/ui';
-import { GovEmblem } from '@/components/layout';
+import { getSectionWithChapters, getChapterWithArticles, getLocalizedText } from '@/lib/api';
+import type { Locale } from '@/types';
 
 interface SectionDetailPageProps {
   params: { locale: string; id: string };
 }
 
-// Mock chapters data - in production, fetch based on section ID
-const getChaptersForSection = (sectionId: string) => {
-  const chapters: Record<string, Array<{
-    id: number;
-    number: string;
-    title_uz: string;
-    title_ru: string;
-    title_en: string;
-    articlesCount: number;
-    articles: Array<{ id: number; number: number; title_uz: string; title_ru: string; title_en: string }>;
-  }>> = {
-    '1': [
-      {
-        id: 1,
-        number: '1',
-        title_uz: "Mehnat qonunchiligi va uning vazifalari",
-        title_ru: "Трудовое законодательство и его задачи",
-        title_en: "Labor Legislation and Its Tasks",
-        articlesCount: 6,
-        articles: [
-          { id: 1, number: 1, title_uz: "Mehnat qonunchiligi", title_ru: "Трудовое законодательство", title_en: "Labor Legislation" },
-          { id: 2, number: 2, title_uz: "Mehnat qonunchiligi doirasi", title_ru: "Сфера трудового законодательства", title_en: "Scope of Labor Legislation" },
-          { id: 3, number: 3, title_uz: "Mehnat huquqlari", title_ru: "Трудовые права", title_en: "Labor Rights" },
-        ]
-      },
-      {
-        id: 2,
-        number: '2',
-        title_uz: "Mehnat munosabatlari",
-        title_ru: "Трудовые отношения",
-        title_en: "Labor Relations",
-        articlesCount: 8,
-        articles: [
-          { id: 4, number: 4, title_uz: "Mehnat munosabatlari tushunchasi", title_ru: "Понятие трудовых отношений", title_en: "Concept of Labor Relations" },
-          { id: 5, number: 5, title_uz: "Mehnat munosabatlarining taraflari", title_ru: "Стороны трудовых отношений", title_en: "Parties to Labor Relations" },
-        ]
-      },
-      {
-        id: 3,
-        number: '3',
-        title_uz: "Ijtimoiy sheriklik",
-        title_ru: "Социальное партнерство",
-        title_en: "Social Partnership",
-        articlesCount: 5,
-        articles: []
-      },
-    ],
-    '2': [
-      {
-        id: 4,
-        number: '4',
-        title_uz: "Mehnat shartnomasi tushunchasi",
-        title_ru: "Понятие трудового договора",
-        title_en: "Concept of Employment Contract",
-        articlesCount: 10,
-        articles: []
-      },
-      {
-        id: 5,
-        number: '5',
-        title_uz: "Mehnat shartnomasini tuzish",
-        title_ru: "Заключение трудового договора",
-        title_en: "Concluding Employment Contract",
-        articlesCount: 12,
-        articles: []
-      },
-    ],
-  };
+export default async function SectionDetailPage({ params: { locale, id } }: SectionDetailPageProps) {
+  const t = await getTranslations();
   
-  return chapters[sectionId] || chapters['1'];
-};
-
-// Section info
-const getSectionInfo = (id: string, locale: string) => {
-  const sections: Record<string, { title_uz: string; title_ru: string; title_en: string; number: string }> = {
-    '1': { number: 'I', title_uz: "Umumiy qoidalar", title_ru: "Общие положения", title_en: "General Provisions" },
-    '2': { number: 'II', title_uz: "Mehnat shartnomasi", title_ru: "Трудовой договор", title_en: "Employment Contract" },
-    '3': { number: 'III', title_uz: "Ish vaqti", title_ru: "Рабочее время", title_en: "Working Hours" },
-  };
+  // Fetch section with chapters from API
+  const sectionData = await getSectionWithChapters(parseInt(id), locale as Locale);
   
-  const section = sections[id] || sections['1'];
-  const title = locale === 'ru' ? section.title_ru : locale === 'en' ? section.title_en : section.title_uz;
+  if (!sectionData) {
+    notFound();
+  }
   
-  return { ...section, title };
-};
+  const { section, chapters } = sectionData;
+  const sectionTitle = getLocalizedText(section.title, locale);
+  const sectionDescription = section.description ? getLocalizedText(section.description, locale) : '';
 
-export default function SectionDetailPage({ params: { locale, id } }: SectionDetailPageProps) {
-  const t = useTranslations();
-  const chapters = getChaptersForSection(id);
-  const sectionInfo = getSectionInfo(id, locale);
-
-  const getLocalizedTitle = (item: { title_uz: string; title_ru: string; title_en: string }) => {
-    switch (locale) {
-      case 'ru': return item.title_ru;
-      case 'en': return item.title_en;
-      default: return item.title_uz;
-    }
-  };
+  // Fetch articles for each chapter
+  const chaptersWithArticles = await Promise.all(
+    chapters.map(async (chapter) => {
+      const chapterData = await getChapterWithArticles(chapter.id, locale as Locale);
+      return {
+        ...chapter,
+        articles: chapterData?.articles || [],
+      };
+    })
+  );
 
   return (
     <div className="py-8 md:py-12 bg-gov-light min-h-screen">
       <div className="section-container">
         {/* Breadcrumb */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-2 text-sm text-text-secondary mb-6"
-        >
+        <div className="flex items-center gap-2 text-sm text-text-secondary mb-6 animate-fadeIn">
           <Link href={`/${locale}`} className="hover:text-primary-600 transition-colors">
             {t('common.home')}
           </Link>
@@ -134,134 +55,138 @@ export default function SectionDetailPage({ params: { locale, id } }: SectionDet
           </Link>
           <ChevronRight className="w-4 h-4" />
           <span className="text-text-primary font-medium">
-            {sectionInfo.number}-bo'lim
+            {section.number}-{locale === 'ru' ? 'раздел' : locale === 'en' ? 'section' : "bo'lim"}
           </span>
-        </motion.div>
+        </div>
 
         {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
+        <div className="mb-8 animate-fadeIn">
           <div className="flex items-start gap-4 mb-4">
             <div className="w-16 h-16 rounded-2xl bg-primary-100 flex items-center justify-center flex-shrink-0">
-              <span className="text-2xl font-heading font-bold text-primary-700">{sectionInfo.number}</span>
+              <span className="text-2xl font-heading font-bold text-primary-700">{section.number}</span>
             </div>
             <div>
               <Badge variant="primary" size="sm" className="mb-2">
-                {sectionInfo.number}-bo'lim
+                {section.number}-{locale === 'ru' ? 'раздел' : locale === 'en' ? 'section' : "bo'lim"}
               </Badge>
               <h1 className="font-heading text-2xl md:text-3xl font-bold text-text-primary">
-                {sectionInfo.title}
+                {sectionTitle}
               </h1>
+              {sectionDescription && (
+                <p className="text-text-secondary mt-2">{sectionDescription}</p>
+              )}
             </div>
           </div>
           <GovVerifiedBadge size="sm">
             <Shield className="w-3.5 h-3.5" />
             {t('common.verifiedByGov')}
           </GovVerifiedBadge>
-        </motion.div>
+        </div>
 
         {/* Chapters List */}
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: { staggerChildren: 0.1 },
-            },
-          }}
-          className="space-y-6"
-        >
-          {chapters.map((chapter) => (
-            <motion.div
-              key={chapter.id}
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0 },
-              }}
-            >
-              <Card className="overflow-hidden">
-                {/* Chapter Header */}
-                <div className="flex items-center justify-between p-4 md:p-6 bg-gov-light border-b border-gov-border">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center">
-                      <BookOpen className="w-5 h-5 text-primary-600" />
+        <div className="space-y-6">
+          {chaptersWithArticles.map((chapter, index) => {
+            const chapterTitle = getLocalizedText(chapter.title, locale);
+            
+            return (
+              <div
+                key={chapter.id}
+                className="animate-fadeIn"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <Card className="overflow-hidden">
+                  {/* Chapter Header */}
+                  <div className="flex items-center justify-between p-4 md:p-6 bg-gov-light border-b border-gov-border">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center">
+                        <BookOpen className="w-5 h-5 text-primary-600" />
+                      </div>
+                      <div>
+                        <Badge variant="secondary" size="sm" className="mb-1">
+                          {chapter.number}-{locale === 'ru' ? 'глава' : locale === 'en' ? 'chapter' : 'bob'}
+                        </Badge>
+                        <h2 className="font-heading font-semibold text-text-primary">
+                          {chapterTitle}
+                        </h2>
+                      </div>
                     </div>
-                    <div>
-                      <Badge variant="secondary" size="sm" className="mb-1">
-                        {chapter.number}-bob
-                      </Badge>
-                      <h2 className="font-heading font-semibold text-text-primary">
-                        {getLocalizedTitle(chapter)}
-                      </h2>
+                    <span className="text-sm text-text-muted">
+                      {chapter.articlesCount} {locale === 'ru' ? 'статей' : locale === 'en' ? 'articles' : 'modda'}
+                    </span>
+                  </div>
+
+                  {/* Articles List */}
+                  {chapter.articles.length > 0 && (
+                    <div className="divide-y divide-gov-border">
+                      {chapter.articles.slice(0, 5).map((article) => {
+                        const articleTitle = getLocalizedText(article.title, locale);
+                        
+                        return (
+                          <Link
+                            key={article.id}
+                            href={`/${locale}/articles/${article.id}`}
+                            className="flex items-center gap-4 p-4 hover:bg-primary-50 transition-colors group"
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-accent-gold/10 flex items-center justify-center flex-shrink-0">
+                              <FileText className="w-4 h-4 text-accent-amber" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <span className="text-xs text-text-muted">
+                                {article.number}-{locale === 'ru' ? 'статья' : locale === 'en' ? 'article' : 'modda'}
+                              </span>
+                              <p className="text-sm text-text-primary group-hover:text-primary-700 truncate">
+                                {articleTitle}
+                              </p>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-text-muted group-hover:text-primary-600 flex-shrink-0" />
+                          </Link>
+                        );
+                      })}
                     </div>
-                  </div>
-                  <span className="text-sm text-text-muted">
-                    {chapter.articlesCount} modda
-                  </span>
-                </div>
+                  )}
 
-                {/* Articles List */}
-                {chapter.articles.length > 0 && (
-                  <div className="divide-y divide-gov-border">
-                    {chapter.articles.map((article) => (
-                      <Link
-                        key={article.id}
-                        href={`/${locale}/articles/${article.id}`}
-                        className="flex items-center gap-4 p-4 hover:bg-primary-50 transition-colors group"
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-accent-gold/10 flex items-center justify-center flex-shrink-0">
-                          <FileText className="w-4 h-4 text-accent-amber" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <span className="text-xs text-text-muted">{article.number}-modda</span>
-                          <p className="text-sm text-text-primary group-hover:text-primary-700 truncate">
-                            {getLocalizedTitle(article)}
-                          </p>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-text-muted group-hover:text-primary-600 flex-shrink-0" />
-                      </Link>
-                    ))}
+                  {/* View All Articles */}
+                  <div className="p-4 border-t border-gov-border">
+                    <Link href={`/${locale}/articles?chapter=${chapter.id}`}>
+                      <Button variant="ghost" size="sm" className="w-full">
+                        {locale === 'ru' ? 'Посмотреть все статьи' : 
+                         locale === 'en' ? 'View all articles' : 
+                         "Barcha moddalarni ko'rish"}
+                        <ChevronRight className="w-4 h-4 ml-1" />
+                      </Button>
+                    </Link>
                   </div>
-                )}
+                </Card>
+              </div>
+            );
+          })}
+        </div>
 
-                {/* View All Articles */}
-                <div className="p-4 border-t border-gov-border">
-                  <Link href={`/${locale}/articles?chapter=${chapter.id}`}>
-                    <Button variant="ghost" size="sm" className="w-full">
-                      Barcha moddalarni ko'rish
-                      <ChevronRight className="w-4 h-4 ml-1" />
-                    </Button>
-                  </Link>
-                </div>
-              </Card>
-            </motion.div>
-          ))}
-        </motion.div>
+        {/* Empty State */}
+        {chapters.length === 0 && (
+          <div className="text-center py-16">
+            <div className="w-16 h-16 rounded-full bg-gov-border mx-auto mb-4 flex items-center justify-center">
+              <BookOpen className="w-8 h-8 text-text-muted" />
+            </div>
+            <h3 className="font-heading text-lg font-semibold text-text-primary mb-2">
+              {locale === 'ru' ? 'Главы не найдены' : 
+               locale === 'en' ? 'No chapters found' : 
+               "Boblar topilmadi"}
+            </h3>
+          </div>
+        )}
 
         {/* Back Button */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="mt-8"
-        >
+        <div className="mt-8 animate-fadeIn" style={{ animationDelay: '0.3s' }}>
           <Link href={`/${locale}/sections`}>
             <Button variant="outline" leftIcon={<ArrowLeft className="w-4 h-4" />}>
-              {t('common.backToHome')}
+              {locale === 'ru' ? 'Назад к разделам' : 
+               locale === 'en' ? 'Back to sections' : 
+               "Bo'limlarga qaytish"}
             </Button>
           </Link>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
 }
-
-
-
-
-

@@ -8,6 +8,7 @@ export default createMiddleware({
 });
 
 export const config = {
+  // Match all paths including login and dashboard
   matcher: ['/', '/(uz|ru|en)/:path*'],
 };
 

@@ -6,3 +6,4 @@ export { SearchOverlay } from './SearchOverlay';
 export { MobileMenu } from './MobileMenu';
 export { SectionsMegaMenu } from './SectionsMegaMenu';
 export { PageTransition } from './PageTransition';
+export { LayoutWrapper } from './LayoutWrapper';

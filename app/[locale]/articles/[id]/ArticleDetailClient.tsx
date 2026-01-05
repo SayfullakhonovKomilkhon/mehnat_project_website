@@ -11,7 +11,8 @@ import {
   ArticleMobileNav
 } from '@/components/articles';
 import { ArticleSchema, BreadcrumbSchema } from '@/components/seo';
-import { type Article, getLocalizedText } from '@/lib/mock-data';
+import { getLocalizedText } from '@/lib/api';
+import type { Article } from '@/types';
 
 interface ArticleDetailClientProps {
   article: Article;

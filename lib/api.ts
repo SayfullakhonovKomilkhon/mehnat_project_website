@@ -1,6 +1,6 @@
 /**
- * Mock API functions for frontend development
- * These simulate backend API calls with realistic delays
+ * Real API client for backend integration
+ * Connects to Laravel backend at /api/v1
  */
 
 import type {
@@ -18,44 +18,162 @@ import type {
   ChatMessageInput,
   ApiResponse,
   LocalizedString,
+  Locale,
 } from '@/types';
 
-import { mockSections } from '@/data/mockSections';
-import { mockChapters } from '@/data/mockChapters';
-import mockArticles from '@/data/mockArticles';
-import mockCommentaries, { mockAuthors } from '@/data/mockComments';
+// ============================================
+// API CONFIGURATION
+// ============================================
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
+
+/** Get auth headers */
+function getHeaders(locale: Locale = 'uz'): HeadersInit {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  
+  return {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Accept-Language': locale,
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+  };
+}
+
+/** Generic API request */
+async function apiRequest<T>(
+  endpoint: string,
+  options: RequestInit = {},
+  locale: Locale = 'uz'
+): Promise<{ data?: T; error?: string; success: boolean }> {
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers: {
+        ...getHeaders(locale),
+        ...(options.headers || {}),
+      },
+    });
+
+    const json = await response.json();
+
+    if (!response.ok) {
+      // Handle validation errors (422)
+      if (response.status === 422 && json.errors) {
+        const errorMessages = Object.values(json.errors).flat().join('. ');
+        return { 
+          error: errorMessages || json.message || 'Validation failed', 
+          success: false 
+        };
+      }
+      
+      return { 
+        error: json.message || 'Request failed', 
+        success: false 
+      };
+    }
+
+    // Backend wraps data in { success: true, data: ... }
+    return { 
+      data: json.data || json, 
+      success: true 
+    };
+  } catch (error) {
+    console.error('API request error:', error);
+    return { 
+      error: 'Network error. Please check your connection.', 
+      success: false 
+    };
+  }
+}
 
 // ============================================
 // UTILITY FUNCTIONS
 // ============================================
 
-/** Simulate network delay */
-const delay = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, ms));
-
 /** Get localized text from LocalizedString */
-export function getLocalizedText(content: LocalizedString | undefined, locale: string): string {
+export function getLocalizedText(content: LocalizedString | string | undefined, locale: string): string {
   if (!content) return '';
+  if (typeof content === 'string') return content;
   return content[locale as keyof LocalizedString] || content.uz || '';
 }
 
-/** Paginate array */
-function paginate<T>(items: T[], page: number, limit: number): PaginatedResult<T> {
-  const total = items.length;
-  const totalPages = Math.ceil(total / limit);
-  const start = (page - 1) * limit;
-  const end = start + limit;
-  const data = items.slice(start, end);
-
+/** Transform backend section to frontend format */
+function transformSection(data: any): Section {
   return {
-    data,
-    pagination: {
-      page,
-      limit,
-      total,
-      totalPages,
-      hasNext: page < totalPages,
-      hasPrev: page > 1,
+    id: data.id,
+    number: data.order_number?.toString() || String(data.id),
+    title: typeof data.title === 'string' 
+      ? { uz: data.title, ru: data.title, en: data.title }
+      : data.title || { uz: '', ru: '', en: '' },
+    description: typeof data.description === 'string'
+      ? { uz: data.description, ru: data.description, en: data.description }
+      : data.description,
+    chaptersCount: data.chapters_count || data.chapters?.length || 0,
+    articlesCount: data.articles_count || 0,
+    icon: data.icon,
+    order: data.order_number || data.id,
+    createdAt: data.created_at || new Date().toISOString(),
+    updatedAt: data.updated_at || new Date().toISOString(),
+  };
+}
+
+/** Transform backend chapter to frontend format */
+function transformChapter(data: any): Chapter {
+  return {
+    id: data.id,
+    sectionId: data.section_id,
+    number: data.order_number?.toString() || String(data.id),
+    title: typeof data.title === 'string'
+      ? { uz: data.title, ru: data.title, en: data.title }
+      : data.title || { uz: '', ru: '', en: '' },
+    description: typeof data.description === 'string'
+      ? { uz: data.description, ru: data.description, en: data.description }
+      : data.description,
+    articlesCount: data.articles_count || data.articles?.length || 0,
+    order: data.order_number || data.id,
+    createdAt: data.created_at || new Date().toISOString(),
+    updatedAt: data.updated_at || new Date().toISOString(),
+  };
+}
+
+/** Transform backend article to frontend format */
+function transformArticle(data: any): Article {
+  return {
+    id: data.id,
+    number: data.article_number || String(data.id),
+    sectionId: data.chapter?.section?.id || 0,
+    chapterId: data.chapter_id,
+    section: {
+      id: data.chapter?.section?.id || 0,
+      number: data.chapter?.section?.order_number?.toString() || '1',
+      title: typeof data.chapter?.section?.title === 'string'
+        ? { uz: data.chapter.section.title, ru: data.chapter.section.title, en: data.chapter.section.title }
+        : data.chapter?.section?.title || { uz: '', ru: '', en: '' },
     },
+    chapter: {
+      id: data.chapter?.id || data.chapter_id,
+      number: data.chapter?.order_number?.toString() || '1',
+      title: typeof data.chapter?.title === 'string'
+        ? { uz: data.chapter.title, ru: data.chapter.title, en: data.chapter.title }
+        : data.chapter?.title || { uz: '', ru: '', en: '' },
+    },
+    title: typeof data.title === 'string'
+      ? { uz: data.title, ru: data.title, en: data.title }
+      : data.title || { uz: '', ru: '', en: '' },
+    content: typeof data.content === 'string'
+      ? { uz: data.content, ru: data.content, en: data.content }
+      : data.content || { uz: '', ru: '', en: '' },
+    excerpt: data.summary ? (typeof data.summary === 'string'
+      ? { uz: data.summary, ru: data.summary, en: data.summary }
+      : data.summary) : undefined,
+    status: data.is_active ? 'published' : 'draft',
+    hasAuthorComment: Boolean(data.has_author_comment),
+    hasExpertComment: Boolean(data.has_expert_comment),
+    translations: ['uz', 'ru', 'en'] as Locale[],
+    viewCount: data.views_count || 0,
+    lastUpdated: data.updated_at || new Date().toISOString(),
+    createdAt: data.created_at || new Date().toISOString(),
+    updatedAt: data.updated_at || new Date().toISOString(),
   };
 }
 
@@ -64,27 +182,49 @@ function paginate<T>(items: T[], page: number, limit: number): PaginatedResult<T
 // ============================================
 
 /** Get all sections */
-export async function getSections(): Promise<Section[]> {
-  await delay();
-  return mockSections;
+export async function getSections(locale: Locale = 'uz'): Promise<Section[]> {
+  const result = await apiRequest<any[]>('/sections', {}, locale);
+  
+  if (!result.success || !result.data) {
+    console.error('Failed to fetch sections:', result.error);
+    return [];
+  }
+  
+  return Array.isArray(result.data) 
+    ? result.data.map(transformSection)
+    : [];
 }
 
 /** Get a single section by ID */
-export async function getSection(id: number): Promise<Section | null> {
-  await delay();
-  return mockSections.find(s => s.id === id) || null;
+export async function getSection(id: number, locale: Locale = 'uz'): Promise<Section | null> {
+  const result = await apiRequest<any>(`/sections/${id}`, {}, locale);
+  
+  if (!result.success || !result.data) {
+    return null;
+  }
+  
+  return transformSection(result.data);
 }
 
 /** Get section with chapters */
-export async function getSectionWithChapters(id: number): Promise<{
+export async function getSectionWithChapters(id: number, locale: Locale = 'uz'): Promise<{
   section: Section;
   chapters: Chapter[];
 } | null> {
-  await delay();
-  const section = mockSections.find(s => s.id === id);
-  if (!section) return null;
+  const [sectionResult, chaptersResult] = await Promise.all([
+    apiRequest<any>(`/sections/${id}`, {}, locale),
+    apiRequest<any[]>(`/sections/${id}/chapters`, {}, locale),
+  ]);
   
-  const chapters = mockChapters.filter(c => c.sectionId === id);
+  if (!sectionResult.success || !sectionResult.data) {
+    return null;
+  }
+  
+  const section = transformSection(sectionResult.data);
+  const chapters = chaptersResult.success && Array.isArray(chaptersResult.data)
+    ? chaptersResult.data.map(transformChapter)
+    : [];
+  
   return { section, chapters };
 }
 
@@ -93,33 +233,55 @@ export async function getSectionWithChapters(id: number): Promise<{
 // ============================================
 
 /** Get chapters by section ID */
-export async function getChapters(filters?: ChapterFilters): Promise<Chapter[]> {
-  await delay();
-  let chapters = [...mockChapters];
-  
+export async function getChapters(filters?: ChapterFilters, locale: Locale = 'uz'): Promise<Chapter[]> {
   if (filters?.sectionId) {
-    chapters = chapters.filter(c => c.sectionId === filters.sectionId);
+    const result = await apiRequest<any[]>(`/sections/${filters.sectionId}/chapters`, {}, locale);
+    
+    if (!result.success || !result.data) {
+      return [];
+    }
+    
+    return Array.isArray(result.data) 
+      ? result.data.map(transformChapter)
+      : [];
   }
   
-  return chapters;
+  return [];
 }
 
 /** Get a single chapter by ID */
-export async function getChapter(id: number): Promise<Chapter | null> {
-  await delay();
-  return mockChapters.find(c => c.id === id) || null;
+export async function getChapter(id: number, locale: Locale = 'uz'): Promise<Chapter | null> {
+  const result = await apiRequest<any>(`/chapters/${id}`, {}, locale);
+  
+  if (!result.success || !result.data) {
+    return null;
+  }
+  
+  return transformChapter(result.data);
 }
 
 /** Get chapter with articles */
-export async function getChapterWithArticles(id: number): Promise<{
+export async function getChapterWithArticles(id: number, locale: Locale = 'uz'): Promise<{
   chapter: Chapter;
   articles: Article[];
 } | null> {
-  await delay();
-  const chapter = mockChapters.find(c => c.id === id);
-  if (!chapter) return null;
+  const [chapterResult, articlesResult] = await Promise.all([
+    apiRequest<any>(`/chapters/${id}`, {}, locale),
+    apiRequest<any>(`/chapters/${id}/articles`, {}, locale),
+  ]);
   
-  const articles = mockArticles.filter(a => a.chapterId === id);
+  if (!chapterResult.success || !chapterResult.data) {
+    return null;
+  }
+  
+  const chapter = transformChapter(chapterResult.data);
+  
+  // Handle paginated response
+  const articlesData = articlesResult.data?.items || articlesResult.data || [];
+  const articles = Array.isArray(articlesData)
+    ? articlesData.map(transformArticle)
+    : [];
+  
   return { chapter, articles };
 }
 
@@ -128,97 +290,97 @@ export async function getChapterWithArticles(id: number): Promise<{
 // ============================================
 
 /** Get paginated articles with filters */
-export async function getArticles(filters?: ArticleFilters): Promise<PaginatedResult<Article>> {
-  await delay(400);
-  let articles = [...mockArticles];
+export async function getArticles(filters?: ArticleFilters, locale: Locale = 'uz'): Promise<PaginatedResult<Article>> {
+  const params = new URLSearchParams();
   
-  // Apply filters
-  if (filters?.sectionId) {
-    articles = articles.filter(a => a.sectionId === filters.sectionId);
-  }
-  if (filters?.chapterId) {
-    articles = articles.filter(a => a.chapterId === filters.chapterId);
-  }
-  if (filters?.status) {
-    articles = articles.filter(a => a.status === filters.status);
-  }
-  if (filters?.hasAuthorComment !== undefined) {
-    articles = articles.filter(a => a.hasAuthorComment === filters.hasAuthorComment);
-  }
-  if (filters?.hasExpertComment !== undefined) {
-    articles = articles.filter(a => a.hasExpertComment === filters.hasExpertComment);
-  }
-  if (filters?.language) {
-    articles = articles.filter(a => a.translations.includes(filters.language!));
-  }
-  if (filters?.search) {
-    const searchLower = filters.search.toLowerCase();
-    articles = articles.filter(a => 
-      a.number.includes(searchLower) ||
-      a.title.uz.toLowerCase().includes(searchLower) ||
-      a.title.ru.toLowerCase().includes(searchLower) ||
-      a.title.en.toLowerCase().includes(searchLower)
-    );
+  if (filters?.chapterId) params.append('chapter_id', String(filters.chapterId));
+  if (filters?.page) params.append('page', String(filters.page));
+  if (filters?.limit) params.append('per_page', String(filters.limit));
+  
+  const queryString = params.toString();
+  const endpoint = `/articles${queryString ? `?${queryString}` : ''}`;
+  
+  const result = await apiRequest<any>(endpoint, {}, locale);
+  
+  if (!result.success || !result.data) {
+    return {
+      data: [],
+      pagination: {
+        page: 1,
+        limit: filters?.limit || 10,
+        total: 0,
+        totalPages: 0,
+        hasNext: false,
+        hasPrev: false,
+      },
+    };
   }
   
-  // Sort
-  if (filters?.sortBy) {
-    const order = filters.sortOrder === 'desc' ? -1 : 1;
-    articles.sort((a, b) => {
-      const aVal = a[filters.sortBy as keyof Article];
-      const bVal = b[filters.sortBy as keyof Article];
-      if (typeof aVal === 'string' && typeof bVal === 'string') {
-        return aVal.localeCompare(bVal) * order;
-      }
-      return 0;
-    });
-  } else {
-    // Default sort by number
-    articles.sort((a, b) => parseInt(a.number) - parseInt(b.number));
-  }
+  const items = result.data.items || result.data;
+  const pagination = result.data.pagination;
   
-  const page = filters?.page || 1;
-  const limit = filters?.limit || 10;
-  
-  return paginate(articles, page, limit);
+  return {
+    data: Array.isArray(items) ? items.map(transformArticle) : [],
+    pagination: {
+      page: pagination?.current_page || 1,
+      limit: pagination?.per_page || filters?.limit || 10,
+      total: pagination?.total || 0,
+      totalPages: pagination?.last_page || 0,
+      hasNext: (pagination?.current_page || 1) < (pagination?.last_page || 1),
+      hasPrev: (pagination?.current_page || 1) > 1,
+    },
+  };
 }
 
 /** Get a single article by ID */
-export async function getArticle(id: number): Promise<Article | null> {
-  await delay();
-  return mockArticles.find(a => a.id === id) || null;
+export async function getArticle(id: number, locale: Locale = 'uz'): Promise<Article | null> {
+  const result = await apiRequest<any>(`/articles/${id}`, {}, locale);
+  
+  if (!result.success || !result.data) {
+    return null;
+  }
+  
+  return transformArticle(result.data);
 }
 
 /** Get article with full comments */
-export async function getArticleWithComments(id: number): Promise<ArticleWithComments | null> {
-  await delay(500);
-  const article = mockArticles.find(a => a.id === id);
-  if (!article) return null;
+export async function getArticleWithComments(id: number, locale: Locale = 'uz'): Promise<ArticleWithComments | null> {
+  const [articleResult, commentsResult] = await Promise.all([
+    apiRequest<any>(`/articles/${id}`, {}, locale),
+    apiRequest<any>(`/articles/${id}/comments`, {}, locale),
+  ]);
   
-  const authorCommentary = mockCommentaries.find(
-    c => c.articleId === id && c.type === 'author'
-  );
-  const expertCommentary = mockCommentaries.find(
-    c => c.articleId === id && c.type === 'expert'
-  );
+  if (!articleResult.success || !articleResult.data) {
+    return null;
+  }
+  
+  const article = transformArticle(articleResult.data);
+  const commentsData = commentsResult.data?.items || commentsResult.data || [];
   
   // Get related articles from same chapter
-  const relatedArticles = mockArticles
-    .filter(a => a.chapterId === article.chapterId && a.id !== id)
-    .slice(0, 4);
+  const relatedResult = await apiRequest<any>(`/chapters/${article.chapterId}/articles?per_page=5`, {}, locale);
+  const relatedItems = relatedResult.data?.items || relatedResult.data || [];
+  const relatedArticles = Array.isArray(relatedItems)
+    ? relatedItems.filter((a: any) => a.id !== id).slice(0, 4).map(transformArticle)
+    : [];
   
   return {
     ...article,
-    authorCommentary,
-    expertCommentary,
+    authorCommentary: undefined, // TODO: implement when backend supports
+    expertCommentary: undefined,
     relatedArticles,
   };
 }
 
 /** Get article by number */
-export async function getArticleByNumber(number: string): Promise<Article | null> {
-  await delay();
-  return mockArticles.find(a => a.number === number) || null;
+export async function getArticleByNumber(number: string, locale: Locale = 'uz'): Promise<Article | null> {
+  const result = await apiRequest<any>(`/articles/number/${number}`, {}, locale);
+  
+  if (!result.success || !result.data) {
+    return null;
+  }
+  
+  return transformArticle(result.data);
 }
 
 // ============================================
@@ -226,89 +388,69 @@ export async function getArticleByNumber(number: string): Promise<Article | null
 // ============================================
 
 /** Search articles and content */
-export async function searchArticles(params: SearchParams): Promise<PaginatedResult<SearchResult>> {
-  await delay(600);
-  const { query, filters, page = 1, limit = 10 } = params;
+export async function searchArticles(params: SearchParams, locale: Locale = 'uz'): Promise<PaginatedResult<SearchResult>> {
+  const queryParams = new URLSearchParams();
+  queryParams.append('q', params.query);
+  if (params.page) queryParams.append('page', String(params.page));
+  if (params.limit) queryParams.append('per_page', String(params.limit));
+  if (params.filters?.sectionId) queryParams.append('section_id', String(params.filters.sectionId));
+  if (params.filters?.chapterId) queryParams.append('chapter_id', String(params.filters.chapterId));
   
-  if (!query.trim()) {
-    return paginate([], page, limit);
+  const result = await apiRequest<any>(`/search?${queryParams.toString()}`, {}, locale);
+  
+  if (!result.success || !result.data) {
+    return {
+      data: [],
+      pagination: {
+        page: 1,
+        limit: params.limit || 10,
+        total: 0,
+        totalPages: 0,
+        hasNext: false,
+        hasPrev: false,
+      },
+    };
   }
   
-  const queryLower = query.toLowerCase();
-  const results: SearchResult[] = [];
+  const items = result.data.items || result.data || [];
+  const pagination = result.data.pagination;
   
-  // Search in articles
-  mockArticles.forEach(article => {
-    let score = 0;
-    const matchedIn: ('title' | 'content' | 'comment')[] = [];
-    
-    // Check title
-    if (
-      article.title.uz.toLowerCase().includes(queryLower) ||
-      article.title.ru.toLowerCase().includes(queryLower) ||
-      article.title.en.toLowerCase().includes(queryLower) ||
-      article.number.includes(query)
-    ) {
-      score += 10;
-      matchedIn.push('title');
-    }
-    
-    // Check content
-    if (
-      article.content.uz.toLowerCase().includes(queryLower) ||
-      article.content.ru.toLowerCase().includes(queryLower) ||
-      article.content.en.toLowerCase().includes(queryLower)
-    ) {
-      score += 5;
-      matchedIn.push('content');
-    }
-    
-    // Apply filters
-    if (filters?.sectionId && article.sectionId !== filters.sectionId) return;
-    if (filters?.chapterId && article.chapterId !== filters.chapterId) return;
-    if (filters?.type === 'authorComment' && !article.hasAuthorComment) return;
-    if (filters?.type === 'expertComment' && !article.hasExpertComment) return;
-    
-    if (score > 0) {
-      results.push({
-        type: 'article',
-        id: article.id,
-        title: `${article.number}-modda. ${article.title.uz}`,
-        excerpt: article.content.uz.substring(0, 200) + '...',
-        path: `/articles/${article.id}`,
-        breadcrumb: `${article.section.number}-bo'lim › ${article.chapter.number}-bob`,
-        matchedIn,
-        relevanceScore: score,
-        article,
-      });
-    }
-  });
+  const searchResults: SearchResult[] = (Array.isArray(items) ? items : []).map((item: any) => ({
+    type: 'article' as const,
+    id: item.id,
+    title: `${item.article_number || item.number}-modda. ${getLocalizedText(item.title, locale)}`,
+    excerpt: getLocalizedText(item.content || item.summary, locale).substring(0, 200) + '...',
+    path: `/articles/${item.id}`,
+    breadcrumb: item.chapter ? `${item.chapter.section?.order_number || 1}-bo'lim › ${item.chapter.order_number || 1}-bob` : '',
+    matchedIn: ['title', 'content'] as ('title' | 'content' | 'comment')[],
+    relevanceScore: item.relevance_score || 1,
+    article: transformArticle(item),
+  }));
   
-  // Sort by relevance
-  results.sort((a, b) => b.relevanceScore - a.relevanceScore);
-  
-  return paginate(results, page, limit);
+  return {
+    data: searchResults,
+    pagination: {
+      page: pagination?.current_page || 1,
+      limit: pagination?.per_page || params.limit || 10,
+      total: pagination?.total || searchResults.length,
+      totalPages: pagination?.last_page || 1,
+      hasNext: (pagination?.current_page || 1) < (pagination?.last_page || 1),
+      hasPrev: (pagination?.current_page || 1) > 1,
+    },
+  };
 }
 
 /** Get search suggestions */
-export async function getSearchSuggestions(query: string): Promise<string[]> {
-  await delay(200);
-  
+export async function getSearchSuggestions(query: string, locale: Locale = 'uz'): Promise<string[]> {
   if (!query.trim()) return [];
   
-  const queryLower = query.toLowerCase();
-  const suggestions = new Set<string>();
+  const result = await apiRequest<any>(`/search/suggestions?q=${encodeURIComponent(query)}`, {}, locale);
   
-  mockArticles.forEach(article => {
-    if (article.title.uz.toLowerCase().includes(queryLower)) {
-      suggestions.add(article.title.uz);
-    }
-    if (article.number.startsWith(query)) {
-      suggestions.add(`${article.number}-modda`);
-    }
-  });
+  if (!result.success || !result.data) {
+    return [];
+  }
   
-  return Array.from(suggestions).slice(0, 6);
+  return Array.isArray(result.data) ? result.data : [];
 }
 
 // ============================================
@@ -316,15 +458,20 @@ export async function getSearchSuggestions(query: string): Promise<string[]> {
 // ============================================
 
 /** Get commentaries for an article */
-export async function getCommentaries(articleId: number): Promise<Commentary[]> {
-  await delay();
-  return mockCommentaries.filter(c => c.articleId === articleId);
+export async function getCommentaries(articleId: number, locale: Locale = 'uz'): Promise<Commentary[]> {
+  const result = await apiRequest<any>(`/articles/${articleId}/comments`, {}, locale);
+  
+  if (!result.success || !result.data) {
+    return [];
+  }
+  
+  // Transform backend format if needed
+  return [];
 }
 
 /** Get a single commentary */
-export async function getCommentary(id: number): Promise<Commentary | null> {
-  await delay();
-  return mockCommentaries.find(c => c.id === id) || null;
+export async function getCommentary(id: number, locale: Locale = 'uz'): Promise<Commentary | null> {
+  return null; // TODO: implement when backend supports
 }
 
 // ============================================
@@ -332,37 +479,37 @@ export async function getCommentary(id: number): Promise<Commentary | null> {
 // ============================================
 
 /** Get platform statistics */
-export async function getStatistics(): Promise<Statistics> {
-  await delay(400);
+export async function getStatistics(locale: Locale = 'uz'): Promise<Statistics> {
+  // Try to get from admin analytics if available
+  const sectionsResult = await apiRequest<any[]>('/sections', {}, locale);
+  const articlesResult = await apiRequest<any>('/articles?per_page=100', {}, locale);
   
-  const totalArticles = mockArticles.length;
-  const totalComments = mockCommentaries.length;
-  const totalExperts = mockAuthors.filter(a => a.role === 'expert').length;
-  const totalTranslations = mockArticles.reduce(
-    (acc, a) => acc + a.translations.length,
-    0
-  );
+  const sections = sectionsResult.success ? (sectionsResult.data || []) : [];
+  const articlesData = articlesResult.data?.items || articlesResult.data || [];
+  const articles = Array.isArray(articlesData) ? articlesData.map(transformArticle) : [];
+  
+  const totalArticles = articlesResult.data?.pagination?.total || articles.length;
   
   // Sort by views
-  const sortedByViews = [...mockArticles].sort((a, b) => b.viewCount - a.viewCount);
+  const sortedByViews = [...articles].sort((a, b) => b.viewCount - a.viewCount);
   const mostViewedArticles = sortedByViews.slice(0, 5);
   
   // Sort by update date
-  const sortedByDate = [...mockArticles].sort(
+  const sortedByDate = [...articles].sort(
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
   );
   const recentlyUpdated = sortedByDate.slice(0, 5);
   
   return {
     totalArticles,
-    totalComments,
-    totalExperts,
-    totalTranslations,
-    totalViews: mockArticles.reduce((acc, a) => acc + a.viewCount, 0),
-    totalQuestions: 156, // Mock number
+    totalComments: 0,
+    totalExperts: 5,
+    totalTranslations: totalArticles * 3,
+    totalViews: articles.reduce((acc, a) => acc + a.viewCount, 0),
+    totalQuestions: 0,
     mostViewedArticles,
     recentlyUpdated,
-    recentQuestions: 23, // Mock number
+    recentQuestions: 0,
   };
 }
 
@@ -370,40 +517,344 @@ export async function getStatistics(): Promise<Statistics> {
 // CHAT/QUESTION API
 // ============================================
 
-/** Submit a question */
-export async function submitQuestion(data: ChatMessageInput): Promise<ApiResponse<{ id: number }>> {
-  await delay(800);
+/** Submit a question via chatbot */
+export async function submitQuestion(data: ChatMessageInput, locale: Locale = 'uz'): Promise<ApiResponse<{ id: number }>> {
+  const result = await apiRequest<any>('/chatbot', {
+    method: 'POST',
+    body: JSON.stringify({
+      message: data.question,
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      article_id: data.articleId,
+    }),
+  }, locale);
   
-  // Validate
-  if (!data.name || !data.email || !data.question) {
+  if (!result.success) {
     return {
       success: false,
       error: {
-        code: 'VALIDATION_ERROR',
-        message: 'Barcha majburiy maydonlarni to\'ldiring',
-        details: {
-          name: !data.name ? 'Ism kiritilishi shart' : '',
-          email: !data.email ? 'Email kiritilishi shart' : '',
-          question: !data.question ? 'Savol kiritilishi shart' : '',
-        },
+        code: 'API_ERROR',
+        message: result.error || 'Failed to submit question',
       },
     };
   }
   
-  // Simulate success
   return {
     success: true,
-    data: { id: Math.floor(Math.random() * 10000) },
+    data: { id: result.data?.id || Math.floor(Math.random() * 10000) },
   };
 }
 
 // ============================================
-// UTILITY EXPORTS
+// ADMIN API - SECTIONS
 // ============================================
 
-export { mockSections, mockChapters, mockArticles, mockCommentaries, mockAuthors };
+/** Get all sections with chapters for admin */
+export async function adminGetSections(locale: Locale = 'uz'): Promise<any[]> {
+  const result = await apiRequest<any[]>('/sections', {}, locale);
+  
+  if (!result.success || !result.data) {
+    console.error('Failed to fetch sections:', result.error);
+    return [];
+  }
+  
+  return Array.isArray(result.data) ? result.data : [];
+}
 
+/** Create a new section */
+export async function adminCreateSection(data: {
+  order_number: number;
+  title: string;
+  description?: string;
+}, locale: Locale = 'uz'): Promise<{ success: boolean; data?: any; error?: string }> {
+  // Format with translations object as backend expects
+  const formattedData = {
+    order_number: data.order_number,
+    is_active: true,
+    translations: {
+      uz: {
+        title: data.title,
+        description: data.description || '',
+      },
+      ru: {
+        title: data.title,
+        description: data.description || '',
+      },
+      en: {
+        title: data.title,
+        description: data.description || '',
+      },
+    },
+  };
+  
+  return apiRequest<any>('/admin/sections', {
+    method: 'POST',
+    body: JSON.stringify(formattedData),
+  }, locale);
+}
 
+/** Update a section */
+export async function adminUpdateSection(id: number, data: {
+  order_number?: number;
+  title?: string;
+  description?: string;
+}, locale: Locale = 'uz'): Promise<{ success: boolean; data?: any; error?: string }> {
+  // Format with translations object as backend expects
+  const formattedData: any = {};
+  
+  if (data.order_number !== undefined) {
+    formattedData.order_number = data.order_number;
+  }
+  
+  if (data.title || data.description) {
+    formattedData.translations = {
+      uz: {
+        title: data.title || '',
+        description: data.description || '',
+      },
+      ru: {
+        title: data.title || '',
+        description: data.description || '',
+      },
+      en: {
+        title: data.title || '',
+        description: data.description || '',
+      },
+    };
+  }
+  
+  return apiRequest<any>(`/admin/sections/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(formattedData),
+  }, locale);
+}
 
+/** Delete a section */
+export async function adminDeleteSection(id: number, locale: Locale = 'uz'): Promise<{ success: boolean; error?: string }> {
+  return apiRequest<any>(`/admin/sections/${id}`, {
+    method: 'DELETE',
+  }, locale);
+}
 
+// ============================================
+// ADMIN API - CHAPTERS
+// ============================================
 
+/** Create a new chapter */
+export async function adminCreateChapter(data: {
+  section_id: number;
+  order_number: number;
+  title: string;
+  description?: string;
+}, locale: Locale = 'uz'): Promise<{ success: boolean; data?: any; error?: string }> {
+  // Format with translations object as backend expects
+  const formattedData = {
+    section_id: data.section_id,
+    order_number: data.order_number,
+    is_active: true,
+    translations: {
+      uz: {
+        title: data.title,
+        description: data.description || '',
+      },
+      ru: {
+        title: data.title,
+        description: data.description || '',
+      },
+      en: {
+        title: data.title,
+        description: data.description || '',
+      },
+    },
+  };
+  
+  return apiRequest<any>('/admin/chapters', {
+    method: 'POST',
+    body: JSON.stringify(formattedData),
+  }, locale);
+}
+
+/** Update a chapter */
+export async function adminUpdateChapter(id: number, data: {
+  order_number?: number;
+  title?: string;
+  description?: string;
+}, locale: Locale = 'uz'): Promise<{ success: boolean; data?: any; error?: string }> {
+  // Format with translations object as backend expects
+  const formattedData: any = {};
+  
+  if (data.order_number !== undefined) {
+    formattedData.order_number = data.order_number;
+  }
+  
+  if (data.title || data.description) {
+    formattedData.translations = {
+      uz: {
+        title: data.title || '',
+        description: data.description || '',
+      },
+      ru: {
+        title: data.title || '',
+        description: data.description || '',
+      },
+      en: {
+        title: data.title || '',
+        description: data.description || '',
+      },
+    };
+  }
+  
+  return apiRequest<any>(`/admin/chapters/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(formattedData),
+  }, locale);
+}
+
+/** Delete a chapter */
+export async function adminDeleteChapter(id: number, locale: Locale = 'uz'): Promise<{ success: boolean; error?: string }> {
+  return apiRequest<any>(`/admin/chapters/${id}`, {
+    method: 'DELETE',
+  }, locale);
+}
+
+// ============================================
+// ADMIN API - ARTICLES
+// ============================================
+
+/** Get all articles for admin */
+export async function adminGetArticles(locale: Locale = 'uz'): Promise<any[]> {
+  const result = await apiRequest<any>('/admin/articles', {}, locale);
+  
+  if (!result.success || !result.data) {
+    return [];
+  }
+  
+  const items = result.data.items || result.data;
+  return Array.isArray(items) ? items : [];
+}
+
+/** Create a new article */
+export async function adminCreateArticle(data: {
+  chapter_id: number;
+  article_number: string;
+  order_number: number;
+  is_active?: boolean;
+  translations: {
+    uz: { title: string; content: string; summary?: string; keywords?: string[] };
+    ru?: { title: string; content: string; summary?: string; keywords?: string[] };
+    en?: { title: string; content: string; summary?: string; keywords?: string[] };
+  };
+}, locale: Locale = 'uz'): Promise<{ success: boolean; data?: any; error?: string }> {
+  return apiRequest<any>('/admin/articles', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }, locale);
+}
+
+/** Update an article */
+export async function adminUpdateArticle(id: number, data: {
+  article_number?: string;
+  title?: string;
+  content?: string;
+  summary?: string;
+  is_active?: boolean;
+}, locale: Locale = 'uz'): Promise<{ success: boolean; data?: any; error?: string }> {
+  return apiRequest<any>(`/admin/articles/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  }, locale);
+}
+
+/** Delete an article */
+export async function adminDeleteArticle(id: number, locale: Locale = 'uz'): Promise<{ success: boolean; error?: string }> {
+  return apiRequest<any>(`/admin/articles/${id}`, {
+    method: 'DELETE',
+  }, locale);
+}
+
+// ============================================
+// ADMIN API - USERS
+// ============================================
+
+/** Get all users for admin */
+export async function adminGetUsers(locale: Locale = 'uz'): Promise<any[]> {
+  const result = await apiRequest<any>('/admin/users', {}, locale);
+  
+  if (!result.success || !result.data) {
+    return [];
+  }
+  
+  const items = result.data.items || result.data;
+  return Array.isArray(items) ? items : [];
+}
+
+/** Get available roles */
+export async function adminGetRoles(locale: Locale = 'uz'): Promise<any[]> {
+  const result = await apiRequest<any[]>('/admin/users/roles', {}, locale);
+  
+  if (!result.success || !result.data) {
+    return [];
+  }
+  
+  return Array.isArray(result.data) ? result.data : [];
+}
+
+/** Update user role */
+export async function adminUpdateUserRole(userId: number, roleId: number, locale: Locale = 'uz'): Promise<{ success: boolean; error?: string }> {
+  return apiRequest<any>(`/admin/users/${userId}/role`, {
+    method: 'PUT',
+    body: JSON.stringify({ role_id: roleId }),
+  }, locale);
+}
+
+/** Update user status */
+export async function adminUpdateUserStatus(userId: number, isActive: boolean, locale: Locale = 'uz'): Promise<{ success: boolean; error?: string }> {
+  return apiRequest<any>(`/admin/users/${userId}/status`, {
+    method: 'PUT',
+    body: JSON.stringify({ is_active: isActive }),
+  }, locale);
+}
+
+/** Delete user */
+export async function adminDeleteUser(userId: number, locale: Locale = 'uz'): Promise<{ success: boolean; error?: string }> {
+  return apiRequest<any>(`/admin/users/${userId}`, {
+    method: 'DELETE',
+  }, locale);
+}
+
+// ============================================
+// ADMIN API - COMMENTS
+// ============================================
+
+/** Get pending comments */
+export async function adminGetPendingComments(locale: Locale = 'uz'): Promise<any[]> {
+  const result = await apiRequest<any>('/admin/comments/pending', {}, locale);
+  
+  if (!result.success || !result.data) {
+    return [];
+  }
+  
+  const items = result.data.items || result.data;
+  return Array.isArray(items) ? items : [];
+}
+
+/** Approve comment */
+export async function adminApproveComment(id: number, locale: Locale = 'uz'): Promise<{ success: boolean; error?: string }> {
+  return apiRequest<any>(`/admin/comments/${id}/approve`, {
+    method: 'POST',
+  }, locale);
+}
+
+/** Reject comment */
+export async function adminRejectComment(id: number, locale: Locale = 'uz'): Promise<{ success: boolean; error?: string }> {
+  return apiRequest<any>(`/admin/comments/${id}/reject`, {
+    method: 'POST',
+  }, locale);
+}
+
+// ============================================
+// EXPORTS
+// ============================================
+
+export { API_BASE_URL };

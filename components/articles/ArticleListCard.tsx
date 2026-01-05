@@ -5,7 +5,8 @@ import { ArrowRight, MessageSquare, User, ChevronRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui';
-import { Article, getLocalizedText } from '@/lib/mock-data';
+import { getLocalizedText } from '@/lib/api';
+import type { Article } from '@/types';
 
 interface ArticleListCardProps {
   article: Article;

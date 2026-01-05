@@ -8,9 +8,7 @@ import {
   Award,
   Shield,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Button, GovVerifiedBadge } from '@/components/ui';
-import { GovEmblem } from '@/components/layout';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 
@@ -55,25 +53,6 @@ export async function HeroSection({ locale }: HeroSectionProps) {
         }}
       />
 
-      {/* Subtle Map/Labor Imagery Overlay */}
-      <div className="absolute inset-0 bg-[url('/images/uzbekistan-map.svg')] bg-no-repeat bg-center bg-contain opacity-[0.03]" />
-
-      {/* Static Gradient Orbs - CSS only, no animation */}
-      <div className="absolute top-20 right-[10%] w-[500px] h-[500px] bg-accent-gold/20 rounded-full blur-[120px] animate-pulse-soft" />
-      <div className="absolute bottom-0 left-[5%] w-[400px] h-[400px] bg-primary-400/30 rounded-full blur-[100px] animate-pulse-soft" style={{ animationDelay: '1.5s' }} />
-
-      {/* Static Decorative Elements - No infinite animations */}
-      <div className="absolute top-[15%] right-[8%] hidden lg:block">
-        <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
-          <FileText className="w-10 h-10 text-accent-gold" />
-        </div>
-      </div>
-      
-      <div className="absolute bottom-[25%] right-[15%] hidden lg:block">
-        <div className="w-16 h-16 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
-          <Shield className="w-8 h-8 text-white/80" />
-        </div>
-      </div>
 
       {/* Main Content */}
       <div className="relative z-10 section-container">
@@ -110,13 +89,13 @@ export async function HeroSection({ locale }: HeroSectionProps) {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 animate-slideUp-delay-3">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-4 animate-slideUp-delay-3">
               <Link href={`/${locale}/articles`} className="w-full sm:w-auto">
                 <Button 
                   variant="gold" 
                   size="lg" 
-                  className="w-full sm:w-auto text-primary-900 font-semibold shadow-lg shadow-accent-gold/30"
-                  rightIcon={<ArrowRight className="w-5 h-5" />}
+                  className="w-full sm:w-auto text-primary-900 font-semibold shadow-lg shadow-accent-gold/30 h-12 sm:h-14 px-6 sm:px-10 text-base sm:text-lg"
+                  rightIcon={<ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />}
                 >
                   {t('hero.cta')}
                 </Button>
@@ -125,8 +104,8 @@ export async function HeroSection({ locale }: HeroSectionProps) {
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="w-full sm:w-auto border-white/30 text-white hover:bg-white/10"
-                  leftIcon={<Layers className="w-5 h-5" />}
+                  className="w-full sm:w-auto border-white/30 text-white hover:bg-white/10 h-12 sm:h-14 px-6 sm:px-10 text-base sm:text-lg"
+                  leftIcon={<Layers className="w-4 h-4 sm:w-5 sm:h-5" />}
                 >
                   {t('hero.exploreBtn')}
                 </Button>
@@ -136,9 +115,9 @@ export async function HeroSection({ locale }: HeroSectionProps) {
         </div>
 
         {/* Stats Strip - Static render, no animated counters */}
-        <div className="relative animate-fadeIn mt-6 sm:mt-8 lg:mt-0" style={{ animationDelay: '0.4s' }}>
-          <div className="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl border border-white/20 p-4 sm:p-6 lg:p-8">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+        <div className="relative z-10 animate-fadeIn mt-6 sm:mt-8 lg:mt-0 pb-6 sm:pb-8" style={{ animationDelay: '0.4s' }}>
+          <div className="bg-primary-700/80 backdrop-blur-md rounded-xl sm:rounded-2xl border border-white/20 p-5 sm:p-6 lg:p-8 shadow-xl">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
               {statsData.map((stat, index) => (
                 <StatItem
                   key={stat.key}
@@ -151,20 +130,6 @@ export async function HeroSection({ locale }: HeroSectionProps) {
           </div>
         </div>
 
-        {/* Bottom Wave Decoration - Hidden on mobile */}
-        <div className="hidden md:block absolute bottom-0 left-0 right-0 h-16 lg:h-24 overflow-hidden">
-          <svg
-            className="absolute bottom-0 w-full h-full"
-            viewBox="0 0 1440 120"
-            fill="none"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M0 120L48 110C96 100 192 80 288 70C384 60 480 60 576 65C672 70 768 80 864 85C960 90 1056 90 1152 85C1248 80 1344 70 1392 65L1440 60V120H1392C1344 120 1248 120 1152 120C1056 120 960 120 864 120C768 120 672 120 576 120C480 120 384 120 288 120C192 120 96 120 48 120H0Z"
-              fill="#F8FAFC"
-            />
-          </svg>
-        </div>
       </div>
     </section>
   );
@@ -187,15 +152,15 @@ function StatItem({
       className="text-center animate-fadeIn"
       style={{ animationDelay: `${0.5 + index * 0.1}s` }}
     >
-      <div className="flex items-center justify-center mb-2 sm:mb-3">
-        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-white/10 flex items-center justify-center">
-          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-accent-gold" />
+      <div className="flex items-center justify-center mb-2">
+        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg bg-white/15 flex items-center justify-center">
+          <Icon className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-accent-gold" />
         </div>
       </div>
-      <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-heading font-bold text-white mb-1 sm:mb-2">
+      <div className="text-2xl sm:text-3xl lg:text-4xl font-heading font-bold text-white mb-1">
         {stat.value}
       </div>
-      <div className="text-xs sm:text-sm text-white font-medium leading-tight">
+      <div className="text-sm sm:text-base text-white font-semibold">
         {label}
       </div>
     </div>
