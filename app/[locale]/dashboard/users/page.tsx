@@ -12,6 +12,13 @@ import {
   Loader2,
   AlertCircle,
   RefreshCw,
+  Eye,
+  EyeOff,
+  User,
+  Mail,
+  Shield,
+  Calendar,
+  Key,
 } from 'lucide-react';
 import {
   adminGetUsers,
@@ -68,6 +75,13 @@ const translations = {
     noUsers: 'Foydalanuvchilar topilmadi',
     confirmDelete: 'Rostdan ham o\'chirmoqchimisiz?',
     confirmBlock: 'Foydalanuvchini bloklashni xohlaysizmi?',
+    userDetails: 'Foydalanuvchi ma\'lumotlari',
+    createdAt: 'Ro\'yxatdan o\'tgan',
+    showPassword: 'Parolni ko\'rsatish',
+    hidePassword: 'Parolni yashirish',
+    defaultPassword: 'Standart parol',
+    close: 'Yopish',
+    passwordNote: 'Parollar xavfsizlik uchun shifrlangan. Quyida standart parol ko\'rsatilgan.',
   },
   ru: {
     title: 'Пользователи',
@@ -109,6 +123,13 @@ const translations = {
     noUsers: 'Пользователи не найдены',
     confirmDelete: 'Вы уверены, что хотите удалить?',
     confirmBlock: 'Вы хотите заблокировать пользователя?',
+    userDetails: 'Информация о пользователе',
+    createdAt: 'Дата регистрации',
+    showPassword: 'Показать пароль',
+    hidePassword: 'Скрыть пароль',
+    defaultPassword: 'Стандартный пароль',
+    close: 'Закрыть',
+    passwordNote: 'Пароли зашифрованы для безопасности. Ниже показан стандартный пароль.',
   },
   en: {
     title: 'Users',
@@ -150,7 +171,21 @@ const translations = {
     noUsers: 'No users found',
     confirmDelete: 'Are you sure you want to delete?',
     confirmBlock: 'Do you want to block this user?',
+    userDetails: 'User Details',
+    createdAt: 'Registered',
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
+    defaultPassword: 'Default password',
+    close: 'Close',
+    passwordNote: 'Passwords are encrypted for security. Default password is shown below.',
   },
+};
+
+// Default passwords based on role (from seeder)
+const defaultPasswords: Record<string, string> = {
+  admin: 'Admin123!',
+  moderator: 'ModeratorPass123!',
+  user: 'UserPass123!',
 };
 
 const roleColors: Record<string, string> = {
@@ -172,6 +207,9 @@ export default function UsersPage({ params: { locale } }: UsersPageProps) {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -301,6 +339,19 @@ export default function UsersPage({ params: { locale } }: UsersPageProps) {
     return role?.slug || role?.name || role || 'muallif';
   };
 
+  const handleViewDetails = (user: any) => {
+    setSelectedUser(user);
+    setShowPassword(false);
+    setDetailsModalOpen(true);
+  };
+
+  const getDefaultPassword = (user: any) => {
+    const roleSlug = getRoleSlug(user.role);
+    if (roleSlug === 'admin') return defaultPasswords.admin;
+    if (roleSlug === 'moderator') return defaultPasswords.moderator;
+    return defaultPasswords.user;
+  };
+
   if (loading) {
     return (
       <RoleGuard allowedRoles={['admin']}>
@@ -400,7 +451,11 @@ export default function UsersPage({ params: { locale } }: UsersPageProps) {
                   </tr>
                 ) : (
                   filteredUsers.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50">
+                    <tr 
+                      key={user.id} 
+                      className="hover:bg-gray-50 cursor-pointer"
+                      onClick={() => handleViewDetails(user)}
+                    >
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {user.id}
                       </td>
@@ -429,7 +484,7 @@ export default function UsersPage({ params: { locale } }: UsersPageProps) {
                           {user.is_active !== false ? t.active : t.blocked}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1">
                           <button
                             onClick={() => handleOpenModal(user)}
@@ -577,6 +632,163 @@ export default function UsersPage({ params: { locale } }: UsersPageProps) {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* User Details Modal */}
+        {detailsModalOpen && selectedUser && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black/50"
+              onClick={() => setDetailsModalOpen(false)}
+            />
+            <div className="relative bg-white rounded-xl p-6 max-w-lg w-full mx-4 shadow-xl">
+              <button
+                onClick={() => setDetailsModalOpen(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <User className="w-5 h-5 text-primary-600" />
+                {t.userDetails}
+              </h3>
+
+              <div className="space-y-4">
+                {/* Avatar and Name */}
+                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                  <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-2xl">
+                    {selectedUser.name?.charAt(0)?.toUpperCase() || 'U'}
+                  </div>
+                  <div>
+                    <div className="text-xl font-semibold text-gray-900">{selectedUser.name}</div>
+                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full mt-1 ${roleColors[getRoleSlug(selectedUser.role)] || 'bg-gray-100 text-gray-800'}`}>
+                      {getRoleLabel(selectedUser.role)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* User Info */}
+                <div className="grid gap-3">
+                  {/* ID */}
+                  <div className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg">
+                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <span className="text-gray-600 font-medium">ID</span>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">{t.id}</div>
+                      <div className="text-sm font-medium text-gray-900">{selectedUser.id}</div>
+                    </div>
+                  </div>
+
+                  {/* Email */}
+                  <div className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <Mail className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">{t.email}</div>
+                      <div className="text-sm font-medium text-gray-900">{selectedUser.email}</div>
+                    </div>
+                  </div>
+
+                  {/* Role */}
+                  <div className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg">
+                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <Shield className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">{t.role}</div>
+                      <div className="text-sm font-medium text-gray-900">{getRoleLabel(selectedUser.role)}</div>
+                    </div>
+                  </div>
+
+                  {/* Status */}
+                  <div className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                      selectedUser.is_active !== false ? 'bg-green-100' : 'bg-red-100'
+                    }`}>
+                      {selectedUser.is_active !== false ? (
+                        <UserCheck className="w-5 h-5 text-green-600" />
+                      ) : (
+                        <UserX className="w-5 h-5 text-red-600" />
+                      )}
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">{t.status}</div>
+                      <div className={`text-sm font-medium ${
+                        selectedUser.is_active !== false ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {selectedUser.is_active !== false ? t.active : t.blocked}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Created At */}
+                  {selectedUser.created_at && (
+                    <div className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg">
+                      <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <Calendar className="w-5 h-5 text-orange-600" />
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500">{t.createdAt}</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {new Date(selectedUser.created_at).toLocaleDateString('ru-RU')}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Password */}
+                  <div className="p-3 border border-gray-200 rounded-lg bg-yellow-50">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Key className="w-4 h-4 text-yellow-600" />
+                        <span className="text-xs text-gray-500">{t.defaultPassword}</span>
+                      </div>
+                      <button
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700"
+                      >
+                        {showPassword ? (
+                          <>
+                            <EyeOff className="w-4 h-4" />
+                            {t.hidePassword}
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="w-4 h-4" />
+                            {t.showPassword}
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={getDefaultPassword(selectedUser)}
+                        readOnly
+                        className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-mono"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      ⚠️ {t.passwordNote}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Close Button */}
+                <div className="flex justify-end pt-4">
+                  <button
+                    onClick={() => setDetailsModalOpen(false)}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    {t.close}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
