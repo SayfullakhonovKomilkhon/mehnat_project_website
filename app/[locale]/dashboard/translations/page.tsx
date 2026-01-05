@@ -165,7 +165,7 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
   const canApprove = userRole === 'admin' || userRole === 'moderator';
   const isTranslator = userRole === 'tarjimon';
   
-  const [activeTab, setActiveTab] = useState<'all' | 'needs_translation' | 'in_progress' | 'completed'>('needs_translation');
+  const [activeTab, setActiveTab] = useState<'all' | 'needs_translation' | 'in_progress' | 'pending' | 'completed'>(canApprove ? 'pending' : 'needs_translation');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
   const [articles, setArticles] = useState<any[]>([]);
@@ -487,9 +487,105 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
       await handleSubmitForReview();
     }
   };
+  
+  // Approve from list (without opening article detail)
+  const handleApproveFromList = async (articleId: number) => {
+    if (!confirm(locale === 'ru' ? 'Одобрить этот перевод?' : locale === 'en' ? 'Approve this translation?' : 'Ushbu tarjimani tasdiqlaysizmi?')) {
+      return;
+    }
+    
+    setSaving(true);
+    try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api/v1';
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${API_BASE_URL}/admin/articles/${articleId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Accept-Language': locale,
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          translation_status: 'approved',
+        }),
+      });
+      
+      if (response.ok) {
+        alert(t.approvedSuccess);
+        // Update local state
+        setArticles(prev => prev.map(a => 
+          a.id === articleId 
+            ? { ...a, status: 'completed', translationStatus: 'approved' } 
+            : a
+        ));
+      } else {
+        const data = await response.json();
+        alert(data.message || 'Error approving translation');
+      }
+    } catch (err) {
+      console.error('Approve error:', err);
+      alert(locale === 'ru' ? 'Ошибка одобрения' : locale === 'en' ? 'Approve error' : 'Tasdiqlashda xatolik');
+    } finally {
+      setSaving(false);
+    }
+  };
+  
+  // Reject from list (without opening article detail)
+  const handleRejectFromList = async (articleId: number) => {
+    if (!confirm(locale === 'ru' ? 'Отклонить этот перевод?' : locale === 'en' ? 'Reject this translation?' : 'Ushbu tarjimani rad etasizmi?')) {
+      return;
+    }
+    
+    setSaving(true);
+    try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api/v1';
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${API_BASE_URL}/admin/articles/${articleId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Accept-Language': locale,
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          translation_status: 'draft',
+        }),
+      });
+      
+      if (response.ok) {
+        alert(locale === 'ru' ? 'Перевод отклонён' : locale === 'en' ? 'Translation rejected' : 'Tarjima rad etildi');
+        // Update local state
+        setArticles(prev => prev.map(a => 
+          a.id === articleId 
+            ? { ...a, status: 'needs_translation', translationStatus: 'draft' } 
+            : a
+        ));
+      } else {
+        const data = await response.json();
+        alert(data.message || 'Error rejecting translation');
+      }
+    } catch (err) {
+      console.error('Reject error:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const filteredArticles = articles.filter(article => {
-    const matchesTab = activeTab === 'all' || article.status === activeTab;
+    let matchesTab = activeTab === 'all';
+    if (activeTab === 'pending') {
+      matchesTab = article.translationStatus === 'pending';
+    } else if (activeTab === 'needs_translation') {
+      matchesTab = article.status === 'needs_translation';
+    } else if (activeTab === 'in_progress') {
+      matchesTab = article.status === 'in_progress' && article.translationStatus !== 'pending';
+    } else if (activeTab === 'completed') {
+      matchesTab = article.status === 'completed';
+    }
     const matchesSearch = article.number.includes(searchQuery) || 
                           article.titleUz.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesTab && matchesSearch;
@@ -497,33 +593,40 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
 
   const counts = {
     needs_translation: articles.filter(a => a.status === 'needs_translation').length,
-    in_progress: articles.filter(a => a.status === 'in_progress').length,
+    in_progress: articles.filter(a => a.status === 'in_progress' && a.translationStatus !== 'pending').length,
+    pending: articles.filter(a => a.translationStatus === 'pending').length,
     completed: articles.filter(a => a.status === 'completed').length,
     all: articles.length,
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, translationStatus?: string) => {
+    // If translation is pending approval, show pending badge
+    const effectiveStatus = translationStatus === 'pending' ? 'pending' : status;
+    
     const styles: Record<string, string> = {
       needs_translation: 'bg-red-100 text-red-800',
       in_progress: 'bg-yellow-100 text-yellow-800',
+      pending: 'bg-orange-100 text-orange-800',
       completed: 'bg-green-100 text-green-800',
     };
     const icons: Record<string, any> = {
       needs_translation: AlertCircle,
       in_progress: Clock,
+      pending: Clock,
       completed: CheckCircle,
     };
     const labels: Record<string, string> = {
       needs_translation: t.needsTranslation,
       in_progress: t.inProgress,
+      pending: t.pendingApproval,
       completed: t.completed,
     };
-    const Icon = icons[status];
+    const Icon = icons[effectiveStatus] || Clock;
 
     return (
-      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[status]}`}>
+      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[effectiveStatus] || styles.in_progress}`}>
         <Icon className="w-3 h-3" />
-        {labels[status]}
+        {labels[effectiveStatus] || effectiveStatus}
       </span>
     );
   };
@@ -699,6 +802,7 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
         {/* Tabs */}
         <div className="bg-white rounded-xl shadow-sm p-1 inline-flex gap-1 flex-wrap">
           {[
+            ...(canApprove ? [{ key: 'pending', label: t.pendingApproval, highlight: true }] : []),
             { key: 'needs_translation', label: t.needsTranslation },
             { key: 'in_progress', label: t.inProgress },
             { key: 'completed', label: t.completed },
@@ -709,7 +813,9 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
               onClick={() => setActiveTab(tab.key as any)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
                 activeTab === tab.key
-                  ? 'bg-primary-600 text-white'
+                  ? tab.key === 'pending' ? 'bg-orange-600 text-white' : 'bg-primary-600 text-white'
+                  : tab.key === 'pending' && counts.pending > 0
+                  ? 'text-orange-600 bg-orange-50 hover:bg-orange-100'
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
@@ -719,6 +825,8 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
                   ? 'bg-white/20 text-white'
                   : tab.key === 'needs_translation'
                   ? 'bg-red-100 text-red-700'
+                  : tab.key === 'pending'
+                  ? 'bg-orange-100 text-orange-700'
                   : 'bg-gray-100 text-gray-600'
               }`}>
                 {counts[tab.key as keyof typeof counts]}
@@ -786,17 +894,41 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
                         <ProgressBar progress={article.enProgress} label="EN" />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {getStatusBadge(article.status)}
+                        {getStatusBadge(article.status, article.translationStatus)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <button
-                          onClick={() => setSelectedArticle(article)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700 transition-colors"
-                        >
-                          {article.status === 'needs_translation' ? t.translate : 
-                           article.status === 'in_progress' ? t.continue : t.view}
-                          <ChevronRight className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          {/* Approve/Reject buttons for admin on pending items */}
+                          {canApprove && article.translationStatus === 'pending' && (
+                            <>
+                              <button
+                                onClick={() => handleApproveFromList(article.id)}
+                                disabled={saving}
+                                className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                              >
+                                <CheckCircle className="w-4 h-4" />
+                                {t.approve}
+                              </button>
+                              <button
+                                onClick={() => handleRejectFromList(article.id)}
+                                disabled={saving}
+                                className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                              >
+                                <AlertCircle className="w-4 h-4" />
+                                {t.reject}
+                              </button>
+                            </>
+                          )}
+                          <button
+                            onClick={() => setSelectedArticle(article)}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700 transition-colors"
+                          >
+                            {article.translationStatus === 'pending' ? t.view :
+                             article.status === 'needs_translation' ? t.translate : 
+                             article.status === 'in_progress' ? t.continue : t.view}
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
