@@ -5,7 +5,7 @@ export const mockAuthors: Author[] = [
   {
     id: 1,
     name: 'Aziz Tojiboyev',
-    role: 'author',
+    role: 'muallif',
     avatar: '/images/avatars/author-1.jpg',
     credentials: "Yuridik fanlar doktori, professor",
     organization: "O'zbekiston Milliy universiteti",
@@ -18,7 +18,7 @@ export const mockAuthors: Author[] = [
   {
     id: 2,
     name: 'Dilfuza Rahimova',
-    role: 'author',
+    role: 'muallif',
     avatar: '/images/avatars/author-2.jpg',
     credentials: "Yuridik fanlar nomzodi",
     organization: "Toshkent davlat yuridik universiteti",
@@ -31,7 +31,7 @@ export const mockAuthors: Author[] = [
   {
     id: 3,
     name: 'Botir Karimov',
-    role: 'expert',
+    role: 'ekspert',
     avatar: '/images/avatars/expert-1.jpg',
     credentials: "Oliy toifali advokat",
     organization: "Huquqiy yordam markazi",
@@ -44,7 +44,7 @@ export const mockAuthors: Author[] = [
   {
     id: 4,
     name: 'Nilufar Saidova',
-    role: 'expert',
+    role: 'ekspert',
     avatar: '/images/avatars/expert-2.jpg',
     credentials: "Mehnat inspeksiyasi bosh inspektori",
     organization: "Bandlik va mehnat vazirligi",
@@ -57,7 +57,7 @@ export const mockAuthors: Author[] = [
   {
     id: 5,
     name: 'Jamshid Alimov',
-    role: 'expert',
+    role: 'ekspert',
     avatar: '/images/avatars/expert-3.jpg',
     credentials: "HR direktor",
     organization: "Xalqaro kompaniya",
