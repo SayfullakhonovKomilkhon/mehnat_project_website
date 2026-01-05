@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { RoleGuard } from '@/components/dashboard/RoleGuard';
 import Link from 'next/link';
@@ -164,7 +164,7 @@ export default function ArticlesPage({ params: { locale } }: ArticlesPageProps) 
   const itemsPerPage = 10;
 
   // Load data
-  const loadData = async (page: number = 1) => {
+  const loadData = useCallback(async (page: number = 1) => {
     setLoading(true);
     setError(null);
     try {
@@ -183,11 +183,11 @@ export default function ArticlesPage({ params: { locale } }: ArticlesPageProps) 
     } finally {
       setLoading(false);
     }
-  };
+  }, [locale, t.error]);
 
   useEffect(() => {
     loadData(currentPage);
-  }, [locale, currentPage]);
+  }, [loadData, currentPage]);
 
   // Filter articles locally
   const filteredArticles = articles.filter(article => {

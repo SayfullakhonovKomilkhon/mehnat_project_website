@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { RoleGuard } from '@/components/dashboard/RoleGuard';
 import { 
   FolderTree, 
@@ -300,7 +300,7 @@ export default function StructurePage({ params: { locale } }: StructurePageProps
   });
 
   // Load sections from API
-  const loadSections = async () => {
+  const loadSections = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -312,11 +312,11 @@ export default function StructurePage({ params: { locale } }: StructurePageProps
     } finally {
       setLoading(false);
     }
-  };
+  }, [locale, t.error]);
 
   useEffect(() => {
     loadSections();
-  }, [locale]);
+  }, [loadSections]);
 
   // Transform API data to tree structure
   const treeData: TreeNodeData[] = sections.map(section => ({
