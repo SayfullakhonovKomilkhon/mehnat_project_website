@@ -1,18 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { RoleGuard } from '@/components/dashboard/RoleGuard';
 import { 
-  Plus, 
   Search, 
   Edit, 
   Trash2, 
   UserCheck, 
   UserX, 
-  Key,
   X,
-  ChevronLeft,
-  ChevronRight,
   Loader2,
   AlertCircle,
   RefreshCw,
@@ -187,7 +183,7 @@ export default function UsersPage({ params: { locale } }: UsersPageProps) {
   });
 
   // Load data from API
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -203,11 +199,11 @@ export default function UsersPage({ params: { locale } }: UsersPageProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [locale, t.error]);
 
   useEffect(() => {
     loadData();
-  }, [locale]);
+  }, [loadData]);
 
   const filteredUsers = users.filter(user =>
     user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||

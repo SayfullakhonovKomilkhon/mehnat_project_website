@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, cloneElement, isValidElement } from 'react';
+import { useState, useRef, useEffect, useCallback, cloneElement, isValidElement } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -53,7 +53,7 @@ export function Tooltip({
   const triggers = Array.isArray(trigger) ? trigger : [trigger];
 
   // Calculate position
-  const updatePosition = () => {
+  const updatePosition = useCallback(() => {
     if (!triggerRef.current || !tooltipRef.current) return;
 
     const triggerRect = triggerRef.current.getBoundingClientRect();
@@ -89,7 +89,7 @@ export function Tooltip({
     y = Math.max(padding, Math.min(y, window.innerHeight - tooltipRect.height - padding + scrollY));
 
     setCoords({ x, y });
-  };
+  }, [position, offset]);
 
   // Update position on open
   useEffect(() => {
@@ -97,7 +97,7 @@ export function Tooltip({
       // Small delay to ensure tooltip is rendered
       requestAnimationFrame(updatePosition);
     }
-  }, [isOpen, position]);
+  }, [isOpen, updatePosition]);
 
   // Handle hover
   const handleMouseEnter = () => {

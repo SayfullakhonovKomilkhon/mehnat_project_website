@@ -84,11 +84,13 @@ export async function getCurrentUser() {
   return apiRequest<{ user: any }>('/user');
 }
 
-export default {
+const authApi = {
   login,
   logout,
   getCurrentUser,
   apiRequest,
   getAuthHeaders,
 };
+
+export default authApi;
 

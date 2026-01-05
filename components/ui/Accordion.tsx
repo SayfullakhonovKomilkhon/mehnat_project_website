@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, createContext, useContext, useId, useCallback } from 'react';
+import { useState, createContext, useContext, useId, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Plus, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -52,9 +52,11 @@ export function Accordion({
 
   const [internalValue, setInternalValue] = useState<string[]>(getInitialValue);
   
-  const expandedItems = value 
-    ? (Array.isArray(value) ? value : [value])
-    : internalValue;
+  const expandedItems = useMemo(() => {
+    return value 
+      ? (Array.isArray(value) ? value : [value])
+      : internalValue;
+  }, [value, internalValue]);
 
   const toggleItem = useCallback((itemValue: string) => {
     const newExpanded = type === 'single'
