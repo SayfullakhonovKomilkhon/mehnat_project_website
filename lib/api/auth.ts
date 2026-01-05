@@ -1,14 +1,15 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api/v1';
 
 // Get auth headers
 export function getAuthHeaders(locale: string = 'uz') {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-  
+
   return {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    Accept: 'application/json',
     'Accept-Language': locale,
-    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 }
 
@@ -93,4 +94,3 @@ const authApi = {
 };
 
 export default authApi;
-

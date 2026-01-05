@@ -4,7 +4,14 @@ import { createContext, useContext, useState, useEffect, ReactNode, useCallback 
 import { useRouter } from 'next/navigation';
 
 // Role types
-export type UserRole = 'admin' | 'muallif' | 'tarjimon' | 'ishchi_guruh' | 'ekspert' | 'moderator' | 'user';
+export type UserRole =
+  | 'admin'
+  | 'muallif'
+  | 'tarjimon'
+  | 'ishchi_guruh'
+  | 'ekspert'
+  | 'moderator'
+  | 'user';
 
 export interface User {
   id: number;
@@ -33,7 +40,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api/v1';
 
 // Transform backend user to frontend format
 function transformUser(backendUser: any): User {
@@ -80,12 +88,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      
+
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
         body: JSON.stringify({ email, password }),
       });
@@ -126,12 +134,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       fetch(`${API_BASE_URL}/auth/logout`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
         },
       }).catch(console.error);
     }
-    
+
     setToken(null);
     setUser(null);
     localStorage.removeItem('token');
@@ -139,10 +147,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push('/login');
   }, [router, token]);
 
-  const checkRole = useCallback((allowedRoles: UserRole[]) => {
-    if (!user) return false;
-    return allowedRoles.includes(user.role.name);
-  }, [user]);
+  const checkRole = useCallback(
+    (allowedRoles: UserRole[]) => {
+      if (!user) return false;
+      return allowedRoles.includes(user.role.name);
+    },
+    [user]
+  );
 
   return (
     <AuthContext.Provider

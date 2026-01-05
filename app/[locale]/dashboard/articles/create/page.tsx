@@ -1,18 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { RoleGuard } from '@/components/dashboard/RoleGuard';
+import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
-import { 
-  ArrowLeft, 
-  Save, 
+import {
+  ArrowLeft,
+  Save,
   Send,
   FileText,
-  Globe,
-  MessageSquare,
   Loader2,
   AlertCircle,
+  CheckCircle,
+  Clock,
 } from 'lucide-react';
 import { adminGetSections, adminCreateArticle } from '@/lib/api';
 import type { Locale } from '@/types';
@@ -25,16 +26,16 @@ const translations = {
   uz: {
     title: 'Yangi modda yaratish',
     back: 'Orqaga',
-    basicInfo: 'Asosiy ma\'lumotlar',
+    basicInfo: "Asosiy ma'lumotlar",
     articleNumber: 'Modda raqami',
     articleNumberPlaceholder: 'Masalan: 77, 81-1',
-    section: 'Bo\'lim',
-    selectSection: 'Bo\'limni tanlang',
+    section: "Bo'lim",
+    selectSection: "Bo'limni tanlang",
     chapter: 'Bob',
     selectChapter: 'Bobni tanlang',
     order: 'Tartib raqami',
     isActive: 'Faol',
-    contentUz: 'Kontent (O\'zbekcha)',
+    contentUz: "Kontent (O'zbekcha)",
     contentRu: 'Kontent (Ruscha)',
     contentEn: 'Kontent (Inglizcha)',
     titleLabel: 'Sarlavha',
@@ -43,8 +44,8 @@ const translations = {
     contentPlaceholder: 'Modda mazmunini kiriting...',
     summary: 'Qisqacha mazmuni',
     summaryPlaceholder: 'Qisqacha mazmunini kiriting...',
-    keywords: 'Kalit so\'zlar',
-    keywordsPlaceholder: 'Kalit so\'zlarni vergul bilan ajrating...',
+    keywords: "Kalit so'zlar",
+    keywordsPlaceholder: "Kalit so'zlarni vergul bilan ajrating...",
     save: 'Saqlash',
     saveDraft: 'Qoralama sifatida saqlash',
     publish: 'Chop etish',
@@ -53,6 +54,8 @@ const translations = {
     saving: 'Saqlanmoqda...',
     error: 'Xatolik yuz berdi',
     success: 'Modda muvaffaqiyatli yaratildi',
+    pendingModeration: 'Modda moderatsiyaga yuborildi. Admin tasdiqlashini kuting.',
+    submitForReview: 'Tekshirishga yuborish',
   },
   ru: {
     title: 'Создать статью',
@@ -85,6 +88,8 @@ const translations = {
     saving: 'Сохранение...',
     error: 'Произошла ошибка',
     success: 'Статья успешно создана',
+    pendingModeration: 'Статья отправлена на модерацию. Ожидайте подтверждения администратора.',
+    submitForReview: 'Отправить на проверку',
   },
   en: {
     title: 'Create Article',
@@ -117,23 +122,37 @@ const translations = {
     saving: 'Saving...',
     error: 'An error occurred',
     success: 'Article created successfully',
+    pendingModeration: 'Article submitted for moderation. Wait for admin approval.',
+    submitForReview: 'Submit for Review',
   },
 };
 
 export default function CreateArticlePage({ params: { locale } }: CreateArticlePageProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { user } = useAuth();
   const t = translations[locale as keyof typeof translations] || translations.uz;
-  
+
+  // Check if user is admin or moderator (can publish directly)
+  const userRole = user?.role?.name;
+  const canPublishDirectly = userRole === 'admin' || userRole === 'moderator';
+
+  // Get pre-filled values from URL params
+  const urlChapterId = searchParams.get('chapter');
+  const urlSectionId = searchParams.get('section');
+  const fromStructure = urlChapterId && urlSectionId; // Came from structure page
+
   const [sections, setSections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
   const [activeTab, setActiveTab] = useState<'uz' | 'ru' | 'en'>('uz');
   const [formData, setFormData] = useState({
     articleNumber: '',
-    sectionId: '',
-    chapterId: '',
+    sectionId: urlSectionId || '',
+    chapterId: urlChapterId || '',
     order: '',
     isActive: true,
     uz: { title: '', content: '', summary: '', keywords: '' },
@@ -148,6 +167,15 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
       try {
         const data = await adminGetSections(locale as Locale);
         setSections(data);
+
+        // Pre-fill section and chapter if provided in URL
+        if (urlSectionId && urlChapterId) {
+          setFormData(prev => ({
+            ...prev,
+            sectionId: urlSectionId,
+            chapterId: urlChapterId,
+          }));
+        }
       } catch (err) {
         console.error('Error loading sections:', err);
       } finally {
@@ -155,21 +183,26 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
       }
     };
     loadData();
-  }, [locale]);
+  }, [locale, urlSectionId, urlChapterId]);
 
   // Get chapters for selected section
   const selectedSection = sections.find(s => s.id === parseInt(formData.sectionId));
   const chapters = selectedSection?.chapters || [];
 
   const handleSubmit = async (action: 'draft' | 'publish') => {
-    if (!formData.articleNumber || !formData.chapterId || !formData.uz.title || !formData.uz.content) {
+    if (
+      !formData.articleNumber ||
+      !formData.chapterId ||
+      !formData.uz.title ||
+      !formData.uz.content
+    ) {
       setError(t.error);
       return;
     }
 
     setSaving(true);
     setError(null);
-    
+
     try {
       // Build translations object
       const translations: any = {
@@ -177,40 +210,71 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
           title: formData.uz.title,
           content: formData.uz.content,
           summary: formData.uz.summary || undefined,
-          keywords: formData.uz.keywords ? formData.uz.keywords.split(',').map(k => k.trim()).filter(Boolean) : undefined,
+          keywords: formData.uz.keywords
+            ? formData.uz.keywords
+                .split(',')
+                .map(k => k.trim())
+                .filter(Boolean)
+            : undefined,
         },
       };
-      
+
       // Add Russian translation if provided
       if (formData.ru.title && formData.ru.content) {
         translations.ru = {
           title: formData.ru.title,
           content: formData.ru.content,
           summary: formData.ru.summary || undefined,
-          keywords: formData.ru.keywords ? formData.ru.keywords.split(',').map(k => k.trim()).filter(Boolean) : undefined,
+          keywords: formData.ru.keywords
+            ? formData.ru.keywords
+                .split(',')
+                .map(k => k.trim())
+                .filter(Boolean)
+            : undefined,
         };
       }
-      
+
       // Add English translation if provided
       if (formData.en.title && formData.en.content) {
         translations.en = {
           title: formData.en.title,
           content: formData.en.content,
           summary: formData.en.summary || undefined,
-          keywords: formData.en.keywords ? formData.en.keywords.split(',').map(k => k.trim()).filter(Boolean) : undefined,
+          keywords: formData.en.keywords
+            ? formData.en.keywords
+                .split(',')
+                .map(k => k.trim())
+                .filter(Boolean)
+            : undefined,
         };
       }
-      
-      const result = await adminCreateArticle({
-        chapter_id: parseInt(formData.chapterId),
-        article_number: formData.articleNumber,
-        order_number: parseInt(formData.order) || 1,
-        is_active: action === 'publish',
-        translations,
-      }, locale as Locale);
-      
+
+      const result = await adminCreateArticle(
+        {
+          chapter_id: parseInt(formData.chapterId),
+          article_number: formData.articleNumber,
+          order_number: parseInt(formData.order) || 1,
+          is_active: action === 'publish',
+          translations,
+        },
+        locale as Locale
+      );
+
       if (result.success) {
-        router.push(`/${locale}/dashboard/articles`);
+        // Show success message
+        if (!canPublishDirectly) {
+          setSuccessMessage(t.pendingModeration);
+          // Wait a bit before redirecting so user sees the message
+          setTimeout(() => {
+            router.push(
+              fromStructure ? `/${locale}/dashboard/structure` : `/${locale}/dashboard/articles`
+            );
+          }, 2000);
+        } else {
+          router.push(
+            fromStructure ? `/${locale}/dashboard/structure` : `/${locale}/dashboard/articles`
+          );
+        }
       } else {
         setError(result.error || t.error);
       }
@@ -230,9 +294,9 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
   if (loading) {
     return (
       <RoleGuard allowedRoles={['admin', 'ishchi_guruh']}>
-        <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex min-h-[400px] items-center justify-center">
           <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin text-primary-600 mx-auto mb-2" />
+            <Loader2 className="mx-auto mb-2 h-8 w-8 animate-spin text-primary-600" />
             <p className="text-gray-500">{t.loading}</p>
           </div>
         </div>
@@ -247,10 +311,12 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link
-              href={`/${locale}/dashboard/articles`}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              href={
+                fromStructure ? `/${locale}/dashboard/structure` : `/${locale}/dashboard/articles`
+              }
+              className="rounded-lg p-2 transition-colors hover:bg-gray-100"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="h-5 w-5" />
             </Link>
             <h1 className="text-2xl font-bold text-gray-900">{t.title}</h1>
           </div>
@@ -258,40 +324,56 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-red-500" />
+          <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
+            <AlertCircle className="h-5 w-5 text-red-500" />
             <p className="text-red-700">{error}</p>
           </div>
         )}
 
+        {/* Success Message */}
+        {successMessage && (
+          <div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
+            <CheckCircle className="h-5 w-5 text-green-500" />
+            <p className="text-green-700">{successMessage}</p>
+          </div>
+        )}
+
+        {/* Moderation Notice for non-admin users */}
+        {!canPublishDirectly && (
+          <div className="flex items-center gap-3 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+            <Clock className="h-5 w-5 text-yellow-600" />
+            <p className="text-yellow-800">{t.pendingModeration.split('.')[0]}.</p>
+          </div>
+        )}
+
         {/* Basic Info */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-primary-600" />
+        <div className="rounded-xl bg-white p-6 shadow-sm">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
+            <FileText className="h-5 w-5 text-primary-600" />
             {t.basicInfo}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
                 {t.articleNumber} *
               </label>
               <input
                 type="text"
                 value={formData.articleNumber}
-                onChange={(e) => setFormData({ ...formData, articleNumber: e.target.value })}
+                onChange={e => setFormData({ ...formData, articleNumber: e.target.value })}
                 placeholder={t.articleNumberPlaceholder}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 disabled={saving}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t.section} *
-              </label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">{t.section} *</label>
               <select
                 value={formData.sectionId}
-                onChange={(e) => setFormData({ ...formData, sectionId: e.target.value, chapterId: '' })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                onChange={e =>
+                  setFormData({ ...formData, sectionId: e.target.value, chapterId: '' })
+                }
+                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 disabled={saving}
               >
                 <option value="">{t.selectSection}</option>
@@ -303,13 +385,11 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t.chapter} *
-              </label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">{t.chapter} *</label>
               <select
                 value={formData.chapterId}
-                onChange={(e) => setFormData({ ...formData, chapterId: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                onChange={e => setFormData({ ...formData, chapterId: e.target.value })}
+                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 disabled={!formData.sectionId || saving}
               >
                 <option value="">{t.selectChapter}</option>
@@ -321,25 +401,23 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t.order}
-              </label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">{t.order}</label>
               <input
                 type="number"
                 value={formData.order}
-                onChange={(e) => setFormData({ ...formData, order: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                onChange={e => setFormData({ ...formData, order: e.target.value })}
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 disabled={saving}
               />
             </div>
           </div>
           <div className="mt-4">
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
                 checked={formData.isActive}
-                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                onChange={e => setFormData({ ...formData, isActive: e.target.checked })}
+                className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                 disabled={saving}
               />
               <span className="text-sm text-gray-700">{t.isActive}</span>
@@ -348,17 +426,17 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
         </div>
 
         {/* Content Tabs */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="overflow-hidden rounded-xl bg-white shadow-sm">
           {/* Tab Headers */}
           <div className="flex border-b border-gray-200">
             {tabs.map(tab => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as any)}
-                className={`flex-1 px-4 py-3 text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
+                className={`flex flex-1 items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
                   activeTab === tab.key
-                    ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                    ? 'border-b-2 border-primary-600 bg-primary-50 text-primary-600'
+                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
                 }`}
                 disabled={saving}
               >
@@ -369,68 +447,70 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
           </div>
 
           {/* Tab Content */}
-          <div className="p-6 space-y-4">
+          <div className="space-y-4 p-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
                 {t.titleLabel} *
               </label>
               <input
                 type="text"
                 value={formData[activeTab].title}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  [activeTab]: { ...formData[activeTab], title: e.target.value }
-                })}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    [activeTab]: { ...formData[activeTab], title: e.target.value },
+                  })
+                }
                 placeholder={t.titlePlaceholder}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 disabled={saving}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t.content} *
-              </label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">{t.content} *</label>
               <textarea
                 rows={10}
                 value={formData[activeTab].content}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  [activeTab]: { ...formData[activeTab], content: e.target.value }
-                })}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    [activeTab]: { ...formData[activeTab], content: e.target.value },
+                  })
+                }
                 placeholder={t.contentPlaceholder}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 disabled={saving}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t.summary}
-              </label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">{t.summary}</label>
               <textarea
                 rows={3}
                 value={formData[activeTab].summary}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  [activeTab]: { ...formData[activeTab], summary: e.target.value }
-                })}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    [activeTab]: { ...formData[activeTab], summary: e.target.value },
+                  })
+                }
                 placeholder={t.summaryPlaceholder}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 disabled={saving}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t.keywords}
-              </label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">{t.keywords}</label>
               <input
                 type="text"
                 value={formData[activeTab].keywords}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  [activeTab]: { ...formData[activeTab], keywords: e.target.value }
-                })}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    [activeTab]: { ...formData[activeTab], keywords: e.target.value },
+                  })
+                }
                 placeholder={t.keywordsPlaceholder}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 disabled={saving}
               />
             </div>
@@ -440,27 +520,55 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
         {/* Action Buttons */}
         <div className="flex items-center justify-end gap-3">
           <Link
-            href={`/${locale}/dashboard/articles`}
-            className="px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            href={
+              fromStructure ? `/${locale}/dashboard/structure` : `/${locale}/dashboard/articles`
+            }
+            className="rounded-lg border border-gray-300 px-4 py-2.5 transition-colors hover:bg-gray-50"
           >
             {t.cancel}
           </Link>
-          <button
-            onClick={() => handleSubmit('draft')}
-            className="px-4 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2 disabled:opacity-50"
-            disabled={saving}
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            {saving ? t.saving : t.saveDraft}
-          </button>
-          <button
-            onClick={() => handleSubmit('publish')}
-            className="px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 disabled:opacity-50"
-            disabled={saving}
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            {saving ? t.saving : t.publish}
-          </button>
+
+          {canPublishDirectly ? (
+            <>
+              <button
+                onClick={() => handleSubmit('draft')}
+                className="flex items-center gap-2 rounded-lg bg-gray-600 px-4 py-2.5 text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
+                disabled={saving}
+              >
+                {saving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                {saving ? t.saving : t.saveDraft}
+              </button>
+              <button
+                onClick={() => handleSubmit('publish')}
+                className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+                disabled={saving}
+              >
+                {saving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+                {saving ? t.saving : t.publish}
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => handleSubmit('publish')}
+              className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2.5 text-white transition-colors hover:bg-primary-700 disabled:opacity-50"
+              disabled={saving}
+            >
+              {saving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Clock className="h-4 w-4" />
+              )}
+              {saving ? t.saving : t.submitForReview}
+            </button>
+          )}
         </div>
       </div>
     </RoleGuard>

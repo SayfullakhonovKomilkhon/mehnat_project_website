@@ -1,13 +1,14 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { ArrowRight, Link2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Link2, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui';
-import { Article, articles as allArticles, getLocalizedText } from '@/lib/mock-data';
-import { useRef } from 'react';
+import { getRelatedArticles, getLocalizedText } from '@/lib/api';
+import type { Article, Locale } from '@/types';
 
 interface RelatedArticlesProps {
   article: Article;
@@ -17,31 +18,68 @@ interface RelatedArticlesProps {
 export function RelatedArticles({ article, locale }: RelatedArticlesProps) {
   const t = useTranslations('article');
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Get related articles from same chapter + some from same section
-  const sameChapter = allArticles
-    .filter(a => a.chapter.id === article.chapter.id && a.id !== article.id)
-    .slice(0, 2);
-  
-  const sameSection = allArticles
-    .filter(a => 
-      a.section.id === article.section.id && 
-      a.chapter.id !== article.chapter.id && 
-      a.id !== article.id
-    )
-    .slice(0, 2);
+  // Fetch related articles from API
+  useEffect(() => {
+    let isMounted = true;
 
-  const relatedArticles = [...sameChapter, ...sameSection];
+    async function fetchRelatedArticles() {
+      setLoading(true);
+      try {
+        const articles = await getRelatedArticles(article, locale as Locale, 4);
+        if (isMounted) {
+          setRelatedArticles(articles);
+        }
+      } catch (error) {
+        console.error('Failed to fetch related articles:', error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    fetchRelatedArticles();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [article.id, article.chapterId, article.sectionId, locale]);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
       const scrollAmount = 300;
       scrollRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <motion.section
+        id="related"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="mb-8"
+      >
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="flex items-center gap-2 font-heading text-xl font-semibold text-text-primary">
+            <Link2 className="h-5 w-5 text-primary-600" />
+            {t('relatedArticles')}
+          </h2>
+        </div>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-primary-600" />
+        </div>
+      </motion.section>
+    );
+  }
 
   if (relatedArticles.length === 0) {
     return null;
@@ -56,38 +94,38 @@ export function RelatedArticles({ article, locale }: RelatedArticlesProps) {
       className="mb-8"
     >
       {/* Section Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="font-heading text-xl font-semibold text-text-primary flex items-center gap-2">
-          <Link2 className="w-5 h-5 text-primary-600" />
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="flex items-center gap-2 font-heading text-xl font-semibold text-text-primary">
+          <Link2 className="h-5 w-5 text-primary-600" />
           {t('relatedArticles')}
         </h2>
-        
+
         {/* Scroll Controls - Desktop */}
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden items-center gap-2 md:flex">
           <button
             onClick={() => scroll('left')}
-            className="p-2 rounded-lg bg-gov-light hover:bg-primary-50 text-text-secondary hover:text-primary-600 transition-colors"
+            className="rounded-lg bg-gov-light p-2 text-text-secondary transition-colors hover:bg-primary-50 hover:text-primary-600"
             aria-label="Scroll left"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={() => scroll('right')}
-            className="p-2 rounded-lg bg-gov-light hover:bg-primary-50 text-text-secondary hover:text-primary-600 transition-colors"
+            className="rounded-lg bg-gov-light p-2 text-text-secondary transition-colors hover:bg-primary-50 hover:text-primary-600"
             aria-label="Scroll right"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="h-5 w-5" />
           </button>
         </div>
       </div>
 
       {/* Cards Container */}
-      <div 
+      <div
         ref={scrollRef}
         className={cn(
-          'flex gap-4 overflow-x-auto pb-4 -mx-4 px-4',
+          '-mx-4 flex gap-4 overflow-x-auto px-4 pb-4',
           'scrollbar-hide',
-          'md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-visible md:mx-0 md:px-0'
+          'md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-4'
         )}
       >
         {relatedArticles.map((relArticle, index) => (
@@ -96,29 +134,32 @@ export function RelatedArticles({ article, locale }: RelatedArticlesProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 * index }}
-            className="flex-shrink-0 w-[280px] md:w-auto"
+            className="w-[280px] flex-shrink-0 md:w-auto"
           >
             <Link href={`/${locale}/articles/${relArticle.id}`}>
-              <article className={cn(
-                'h-full bg-gov-surface rounded-xl border border-gov-border p-4',
-                'hover:border-primary-300 hover:shadow-card-hover',
-                'transition-all duration-200 group'
-              )}>
+              <article
+                className={cn(
+                  'h-full rounded-xl border border-gov-border bg-gov-surface p-4',
+                  'hover:border-primary-300 hover:shadow-card-hover',
+                  'group transition-all duration-200'
+                )}
+              >
                 {/* Header */}
-                <div className="flex items-start justify-between gap-3 mb-3">
+                <div className="mb-3 flex items-start justify-between gap-3">
                   <Badge variant="primary" size="lg" className="font-heading">
                     {relArticle.number}
                   </Badge>
                 </div>
 
                 {/* Title */}
-                <h3 className="font-medium text-text-primary group-hover:text-primary-700 line-clamp-2 mb-2 transition-colors">
+                <h3 className="mb-2 line-clamp-2 font-medium text-text-primary transition-colors group-hover:text-primary-700">
                   {getLocalizedText(relArticle.title, locale)}
                 </h3>
 
                 {/* Section/Chapter */}
-                <p className="text-xs text-text-muted mb-3">
-                  {relArticle.section.number}-{t('section').toLowerCase()} → {relArticle.chapter.number}-{t('chapter').toLowerCase()}
+                <p className="mb-3 text-xs text-text-muted">
+                  {relArticle.section?.number || '1'}-{t('section').toLowerCase()} →{' '}
+                  {relArticle.chapter?.number || '1'}-{t('chapter').toLowerCase()}
                 </p>
 
                 {/* Comment Indicators */}
@@ -136,10 +177,10 @@ export function RelatedArticles({ article, locale }: RelatedArticlesProps) {
                 </div>
 
                 {/* Read More */}
-                <div className="mt-4 pt-3 border-t border-gov-border">
-                  <span className="text-sm text-primary-600 group-hover:text-primary-700 font-medium flex items-center gap-1">
+                <div className="mt-4 border-t border-gov-border pt-3">
+                  <span className="flex items-center gap-1 text-sm font-medium text-primary-600 group-hover:text-primary-700">
                     {t('readMore')}
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </span>
                 </div>
               </article>
@@ -151,11 +192,11 @@ export function RelatedArticles({ article, locale }: RelatedArticlesProps) {
       {/* View All Link */}
       <div className="mt-6 text-center">
         <Link
-          href={`/${locale}/articles?chapter=${article.chapter.id}`}
-          className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium"
+          href={`/${locale}/articles?chapter=${article.chapterId}`}
+          className="inline-flex items-center gap-2 font-medium text-primary-600 hover:text-primary-700"
         >
-          {t('viewAllChapter', { chapter: article.chapter.number })}
-          <ArrowRight className="w-4 h-4" />
+          {t('viewAllChapter', { chapter: article.chapter?.number || '1' })}
+          <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
     </motion.section>
@@ -163,8 +204,3 @@ export function RelatedArticles({ article, locale }: RelatedArticlesProps) {
 }
 
 export default RelatedArticles;
-
-
-
-
-
