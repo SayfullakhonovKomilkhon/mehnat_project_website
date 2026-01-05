@@ -68,6 +68,8 @@ const translations = {
     tarjimon: 'Tarjimon',
     ishchi_guruh: 'Ishchi guruh',
     ekspert: 'Ekspert',
+    moderator: 'Moderator',
+    user: 'Foydalanuvchi',
     showing: 'Ko\'rsatilmoqda',
     of: 'dan',
     results: 'natija',
@@ -116,6 +118,8 @@ const translations = {
     tarjimon: 'Переводчик',
     ishchi_guruh: 'Рабочая группа',
     ekspert: 'Эксперт',
+    moderator: 'Модератор',
+    user: 'Пользователь',
     showing: 'Показано',
     of: 'из',
     results: 'результатов',
@@ -164,6 +168,8 @@ const translations = {
     tarjimon: 'Translator',
     ishchi_guruh: 'Working Group',
     ekspert: 'Expert',
+    moderator: 'Moderator',
+    user: 'User',
     showing: 'Showing',
     of: 'of',
     results: 'results',
@@ -186,6 +192,10 @@ const translations = {
 // Default passwords based on role (from seeder)
 const defaultPasswords: Record<string, string> = {
   admin: 'Admin123!',
+  muallif: 'Muallif123!',
+  tarjimon: 'Tarjimon123!',
+  ishchi_guruh: 'Workers123!',
+  ekspert: 'Expert123!',
   moderator: 'ModeratorPass123!',
   user: 'UserPass123!',
 };
@@ -196,6 +206,8 @@ const roleColors: Record<string, string> = {
   tarjimon: 'bg-green-100 text-green-800',
   ishchi_guruh: 'bg-purple-100 text-purple-800',
   ekspert: 'bg-yellow-100 text-yellow-800',
+  moderator: 'bg-indigo-100 text-indigo-800',
+  user: 'bg-gray-100 text-gray-800',
 };
 
 export default function UsersPage({ params: { locale } }: UsersPageProps) {
@@ -373,9 +385,7 @@ export default function UsersPage({ params: { locale } }: UsersPageProps) {
 
   const getDefaultPassword = (user: any) => {
     const roleSlug = getRoleSlug(user.role);
-    if (roleSlug === 'admin') return defaultPasswords.admin;
-    if (roleSlug === 'moderator') return defaultPasswords.moderator;
-    return defaultPasswords.user;
+    return defaultPasswords[roleSlug] || defaultPasswords.user;
   };
 
   if (loading) {
