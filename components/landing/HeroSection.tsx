@@ -1,13 +1,5 @@
 import { Suspense } from 'react';
-import { 
-  ArrowRight, 
-  Layers, 
-  FileText, 
-  MessageSquare, 
-  Users, 
-  Award,
-  Shield,
-} from 'lucide-react';
+import { ArrowRight, Layers, FileText, MessageSquare, Users, Award } from 'lucide-react';
 import { Button, GovVerifiedBadge } from '@/components/ui';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
@@ -32,12 +24,12 @@ export async function HeroSection({ locale }: HeroSectionProps) {
   const t = await getTranslations();
 
   return (
-    <section className="relative min-h-[auto] md:min-h-[85vh] overflow-hidden pb-8 md:pb-0">
+    <section className="relative min-h-[auto] overflow-hidden pb-8 md:min-h-[85vh] md:pb-0">
       {/* Background Gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary-800 via-primary-700 to-primary-500" />
-      
+
       {/* Geometric Pattern Overlay - Static CSS */}
-      <div 
+      <div
         className="absolute inset-0 opacity-[0.07]"
         style={{
           backgroundImage: `
@@ -53,59 +45,60 @@ export async function HeroSection({ locale }: HeroSectionProps) {
         }}
       />
 
-
       {/* Main Content */}
-      <div className="relative z-10 section-container">
-        <div className="pt-8 pb-6 sm:pt-12 sm:pb-8 lg:pt-24 lg:pb-16">
-          <div className="max-w-4xl mx-auto text-center px-2 sm:px-0">
+      <div className="section-container relative z-10">
+        <div className="pb-6 pt-8 sm:pb-8 sm:pt-12 lg:pb-16 lg:pt-24">
+          <div className="mx-auto max-w-4xl px-2 text-center sm:px-0">
             {/* Verified Badge */}
-            <div className="mb-4 sm:mb-6 animate-fadeIn">
-              <GovVerifiedBadge size="md" className="inline-flex bg-white/10 backdrop-blur-sm border border-white/20">
-                <Shield className="w-4 h-4" />
+            <div className="animate-fadeIn mb-4 sm:mb-6">
+              <GovVerifiedBadge
+                size="md"
+                className="inline-flex border border-white/20 bg-white/10 backdrop-blur-sm"
+              >
                 {t('common.verifiedByGov')}
               </GovVerifiedBadge>
             </div>
 
             {/* Main Heading */}
-            <h1 className="font-heading text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight animate-slideUp">
+            <h1 className="animate-slideUp mb-4 font-heading text-2xl font-bold leading-tight text-white sm:mb-6 sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
               {t('hero.title')}
             </h1>
 
             {/* Subheading */}
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-primary-100 mb-3 sm:mb-4 max-w-3xl mx-auto leading-relaxed animate-slideUp-delay-1">
+            <p className="animate-slideUp-delay-1 mx-auto mb-3 max-w-3xl text-base leading-relaxed text-primary-100 sm:mb-4 sm:text-lg md:text-xl lg:text-2xl">
               {t('hero.subtitle')}
             </p>
 
             {/* Description */}
-            <p className="text-sm sm:text-base text-primary-200 mb-6 sm:mb-10 max-w-2xl mx-auto animate-slideUp-delay-2">
+            <p className="animate-slideUp-delay-2 mx-auto mb-6 max-w-2xl text-sm text-primary-200 sm:mb-10 sm:text-base">
               {t('hero.description')}
             </p>
 
             {/* Hero Search - Client Component */}
-            <div className="mb-6 sm:mb-10 animate-slideUp-delay-2">
+            <div className="animate-slideUp-delay-2 mb-6 sm:mb-10">
               <Suspense fallback={<SearchFallback />}>
                 <HeroSearchWrapper locale={locale} />
               </Suspense>
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-4 animate-slideUp-delay-3">
+            <div className="animate-slideUp-delay-3 flex flex-col items-center justify-center gap-2.5 sm:flex-row sm:gap-4">
               <Link href={`/${locale}/articles`} className="w-full sm:w-auto">
-                <Button 
-                  variant="gold" 
-                  size="lg" 
-                  className="w-full sm:w-auto text-primary-900 font-semibold shadow-lg shadow-accent-gold/30 h-12 sm:h-14 px-6 sm:px-10 text-base sm:text-lg"
-                  rightIcon={<ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />}
+                <Button
+                  variant="gold"
+                  size="lg"
+                  className="h-12 w-full px-6 text-base font-semibold text-primary-900 shadow-lg shadow-accent-gold/30 sm:h-14 sm:w-auto sm:px-10 sm:text-lg"
+                  rightIcon={<ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />}
                 >
                   {t('hero.cta')}
                 </Button>
               </Link>
               <Link href={`/${locale}/sections`} className="w-full sm:w-auto">
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="w-full sm:w-auto border-white/30 text-white hover:bg-white/10 h-12 sm:h-14 px-6 sm:px-10 text-base sm:text-lg"
-                  leftIcon={<Layers className="w-4 h-4 sm:w-5 sm:h-5" />}
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="h-12 w-full border-white/30 px-6 text-base text-white hover:bg-white/10 sm:h-14 sm:w-auto sm:px-10 sm:text-lg"
+                  leftIcon={<Layers className="h-4 w-4 sm:h-5 sm:w-5" />}
                 >
                   {t('hero.exploreBtn')}
                 </Button>
@@ -115,54 +108,46 @@ export async function HeroSection({ locale }: HeroSectionProps) {
         </div>
 
         {/* Stats Strip - Static render, no animated counters */}
-        <div className="relative z-10 animate-fadeIn mt-6 sm:mt-8 lg:mt-0 pb-6 sm:pb-8" style={{ animationDelay: '0.4s' }}>
-          <div className="bg-primary-700/80 backdrop-blur-md rounded-xl sm:rounded-2xl border border-white/20 p-5 sm:p-6 lg:p-8 shadow-xl">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
+        <div
+          className="animate-fadeIn relative z-10 mt-6 pb-6 sm:mt-8 sm:pb-8 lg:mt-0"
+          style={{ animationDelay: '0.4s' }}
+        >
+          <div className="rounded-xl border border-white/20 bg-primary-700/80 p-5 shadow-xl backdrop-blur-md sm:rounded-2xl sm:p-6 lg:p-8">
+            <div className="grid grid-cols-2 gap-6 sm:gap-8 lg:grid-cols-4 lg:gap-10">
               {statsData.map((stat, index) => (
-                <StatItem
-                  key={stat.key}
-                  stat={stat}
-                  index={index}
-                  label={t(`stats.${stat.key}`)}
-                />
+                <StatItem key={stat.key} stat={stat} index={index} label={t(`stats.${stat.key}`)} />
               ))}
             </div>
           </div>
         </div>
-
       </div>
     </section>
   );
 }
 
 // Static Stat Item - No animated counter
-function StatItem({ 
-  stat, 
-  index, 
-  label 
-}: { 
-  stat: typeof statsData[0]; 
-  index: number; 
+function StatItem({
+  stat,
+  index,
+  label,
+}: {
+  stat: (typeof statsData)[0];
+  index: number;
   label: string;
 }) {
   const Icon = stat.icon;
 
   return (
-    <div 
-      className="text-center animate-fadeIn"
-      style={{ animationDelay: `${0.5 + index * 0.1}s` }}
-    >
-      <div className="flex items-center justify-center mb-2">
-        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg bg-white/15 flex items-center justify-center">
-          <Icon className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-accent-gold" />
+    <div className="animate-fadeIn text-center" style={{ animationDelay: `${0.5 + index * 0.1}s` }}>
+      <div className="mb-2 flex items-center justify-center">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/15 sm:h-11 sm:w-11">
+          <Icon className="sm:w-5.5 sm:h-5.5 h-5 w-5 text-accent-gold" />
         </div>
       </div>
-      <div className="text-2xl sm:text-3xl lg:text-4xl font-heading font-bold text-white mb-1">
+      <div className="mb-1 font-heading text-2xl font-bold text-white sm:text-3xl lg:text-4xl">
         {stat.value}
       </div>
-      <div className="text-sm sm:text-base text-white font-semibold">
-        {label}
-      </div>
+      <div className="text-sm font-semibold text-white sm:text-base">{label}</div>
     </div>
   );
 }
@@ -170,8 +155,8 @@ function StatItem({
 // Search fallback for Suspense
 function SearchFallback() {
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="h-14 bg-white/10 rounded-xl animate-pulse" />
+    <div className="mx-auto max-w-2xl">
+      <div className="h-14 animate-pulse rounded-xl bg-white/10" />
     </div>
   );
 }
