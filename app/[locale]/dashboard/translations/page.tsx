@@ -153,17 +153,45 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
   const [translationEn, setTranslationEn] = useState('');
   const [originalText, setOriginalText] = useState('');
   
-  // Load articles from API
+  // Load articles from API (try admin endpoint first, fallback to public)
   const loadArticles = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await adminGetArticles(locale as Locale);
+      // Try admin endpoint first
+      let data = await adminGetArticles(locale as Locale);
+      
+      // If admin endpoint returns empty, try public endpoint
+      if (!data || data.length === 0) {
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api/v1';
+        const token = localStorage.getItem('token');
+        
+        const response = await fetch(`${API_BASE_URL}/articles`, {
+          headers: {
+            'Accept': 'application/json',
+            'Accept-Language': locale,
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          },
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          data = result.data?.items || result.data || result.items || [];
+        }
+      }
+      
+      // If still no data, use mock data
+      if (!data || data.length === 0) {
+        console.log('No articles from API, using mock data');
+        setArticles(mockArticles);
+        setLoading(false);
+        return;
+      }
+      
       // Calculate translation progress for each article
       const articlesWithProgress = data.map((article: any) => {
         const hasRu = article.translations?.ru?.content || article.content?.ru;
         const hasEn = article.translations?.en?.content || article.content?.en;
-        const hasUz = article.translations?.uz?.content || article.content?.uz;
         
         const ruProgress = hasRu ? 100 : 0;
         const enProgress = hasEn ? 100 : 0;
@@ -217,7 +245,7 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
     setSaving(true);
     try {
       const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api/v1';
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem('token');
       
       const response = await fetch(`${API_BASE_URL}/admin/articles/${selectedArticle.id}`, {
         method: 'PUT',
