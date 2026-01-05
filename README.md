@@ -60,17 +60,17 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npm run type-check` | Run TypeScript type checking |
-| `npm run test` | Run unit tests |
-| `npm run test:watch` | Run tests in watch mode |
-| `npm run test:coverage` | Run tests with coverage |
-| `npm run analyze` | Analyze bundle size |
+| Script                  | Description                  |
+| ----------------------- | ---------------------------- |
+| `npm run dev`           | Start development server     |
+| `npm run build`         | Build for production         |
+| `npm run start`         | Start production server      |
+| `npm run lint`          | Run ESLint                   |
+| `npm run type-check`    | Run TypeScript type checking |
+| `npm run test`          | Run unit tests               |
+| `npm run test:watch`    | Run tests in watch mode      |
+| `npm run test:coverage` | Run tests with coverage      |
+| `npm run analyze`       | Analyze bundle size          |
 
 ## 📁 Project Structure
 
@@ -131,6 +131,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## 🌍 Internationalization (i18n)
 
 The platform supports three languages:
+
 - 🇺🇿 O'zbek (Uzbek) - Default
 - 🇷🇺 Русский (Russian)
 - 🇬🇧 English
@@ -164,7 +165,7 @@ import { Button } from '@/components/ui';
 
 <Button variant="primary" size="md" leftIcon={<Icon />}>
   Click me
-</Button>
+</Button>;
 ```
 
 **Variants:** `primary`, `secondary`, `outline`, `ghost`, `gold`, `danger`
@@ -180,7 +181,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
     <CardTitle>Title</CardTitle>
   </CardHeader>
   <CardContent>Content</CardContent>
-</Card>
+</Card>;
 ```
 
 ### Modal
@@ -196,7 +197,7 @@ import { Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@/compon
   <ModalFooter>
     <Button onClick={onClose}>Close</Button>
   </ModalFooter>
-</Modal>
+</Modal>;
 ```
 
 ### Toast
@@ -206,7 +207,7 @@ import { useToast } from '@/components/ui';
 
 function MyComponent() {
   const toast = useToast();
-  
+
   const handleClick = () => {
     toast.success('Success!', 'Operation completed');
     toast.error('Error!', 'Something went wrong');
@@ -236,12 +237,14 @@ Users can customize their experience through the accessibility panel in the head
 ## 📊 Performance
 
 Target performance metrics (Lighthouse):
+
 - **Performance:** >90
 - **Accessibility:** >95
 - **Best Practices:** >90
 - **SEO:** >95
 
 Optimizations include:
+
 - Next.js Image optimization
 - Font subsetting with next/font
 - Code splitting and lazy loading
@@ -299,6 +302,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 ## 📧 Contact
 
 For questions or support, contact:
+
 - Email: info@mehnat.uz
 - Telegram: @mehaboruz
 
@@ -308,9 +312,10 @@ For questions or support, contact:
   Built with ❤️ for the people of Uzbekistan
 </p>
 
-
-
 #   m e h n a t _ k o d e k s i 
  
  
 
+#   m e h n a t * p r o j e c t * w e b s i t e 
+ 
+ 
