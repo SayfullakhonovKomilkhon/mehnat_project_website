@@ -161,7 +161,7 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
   const { user } = useAuth();
   
   // Check if user is admin or moderator (can approve translations)
-  const userRole = user?.role?.slug || user?.role?.name || 'user';
+  const userRole = (user?.role as any)?.slug || user?.role?.name || 'user';
   const canApprove = userRole === 'admin' || userRole === 'moderator';
   const isTranslator = userRole === 'tarjimon';
   
