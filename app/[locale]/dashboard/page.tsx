@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { 
   FileText, 
@@ -15,10 +15,19 @@ import {
   FolderTree,
   Award,
   Edit,
-  Eye,
-  Plus
+  Plus,
+  Loader2,
+  RefreshCw,
 } from 'lucide-react';
 import Link from 'next/link';
+import { 
+  adminGetDashboardAnalytics, 
+  adminGetActivityLogs,
+  adminGetUsers,
+  getSections,
+  getArticles,
+} from '@/lib/api';
+import type { Locale } from '@/types';
 
 interface DashboardPageProps {
   params: { locale: string };
@@ -214,37 +223,95 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
   const { user, checkRole } = useAuth();
   const t = translations[locale as keyof typeof translations] || translations.uz;
 
-  // Mock stats - in real app, fetch from API
+  const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
-    totalArticles: 350,
-    pendingApproval: 12,
-    totalComments: 1247,
-    totalUsers: 156,
-    myArticles: 15,
-    myComments: 42,
-    needsTranslation: 23,
-    myTranslations: 18,
-    sections: 6,
-    chapters: 28,
-    articles: 350,
-    needsExpertise: 8,
-    myExpertReviews: 31,
+    totalArticles: 0,
+    pendingApproval: 0,
+    totalComments: 0,
+    totalUsers: 0,
+    myArticles: 0,
+    myComments: 0,
+    needsTranslation: 0,
+    myTranslations: 0,
+    sections: 0,
+    chapters: 0,
+    articles: 0,
+    needsExpertise: 0,
+    myExpertReviews: 0,
   });
-
-  // Mock recent updates
-  const recentUpdates = [
-    { id: 1, user: 'Azimov Sardor', action: 'updated', article: 'Modda 77', status: 'approved', date: '2025-12-25 10:30' },
-    { id: 2, user: 'Karimova Nodira', action: 'created', article: 'Modda 81-1', status: 'pending', date: '2025-12-25 09:15' },
-    { id: 3, user: 'Rahimov Jasur', action: 'updated', article: 'Modda 56', status: 'approved', date: '2025-12-24 16:45' },
-    { id: 4, user: 'Aliyeva Gulnora', action: 'created', article: 'Modda 102', status: 'rejected', date: '2025-12-24 14:20' },
-    { id: 5, user: 'Toshmatov Bekzod', action: 'updated', article: 'Modda 21', status: 'pending', date: '2025-12-24 11:00' },
-  ];
+  const [recentUpdates, setRecentUpdates] = useState<any[]>([]);
 
   const isAdmin = checkRole(['admin']);
   const isMuallif = checkRole(['muallif']);
   const isTarjimon = checkRole(['tarjimon']);
   const isIshchiGuruh = checkRole(['ishchi_guruh']);
   const isEkspert = checkRole(['ekspert']);
+
+  // Load dashboard data
+  const loadDashboardData = useCallback(async () => {
+    setLoading(true);
+    try {
+      // Fetch data in parallel
+      const [sectionsData, articlesData, analyticsData, logsData, usersData] = await Promise.all([
+        getSections(locale as Locale),
+        getArticles({ limit: 100 }, locale as Locale),
+        isAdmin ? adminGetDashboardAnalytics(locale as Locale) : null,
+        isAdmin ? adminGetActivityLogs(locale as Locale, 5) : [],
+        isAdmin ? adminGetUsers(locale as Locale) : [],
+      ]);
+
+      // Calculate stats
+      const totalChapters = sectionsData.reduce((acc, s) => acc + (s.chaptersCount || 0), 0);
+      
+      setStats({
+        totalArticles: articlesData.pagination.total || articlesData.data.length,
+        pendingApproval: analyticsData?.pending_comments || 0,
+        totalComments: analyticsData?.total_comments || 0,
+        totalUsers: usersData.length || 0,
+        myArticles: 0,
+        myComments: 0,
+        needsTranslation: 0,
+        myTranslations: 0,
+        sections: sectionsData.length,
+        chapters: totalChapters,
+        articles: articlesData.pagination.total || articlesData.data.length,
+        needsExpertise: 0,
+        myExpertReviews: 0,
+      });
+
+      // Format activity logs for display
+      if (logsData && logsData.length > 0) {
+        const formattedLogs = logsData.map((log: any) => ({
+          id: log.id,
+          user: log.user?.name || 'Unknown',
+          action: log.action || 'updated',
+          article: log.description || `ID: ${log.model_id}`,
+          status: log.status || 'approved',
+          date: new Date(log.created_at).toLocaleString('ru-RU'),
+        }));
+        setRecentUpdates(formattedLogs);
+      }
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [locale, isAdmin]);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary-600 mx-auto mb-2" />
+          <p className="text-gray-500">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -256,6 +323,12 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
           </h1>
           <p className="text-gray-500 mt-1">{t.dashboard}</p>
         </div>
+        <button
+          onClick={loadDashboardData}
+          className="inline-flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+        >
+          <RefreshCw className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Admin Stats */}
@@ -463,41 +536,49 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {recentUpdates.map((update) => (
-                  <tr key={update.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {update.date}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {update.user}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center gap-1 text-sm ${
-                        update.action === 'created' ? 'text-green-600' : 'text-blue-600'
-                      }`}>
-                        {update.action === 'created' ? <Plus className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
-                        {t[update.action as keyof typeof t] || update.action}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {update.article}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        update.status === 'approved' 
-                          ? 'bg-green-100 text-green-800'
-                          : update.status === 'pending'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {update.status === 'approved' && <CheckCircle className="w-3 h-3" />}
-                        {update.status === 'pending' && <Clock className="w-3 h-3" />}
-                        {update.status === 'rejected' && <XCircle className="w-3 h-3" />}
-                        {t[update.status as keyof typeof t] || update.status}
-                      </span>
+                {recentUpdates.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                      No recent updates found
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  recentUpdates.map((update) => (
+                    <tr key={update.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {update.date}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {update.user}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center gap-1 text-sm ${
+                          update.action === 'created' || update.action === 'create' ? 'text-green-600' : 'text-blue-600'
+                        }`}>
+                          {update.action === 'created' || update.action === 'create' ? <Plus className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
+                          {t[update.action as keyof typeof t] || update.action}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {update.article}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          update.status === 'approved' 
+                            ? 'bg-green-100 text-green-800'
+                            : update.status === 'pending'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {update.status === 'approved' && <CheckCircle className="w-3 h-3" />}
+                          {update.status === 'pending' && <Clock className="w-3 h-3" />}
+                          {update.status === 'rejected' && <XCircle className="w-3 h-3" />}
+                          {t[update.status as keyof typeof t] || update.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

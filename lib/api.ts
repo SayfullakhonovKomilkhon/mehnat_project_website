@@ -854,6 +854,48 @@ export async function adminRejectComment(id: number, locale: Locale = 'uz'): Pro
 }
 
 // ============================================
+// ADMIN API - ANALYTICS
+// ============================================
+
+/** Get dashboard analytics */
+export async function adminGetDashboardAnalytics(locale: Locale = 'uz'): Promise<any> {
+  const result = await apiRequest<any>('/admin/analytics/dashboard', {}, locale);
+  
+  if (!result.success || !result.data) {
+    return null;
+  }
+  
+  return result.data;
+}
+
+/** Get content stats */
+export async function adminGetContentStats(locale: Locale = 'uz'): Promise<any> {
+  const result = await apiRequest<any>('/admin/analytics/content-stats', {}, locale);
+  
+  if (!result.success || !result.data) {
+    return null;
+  }
+  
+  return result.data;
+}
+
+// ============================================
+// ADMIN API - ACTIVITY LOGS
+// ============================================
+
+/** Get activity logs */
+export async function adminGetActivityLogs(locale: Locale = 'uz', limit: number = 10): Promise<any[]> {
+  const result = await apiRequest<any>(`/admin/logs?per_page=${limit}`, {}, locale);
+  
+  if (!result.success || !result.data) {
+    return [];
+  }
+  
+  const items = result.data.items || result.data;
+  return Array.isArray(items) ? items : [];
+}
+
+// ============================================
 // EXPORTS
 // ============================================
 
