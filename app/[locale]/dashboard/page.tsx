@@ -344,20 +344,27 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
 
       // Format activity logs for display
       if (logsData && logsData.length > 0) {
-        const formattedLogs = logsData.map((log: any) => ({
-          id: log.id,
-          user: log.user?.name || 'System',
-          action: actionLabels[log.action] || log.action || t.updated,
-          article: log.description || `ID: ${log.model_id || '-'}`,
-          status: log.action?.includes('approved') || log.action === 'login' || log.action === 'create' 
-            ? 'approved' 
-            : log.action?.includes('rejected') || log.action === 'delete'
-            ? 'rejected'
-            : log.action?.includes('pending') || log.action?.includes('submitted')
-            ? 'pending'
-            : 'approved',
-          date: new Date(log.created_at).toLocaleString('ru-RU'),
-        }));
+        const formattedLogs = logsData.map((log: any) => {
+          // Get user name with role
+          const userName = log.user?.name || 'System';
+          const userRole = log.user?.role_display || log.user?.role || '';
+          const userDisplay = userRole ? `${userName} (${userRole})` : userName;
+          
+          return {
+            id: log.id,
+            user: userDisplay,
+            action: actionLabels[log.action] || log.action || t.updated,
+            article: log.description || `ID: ${log.model_id || '-'}`,
+            status: log.action?.includes('approved') || log.action === 'login' || log.action === 'create' 
+              ? 'approved' 
+              : log.action?.includes('rejected') || log.action === 'delete'
+              ? 'rejected'
+              : log.action?.includes('pending') || log.action?.includes('submitted')
+              ? 'pending'
+              : 'approved',
+            date: new Date(log.created_at).toLocaleString('ru-RU'),
+          };
+        });
         setRecentUpdates(formattedLogs);
       }
     } catch (error) {

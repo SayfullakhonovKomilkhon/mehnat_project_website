@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { RoleGuard } from '@/components/dashboard/RoleGuard';
 import { 
   CheckCircle, 
@@ -11,6 +11,8 @@ import {
   User,
   FileText,
   Calendar,
+  Loader2,
+  RefreshCw,
 } from 'lucide-react';
 
 interface CommentsPageProps {
@@ -37,6 +39,11 @@ const translations = {
     rejectReason: 'Rad etish sababi',
     submit: 'Yuborish',
     cancel: 'Bekor qilish',
+    loading: 'Yuklanmoqda...',
+    error: 'Xatolik yuz berdi',
+    refresh: 'Yangilash',
+    approveSuccess: 'Sharh tasdiqlandi!',
+    rejectSuccess: 'Sharh rad etildi!',
   },
   ru: {
     title: 'Модерация комментариев',
@@ -56,6 +63,11 @@ const translations = {
     rejectReason: 'Причина отклонения',
     submit: 'Отправить',
     cancel: 'Отмена',
+    loading: 'Загрузка...',
+    error: 'Произошла ошибка',
+    refresh: 'Обновить',
+    approveSuccess: 'Комментарий одобрен!',
+    rejectSuccess: 'Комментарий отклонён!',
   },
   en: {
     title: 'Comments Moderation',
@@ -75,49 +87,35 @@ const translations = {
     rejectReason: 'Rejection reason',
     submit: 'Submit',
     cancel: 'Cancel',
+    loading: 'Loading...',
+    error: 'An error occurred',
+    refresh: 'Refresh',
+    approveSuccess: 'Comment approved!',
+    rejectSuccess: 'Comment rejected!',
   },
 };
 
-// Mock comments data
-const mockComments = [
-  {
-    id: 1,
-    article: { number: '77', title: 'Mehnat shartnomasini bekor qilish asoslari' },
-    author: { name: 'Sardor Azimov', role: 'Muallif' },
-    text: 'Bu modda bo\'yicha muhim tushuntirishlar: Ish beruvchi mehnat shartnomasini bekor qilishda qonuniy asoslarga tayanishi kerak...',
-    date: '2025-12-25 10:30',
-    status: 'pending',
-    type: 'author_comment',
-  },
-  {
-    id: 2,
-    article: { number: '81', title: 'Ish vaqti normasi' },
-    author: { name: 'Gulnora Aliyeva', role: 'Ekspert' },
-    text: 'Ekspert xulosasi: Ish vaqti normasi milliy qonunchilikda belgilangan standartlarga mos keladi...',
-    date: '2025-12-24 15:20',
-    status: 'pending',
-    type: 'expert_comment',
-  },
-  {
-    id: 3,
-    article: { number: '21', title: 'Mehnat shartnomasi tushunchasi' },
-    author: { name: 'Jasur Rahimov', role: 'Muallif' },
-    text: 'Mehnat shartnomasi - bu ish beruvchi va xodim o\'rtasidagi huquqiy kelishuv bo\'lib...',
-    date: '2025-12-23 09:45',
-    status: 'approved',
-    type: 'author_comment',
-  },
-  {
-    id: 4,
-    article: { number: '100', title: 'Mehnat haqi to\'g\'risida' },
-    author: { name: 'Bekzod Toshmatov', role: 'Muallif' },
-    text: 'Bu sharh to\'liq emas va qayta ko\'rib chiqilishi kerak...',
-    date: '2025-12-22 14:10',
-    status: 'rejected',
-    type: 'author_comment',
-    rejectReason: 'Sharh to\'liq emas, qo\'shimcha ma\'lumotlar kerak',
-  },
-];
+interface Comment {
+  id: number;
+  article_id: number;
+  content: string;
+  status: string;
+  author: {
+    id: number;
+    name: string;
+  };
+  created_at: string;
+  article?: {
+    id: number;
+    article_number?: string;
+    translations?: {
+      uz?: { title?: string };
+      ru?: { title?: string };
+      en?: { title?: string };
+    };
+    title?: string;
+  };
+}
 
 export default function CommentsPage({ params: { locale } }: CommentsPageProps) {
   const t = translations[locale as keyof typeof translations] || translations.uz;
@@ -126,18 +124,91 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [selectedComment, setSelectedComment] = useState<number | null>(null);
   const [rejectReason, setRejectReason] = useState('');
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<number | null>(null);
 
-  const filteredComments = mockComments.filter(comment => 
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api/v1';
+
+  // Load comments from API
+  const loadComments = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem('token');
+      
+      // Fetch all comments (we'll filter on frontend)
+      const response = await fetch(`${API_BASE_URL}/admin/comments`, {
+        headers: {
+          'Accept': 'application/json',
+          'Accept-Language': locale,
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const items = data.data?.items || data.items || data.data || [];
+        setComments(items);
+      } else {
+        // If API fails, show empty state (no mock data)
+        console.error('Failed to load comments:', response.status);
+        setComments([]);
+      }
+    } catch (err) {
+      console.error('Error loading comments:', err);
+      setError(t.error);
+      setComments([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [API_BASE_URL, locale, t.error]);
+
+  useEffect(() => {
+    loadComments();
+  }, [loadComments]);
+
+  // Filter comments based on active tab
+  const filteredComments = comments.filter(comment => 
     activeTab === 'all' || comment.status === activeTab
   );
 
-  const pendingCount = mockComments.filter(c => c.status === 'pending').length;
-  const approvedCount = mockComments.filter(c => c.status === 'approved').length;
-  const rejectedCount = mockComments.filter(c => c.status === 'rejected').length;
+  const pendingCount = comments.filter(c => c.status === 'pending').length;
+  const approvedCount = comments.filter(c => c.status === 'approved').length;
+  const rejectedCount = comments.filter(c => c.status === 'rejected').length;
 
-  const handleApprove = (id: number) => {
-    console.log('Approving comment:', id);
-    // In real app, make API call
+  const handleApprove = async (id: number) => {
+    setActionLoading(id);
+    try {
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${API_BASE_URL}/admin/comments/${id}/approve`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Accept-Language': locale,
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+      });
+      
+      if (response.ok) {
+        // Update local state
+        setComments(prev => prev.map(c => 
+          c.id === id ? { ...c, status: 'approved' } : c
+        ));
+        alert(t.approveSuccess);
+      } else {
+        const data = await response.json();
+        alert(data.message || 'Error approving comment');
+      }
+    } catch (err) {
+      console.error('Error approving comment:', err);
+      alert(t.error);
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   const handleReject = (id: number) => {
@@ -145,11 +216,43 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
     setRejectModalOpen(true);
   };
 
-  const submitReject = () => {
-    console.log('Rejecting comment:', selectedComment, 'Reason:', rejectReason);
-    setRejectModalOpen(false);
-    setRejectReason('');
-    setSelectedComment(null);
+  const submitReject = async () => {
+    if (!selectedComment) return;
+    
+    setActionLoading(selectedComment);
+    try {
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${API_BASE_URL}/admin/comments/${selectedComment}/reject`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Accept-Language': locale,
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ reason: rejectReason }),
+      });
+      
+      if (response.ok) {
+        // Update local state
+        setComments(prev => prev.map(c => 
+          c.id === selectedComment ? { ...c, status: 'rejected' } : c
+        ));
+        alert(t.rejectSuccess);
+      } else {
+        const data = await response.json();
+        alert(data.message || 'Error rejecting comment');
+      }
+    } catch (err) {
+      console.error('Error rejecting comment:', err);
+      alert(t.error);
+    } finally {
+      setActionLoading(null);
+      setRejectModalOpen(false);
+      setRejectReason('');
+      setSelectedComment(null);
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -163,24 +266,89 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
       approved: CheckCircle,
       rejected: XCircle,
     };
-    const Icon = icons[status];
+    const Icon = icons[status] || Clock;
 
     return (
-      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[status]}`}>
+      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[status] || styles.pending}`}>
         <Icon className="w-3 h-3" />
         {t[status as keyof typeof t] || status}
       </span>
     );
   };
 
+  // Get article title from translations
+  const getArticleTitle = (comment: Comment) => {
+    if (!comment.article) return 'Unknown';
+    
+    const article = comment.article;
+    const articleNumber = article.article_number || article.id;
+    
+    let title = '';
+    if (article.translations) {
+      title = article.translations[locale as 'uz' | 'ru' | 'en']?.title || 
+              article.translations.uz?.title || 
+              article.title || '';
+    } else {
+      title = article.title || '';
+    }
+    
+    return `${articleNumber}-modda${title ? `: ${title}` : ''}`;
+  };
+
+  // Format date
+  const formatDate = (dateStr: string) => {
+    try {
+      return new Date(dateStr).toLocaleString(
+        locale === 'uz' ? 'uz-UZ' : locale === 'ru' ? 'ru-RU' : 'en-US',
+        { 
+          year: 'numeric', 
+          month: '2-digit', 
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        }
+      );
+    } catch {
+      return dateStr;
+    }
+  };
+
+  if (loading) {
+    return (
+      <RoleGuard allowedRoles={['admin', 'moderator']}>
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+          <span className="ml-3 text-gray-600">{t.loading}</span>
+        </div>
+      </RoleGuard>
+    );
+  }
+
   return (
-    <RoleGuard allowedRoles={['admin', 'muallif']}>
+    <RoleGuard allowedRoles={['admin', 'moderator']}>
       <div className="space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t.title}</h1>
-          <p className="text-gray-500 mt-1">{t.subtitle}</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{t.title}</h1>
+            <p className="text-gray-500 mt-1">{t.subtitle}</p>
+          </div>
+          <button
+            onClick={loadComments}
+            disabled={loading}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            {t.refresh}
+          </button>
         </div>
+
+        {/* Error message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            {error}
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="bg-white rounded-xl shadow-sm p-1 inline-flex gap-1">
@@ -188,7 +356,7 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
             { key: 'pending', count: pendingCount },
             { key: 'approved', count: approvedCount },
             { key: 'rejected', count: rejectedCount },
-            { key: 'all', count: mockComments.length },
+            { key: 'all', count: comments.length },
           ].map(tab => (
             <button
               key={tab.key}
@@ -226,19 +394,18 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
                     </div>
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-medium text-gray-900">{comment.author.name}</span>
-                        <span className="text-sm text-gray-500">({comment.author.role})</span>
+                        <span className="font-medium text-gray-900">{comment.author?.name || 'Unknown'}</span>
                         {getStatusBadge(comment.status)}
                       </div>
                       <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
                         <span className="flex items-center gap-1">
                           <FileText className="w-4 h-4" />
-                          {comment.article.number}-modda: {comment.article.title}
+                          {getArticleTitle(comment)}
                         </span>
                       </div>
                       <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
                         <Calendar className="w-4 h-4" />
-                        {comment.date}
+                        {formatDate(comment.created_at)}
                       </div>
                     </div>
                   </div>
@@ -246,31 +413,28 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
 
                 {/* Comment Text */}
                 <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                  <p className="text-gray-700 whitespace-pre-wrap">{comment.text}</p>
+                  <p className="text-gray-700 whitespace-pre-wrap">{comment.content}</p>
                 </div>
-
-                {/* Rejection Reason */}
-                {comment.status === 'rejected' && comment.rejectReason && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                    <p className="text-sm text-red-700">
-                      <strong>{t.rejectReason}:</strong> {comment.rejectReason}
-                    </p>
-                  </div>
-                )}
 
                 {/* Actions */}
                 {comment.status === 'pending' && (
                   <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
                     <button
                       onClick={() => handleApprove(comment.id)}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                      disabled={actionLoading === comment.id}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
                     >
-                      <CheckCircle className="w-4 h-4" />
+                      {actionLoading === comment.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <CheckCircle className="w-4 h-4" />
+                      )}
                       {t.approve}
                     </button>
                     <button
                       onClick={() => handleReject(comment.id)}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                      disabled={actionLoading === comment.id}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
                     >
                       <XCircle className="w-4 h-4" />
                       {t.reject}
@@ -325,9 +489,14 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
                 </button>
                 <button
                   onClick={submitReject}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  disabled={actionLoading !== null}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
                 >
-                  {t.submit}
+                  {actionLoading !== null ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    t.submit
+                  )}
                 </button>
               </div>
             </div>
@@ -337,4 +506,3 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
     </RoleGuard>
   );
 }
-

@@ -54,6 +54,11 @@ const translations = {
     reject: 'Rad etish',
     submittedSuccess: 'Tarjima tekshiruvga yuborildi!',
     approvedSuccess: 'Tarjima tasdiqlandi!',
+    rejectReason: 'Rad etish sababi',
+    rejectReasonPlaceholder: 'Rad etish sababini kiriting...',
+    cancel: 'Bekor qilish',
+    confirmReject: 'Rad etish',
+    rejectSuccess: 'Tarjima rad etildi!',
   },
   ru: {
     title: 'Переводы',
@@ -86,6 +91,11 @@ const translations = {
     reject: 'Отклонить',
     submittedSuccess: 'Перевод отправлен на проверку!',
     approvedSuccess: 'Перевод одобрен!',
+    rejectReason: 'Причина отклонения',
+    rejectReasonPlaceholder: 'Введите причину отклонения...',
+    cancel: 'Отмена',
+    confirmReject: 'Отклонить',
+    rejectSuccess: 'Перевод отклонён!',
   },
   en: {
     title: 'Translations',
@@ -118,6 +128,11 @@ const translations = {
     reject: 'Reject',
     submittedSuccess: 'Translation submitted for review!',
     approvedSuccess: 'Translation approved!',
+    rejectReason: 'Rejection Reason',
+    rejectReasonPlaceholder: 'Enter rejection reason...',
+    cancel: 'Cancel',
+    confirmReject: 'Reject',
+    rejectSuccess: 'Translation rejected!',
   },
 };
 
@@ -165,7 +180,7 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
   const canApprove = userRole === 'admin' || userRole === 'moderator';
   const isTranslator = userRole === 'tarjimon';
   
-  const [activeTab, setActiveTab] = useState<'all' | 'needs_translation' | 'in_progress' | 'pending' | 'completed'>(canApprove ? 'pending' : 'needs_translation');
+  const [activeTab, setActiveTab] = useState<'all' | 'needs_translation' | 'pending' | 'completed'>(canApprove ? 'pending' : 'needs_translation');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
   const [articles, setArticles] = useState<any[]>([]);
@@ -177,6 +192,10 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
   const [translationRu, setTranslationRu] = useState('');
   const [translationEn, setTranslationEn] = useState('');
   const [originalText, setOriginalText] = useState('');
+  
+  // Reject modal state
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
   
   // Load articles from API (try admin endpoint first, fallback to public)
   const loadArticles = useCallback(async () => {
@@ -222,16 +241,21 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
         const enProgress = hasEn ? 100 : 0;
         
         // Get translation status from API or calculate it
-        const translationStatus = article.translation_status || article.translationStatus || 'draft';
+        let translationStatus = article.translation_status || article.translationStatus || 'draft';
+        
+        // If both translations exist but status is still 'draft', mark as 'pending' (needs approval)
+        if (ruProgress === 100 && enProgress === 100 && translationStatus === 'draft') {
+          translationStatus = 'pending';
+        }
         
         // Determine display status based on translation status
         let status = 'needs_translation';
         if (translationStatus === 'approved') {
           status = 'completed';
-        } else if (translationStatus === 'pending') {
-          status = 'in_progress';
-        } else if (ruProgress > 0 || enProgress > 0) {
-          status = 'in_progress';
+        } else if (translationStatus === 'pending' || (ruProgress === 100 && enProgress === 100)) {
+          // If pending or both translations complete - show as pending (needs approval)
+          status = 'pending';
+          translationStatus = 'pending';
         }
         
         return {
@@ -433,9 +457,20 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
     }
   };
   
-  // Reject translation (admin action) - sends back to translator
-  const handleReject = async () => {
+  // Open reject modal (admin action)
+  const handleReject = () => {
+    setRejectReason('');
+    setRejectModalOpen(true);
+  };
+  
+  // Submit rejection with reason (admin action) - sends back to translator
+  const submitReject = async () => {
     if (!selectedArticle) return;
+    
+    if (!rejectReason.trim()) {
+      alert(locale === 'ru' ? 'Введите причину отклонения' : locale === 'en' ? 'Enter rejection reason' : 'Rad etish sababini kiriting');
+      return;
+    }
     
     setSaving(true);
     try {
@@ -452,11 +487,12 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
         },
         body: JSON.stringify({
           translation_status: 'draft',
+          rejection_reason: rejectReason,
         }),
       });
       
       if (response.ok) {
-        alert(locale === 'ru' ? 'Перевод отклонён' : locale === 'en' ? 'Translation rejected' : 'Tarjima rad etildi');
+        alert(t.rejectSuccess);
         // Update local state
         setArticles(prev => prev.map(a => 
           a.id === selectedArticle.id 
@@ -468,6 +504,8 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
             : a
         ));
         setSelectedArticle(null);
+        setRejectModalOpen(false);
+        setRejectReason('');
       } else {
         const data = await response.json();
         alert(data.message || 'Error rejecting translation');
@@ -578,11 +616,12 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
   const filteredArticles = articles.filter(article => {
     let matchesTab = activeTab === 'all';
     if (activeTab === 'pending') {
+      // Show all articles with translationStatus === 'pending' (submitted for review)
       matchesTab = article.translationStatus === 'pending';
     } else if (activeTab === 'needs_translation') {
-      matchesTab = article.status === 'needs_translation';
-    } else if (activeTab === 'in_progress') {
-      matchesTab = article.status === 'in_progress' && article.translationStatus !== 'pending';
+      // Show articles that need translation (not pending, not completed)
+      matchesTab = article.status === 'needs_translation' || 
+                   (article.status === 'in_progress' && article.translationStatus !== 'pending');
     } else if (activeTab === 'completed') {
       matchesTab = article.status === 'completed';
     }
@@ -592,8 +631,11 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
   });
 
   const counts = {
-    needs_translation: articles.filter(a => a.status === 'needs_translation').length,
-    in_progress: articles.filter(a => a.status === 'in_progress' && a.translationStatus !== 'pending').length,
+    // Needs translation includes both needs_translation and in_progress (not pending)
+    needs_translation: articles.filter(a => 
+      a.status === 'needs_translation' || 
+      (a.status === 'in_progress' && a.translationStatus !== 'pending')
+    ).length,
     pending: articles.filter(a => a.translationStatus === 'pending').length,
     completed: articles.filter(a => a.status === 'completed').length,
     all: articles.length,
@@ -601,30 +643,29 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
 
   const getStatusBadge = (status: string, translationStatus?: string) => {
     // If translation is pending approval, show pending badge
-    const effectiveStatus = translationStatus === 'pending' ? 'pending' : status;
+    let effectiveStatus = translationStatus === 'pending' ? 'pending' : status;
+    // Treat in_progress as needs_translation for display
+    if (effectiveStatus === 'in_progress') effectiveStatus = 'needs_translation';
     
     const styles: Record<string, string> = {
-      needs_translation: 'bg-red-100 text-red-800',
-      in_progress: 'bg-yellow-100 text-yellow-800',
+      needs_translation: 'bg-yellow-100 text-yellow-800',
       pending: 'bg-orange-100 text-orange-800',
       completed: 'bg-green-100 text-green-800',
     };
     const icons: Record<string, any> = {
-      needs_translation: AlertCircle,
-      in_progress: Clock,
+      needs_translation: Clock,
       pending: Clock,
       completed: CheckCircle,
     };
     const labels: Record<string, string> = {
       needs_translation: t.needsTranslation,
-      in_progress: t.inProgress,
       pending: t.pendingApproval,
       completed: t.completed,
     };
     const Icon = icons[effectiveStatus] || Clock;
 
     return (
-      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[effectiveStatus] || styles.in_progress}`}>
+      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[effectiveStatus] || styles.needs_translation}`}>
         <Icon className="w-3 h-3" />
         {labels[effectiveStatus] || effectiveStatus}
       </span>
@@ -708,14 +749,17 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
           {/* Action buttons */}
           <div className="flex justify-end gap-3">
             {/* Save button - available to all */}
-            <button 
-              onClick={handleSave}
-              disabled={saving}
-              className="px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
-            >
-              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-              {t.save}
-            </button>
+            {/* For translators only: Save button */}
+            {isTranslator && (
+              <button 
+                onClick={handleSave}
+                disabled={saving}
+                className="px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+              >
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                {t.save}
+              </button>
+            )}
             
             {/* For translators: Submit for review button */}
             {isTranslator && selectedArticle.translationStatus !== 'pending' && (
@@ -737,29 +781,30 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
               </span>
             )}
             
-            {/* For admins: Approve/Reject buttons */}
-            {canApprove && selectedArticle.translationStatus === 'pending' && (
-              <>
-                <button 
-                  onClick={handleReject}
-                  disabled={saving}
-                  className="px-6 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
-                >
-                  {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {t.reject}
-                </button>
-                <button 
-                  onClick={handleApprove}
-                  disabled={saving}
-                  className="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
-                >
-                  {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {t.approve}
-                </button>
-              </>
+            {/* For admins: Reject button (always visible when viewing translations) */}
+            {canApprove && (
+              <button 
+                onClick={handleReject}
+                disabled={saving}
+                className="px-6 py-2.5 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+              >
+                {t.reject}
+              </button>
             )}
             
-            {/* For admins: Complete button if not pending */}
+            {/* For admins: Approve button when pending */}
+            {canApprove && selectedArticle.translationStatus === 'pending' && (
+              <button 
+                onClick={handleApprove}
+                disabled={saving}
+                className="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+              >
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                {t.approve}
+              </button>
+            )}
+            
+            {/* For admins: Complete button if not pending (to approve directly) */}
             {canApprove && selectedArticle.translationStatus !== 'pending' && (
               <button 
                 onClick={handleComplete}
@@ -804,7 +849,6 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
           {[
             ...(canApprove ? [{ key: 'pending', label: t.pendingApproval, highlight: true }] : []),
             { key: 'needs_translation', label: t.needsTranslation },
-            { key: 'in_progress', label: t.inProgress },
             { key: 'completed', label: t.completed },
             { key: 'all', label: t.all },
           ].map(tab => (
@@ -923,9 +967,9 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
                             onClick={() => setSelectedArticle(article)}
                             className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700 transition-colors"
                           >
-                            {article.translationStatus === 'pending' ? t.view :
-                             article.status === 'needs_translation' ? t.translate : 
-                             article.status === 'in_progress' ? t.continue : t.view}
+                            {article.translationStatus === 'pending' || article.status === 'completed' 
+                              ? t.view 
+                              : t.translate}
                             <ChevronRight className="w-4 h-4" />
                           </button>
                         </div>
@@ -943,6 +987,54 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
             </table>
           </div>
         </div>
+        
+        {/* Reject Modal */}
+        {rejectModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black/50"
+              onClick={() => setRejectModalOpen(false)}
+            />
+            <div className="relative bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-xl">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                {t.reject}
+              </h3>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t.rejectReason}
+                </label>
+                <textarea
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  placeholder={t.rejectReasonPlaceholder}
+                  rows={4}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                  required
+                />
+              </div>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => {
+                    setRejectModalOpen(false);
+                    setRejectReason('');
+                  }}
+                  disabled={saving}
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  {t.cancel}
+                </button>
+                <button
+                  onClick={submitReject}
+                  disabled={saving || !rejectReason.trim()}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+                >
+                  {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {t.confirmReject}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </RoleGuard>
   );
