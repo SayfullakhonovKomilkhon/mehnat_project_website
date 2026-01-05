@@ -18,7 +18,7 @@ interface MockChapter {
   sectionId: number;
 }
 
-interface MockArticle {
+export interface MockArticle {
   id: number;
   number: string;
   section: MockSection;
@@ -244,7 +244,7 @@ export function filterArticles(
     hasExpertComment?: boolean;
     translation?: string;
   }
-): Article[] {
+): MockArticle[] {
   return articles.filter(article => {
     // Search filter
     if (filters.search) {

@@ -116,6 +116,8 @@ const roleDisplayNames: Record<UserRole, Record<string, string>> = {
   tarjimon: { uz: 'Tarjimon', ru: 'Переводчик', en: 'Translator' },
   ishchi_guruh: { uz: 'Ishchi guruh', ru: 'Рабочая группа', en: 'Working Group' },
   ekspert: { uz: 'Ekspert', ru: 'Эксперт', en: 'Expert' },
+  moderator: { uz: 'Moderator', ru: 'Модератор', en: 'Moderator' },
+  user: { uz: 'Foydalanuvchi', ru: 'Пользователь', en: 'User' },
 };
 
 export function DashboardLayout({ children, locale }: DashboardLayoutProps) {

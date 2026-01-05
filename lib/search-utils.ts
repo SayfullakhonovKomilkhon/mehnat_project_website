@@ -1,4 +1,4 @@
-import { articles, sections, chapters, getLocalizedText, type Article } from './mock-data';
+import { articles, sections, chapters, getLocalizedText, type MockArticle } from './mock-data';
 
 // Types
 export interface SearchFilters {
@@ -17,7 +17,7 @@ export interface SearchResult {
   url: string;
   matchedIn: ('title' | 'content' | 'authorComment' | 'expertComment')[];
   relevanceScore: number;
-  article?: Article;
+  article?: MockArticle;
 }
 
 export interface SearchSuggestion {
@@ -87,7 +87,7 @@ function escapeRegex(string: string): string {
 }
 
 // Calculate relevance score
-function calculateRelevance(article: Article, query: string, locale: string): number {
+function calculateRelevance(article: MockArticle, query: string, locale: string): number {
   const terms = query.toLowerCase().split(/\s+/).filter(t => t.length > 1);
   let score = 0;
   

@@ -150,7 +150,7 @@ function LoginForm({ locale }: { locale: string }) {
 
       {/* Language Switcher */}
       <div className="absolute top-4 right-4 z-20">
-        <LanguageSwitcher locale={locale} variant="dropdown" />
+        <LanguageSwitcher locale={locale} variant="default" />
       </div>
 
       {/* Login Card */}
