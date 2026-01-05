@@ -14,6 +14,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { adminGetArticles } from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
 import type { Locale } from '@/types';
 
 interface TranslationsPageProps {
@@ -26,8 +27,9 @@ const translations = {
     title: 'Tarjimalar',
     subtitle: 'Moddalarni rus va ingliz tillariga tarjima qilish',
     needsTranslation: 'Tarjima talab qiladi',
-    inProgress: 'Jarayonda',
+    inProgress: 'Tekshiruvda',
     completed: 'Tugallangan',
+    pendingApproval: 'Tasdiqlash kutilmoqda',
     all: 'Barchasi',
     articleNumber: 'Modda raqami',
     titleUz: 'Sarlavha (O\'zbekcha)',
@@ -47,13 +49,19 @@ const translations = {
     save: 'Saqlash',
     complete: 'Tugatish',
     back: 'Orqaga',
+    submitForReview: 'Tekshiruvga yuborish',
+    approve: 'Tasdiqlash',
+    reject: 'Rad etish',
+    submittedSuccess: 'Tarjima tekshiruvga yuborildi!',
+    approvedSuccess: 'Tarjima tasdiqlandi!',
   },
   ru: {
     title: 'Переводы',
     subtitle: 'Перевод статей на русский и английский языки',
     needsTranslation: 'Требует перевода',
-    inProgress: 'В процессе',
+    inProgress: 'На проверке',
     completed: 'Завершено',
+    pendingApproval: 'Ожидает одобрения',
     all: 'Все',
     articleNumber: 'Номер статьи',
     titleUz: 'Название (Узбекский)',
@@ -73,13 +81,19 @@ const translations = {
     save: 'Сохранить',
     complete: 'Завершить',
     back: 'Назад',
+    submitForReview: 'Отправить на проверку',
+    approve: 'Одобрить',
+    reject: 'Отклонить',
+    submittedSuccess: 'Перевод отправлен на проверку!',
+    approvedSuccess: 'Перевод одобрен!',
   },
   en: {
     title: 'Translations',
     subtitle: 'Translate articles to Russian and English',
     needsTranslation: 'Needs Translation',
-    inProgress: 'In Progress',
+    inProgress: 'Under Review',
     completed: 'Completed',
+    pendingApproval: 'Pending Approval',
     all: 'All',
     articleNumber: 'Article Number',
     titleUz: 'Title (Uzbek)',
@@ -99,17 +113,22 @@ const translations = {
     save: 'Save',
     complete: 'Complete',
     back: 'Back',
+    submitForReview: 'Submit for Review',
+    approve: 'Approve',
+    reject: 'Reject',
+    submittedSuccess: 'Translation submitted for review!',
+    approvedSuccess: 'Translation approved!',
   },
 };
 
 // Mock articles for translation
 const mockArticles = [
-  { id: 1, number: '77', titleUz: 'Mehnat shartnomasini bekor qilish asoslari', ruProgress: 0, enProgress: 0, status: 'needs_translation' },
-  { id: 2, number: '78', titleUz: 'Ishdan bo\'shatish tartibi', ruProgress: 50, enProgress: 0, status: 'in_progress' },
-  { id: 3, number: '79', titleUz: 'Ishdan bo\'shatishda cheklovlar', ruProgress: 100, enProgress: 50, status: 'in_progress' },
-  { id: 4, number: '80', titleUz: 'Mexnat shartnomasi muddatining uzaytirilishi', ruProgress: 100, enProgress: 100, status: 'completed' },
-  { id: 5, number: '81', titleUz: 'Ish vaqti normasi', ruProgress: 100, enProgress: 100, status: 'completed' },
-  { id: 6, number: '82', titleUz: 'Qisqartirilgan ish vaqti', ruProgress: 0, enProgress: 0, status: 'needs_translation' },
+  { id: 1, number: '77', titleUz: 'Mehnat shartnomasini bekor qilish asoslari', contentUz: 'Mehnat shartnomasini bekor qilish asoslari quyidagilar...', contentRu: '', contentEn: '', ruProgress: 0, enProgress: 0, status: 'needs_translation', translationStatus: 'draft' },
+  { id: 2, number: '78', titleUz: 'Ishdan bo\'shatish tartibi', contentUz: 'Ishdan bo\'shatish tartibi...', contentRu: 'Порядок увольнения...', contentEn: '', ruProgress: 100, enProgress: 0, status: 'in_progress', translationStatus: 'pending' },
+  { id: 3, number: '79', titleUz: 'Ishdan bo\'shatishda cheklovlar', contentUz: 'Ishdan bo\'shatishda cheklovlar...', contentRu: 'Ограничения при увольнении...', contentEn: 'Restrictions on dismissal...', ruProgress: 100, enProgress: 100, status: 'in_progress', translationStatus: 'pending' },
+  { id: 4, number: '80', titleUz: 'Mexnat shartnomasi muddatining uzaytirilishi', contentUz: '', contentRu: '', contentEn: '', ruProgress: 100, enProgress: 100, status: 'completed', translationStatus: 'approved' },
+  { id: 5, number: '81', titleUz: 'Ish vaqti normasi', contentUz: '', contentRu: '', contentEn: '', ruProgress: 100, enProgress: 100, status: 'completed', translationStatus: 'approved' },
+  { id: 6, number: '82', titleUz: 'Qisqartirilgan ish vaqti', contentUz: 'Qisqartirilgan ish vaqti...', contentRu: '', contentEn: '', ruProgress: 0, enProgress: 0, status: 'needs_translation', translationStatus: 'draft' },
 ];
 
 // Progress bar component
@@ -139,6 +158,12 @@ function ProgressBar({ progress, label }: { progress: number; label: string }) {
 
 export default function TranslationsPage({ params: { locale } }: TranslationsPageProps) {
   const t = translations[locale as keyof typeof translations] || translations.uz;
+  const { user } = useAuth();
+  
+  // Check if user is admin or moderator (can approve translations)
+  const userRole = user?.role?.slug || user?.role?.name || 'user';
+  const canApprove = userRole === 'admin' || userRole === 'moderator';
+  const isTranslator = userRole === 'tarjimon';
   
   const [activeTab, setActiveTab] = useState<'all' | 'needs_translation' | 'in_progress' | 'completed'>('needs_translation');
   const [searchQuery, setSearchQuery] = useState('');
@@ -196,9 +221,15 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
         const ruProgress = hasRu ? 100 : 0;
         const enProgress = hasEn ? 100 : 0;
         
+        // Get translation status from API or calculate it
+        const translationStatus = article.translation_status || article.translationStatus || 'draft';
+        
+        // Determine display status based on translation status
         let status = 'needs_translation';
-        if (ruProgress === 100 && enProgress === 100) {
+        if (translationStatus === 'approved') {
           status = 'completed';
+        } else if (translationStatus === 'pending') {
+          status = 'in_progress';
         } else if (ruProgress > 0 || enProgress > 0) {
           status = 'in_progress';
         }
@@ -213,6 +244,7 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
           ruProgress,
           enProgress,
           status,
+          translationStatus,
         };
       });
       setArticles(articlesWithProgress);
@@ -291,8 +323,8 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
     }
   };
   
-  // Complete translation
-  const handleComplete = async () => {
+  // Submit translation for review (translator action)
+  const handleSubmitForReview = async () => {
     if (!selectedArticle) return;
     
     // Check if both translations are filled
@@ -301,9 +333,159 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
       return;
     }
     
-    await handleSave();
-    setSelectedArticle(null);
-    await loadArticles();
+    setSaving(true);
+    try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api/v1';
+      const token = localStorage.getItem('token');
+      
+      // Save translations with pending status
+      const response = await fetch(`${API_BASE_URL}/admin/articles/${selectedArticle.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Accept-Language': locale,
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          translation_status: 'pending',
+          translations: {
+            uz: { content: originalText },
+            ru: { content: translationRu },
+            en: { content: translationEn },
+          },
+        }),
+      });
+      
+      if (response.ok) {
+        alert(t.submittedSuccess);
+        // Update local state
+        setArticles(prev => prev.map(a => 
+          a.id === selectedArticle.id 
+            ? { 
+                ...a, 
+                contentRu: translationRu, 
+                contentEn: translationEn,
+                ruProgress: 100,
+                enProgress: 100,
+                status: 'in_progress',
+                translationStatus: 'pending',
+              } 
+            : a
+        ));
+        setSelectedArticle(null);
+      } else {
+        const data = await response.json();
+        alert(data.message || 'Error submitting translation');
+      }
+    } catch (err) {
+      console.error('Submit error:', err);
+      alert(locale === 'ru' ? 'Ошибка отправки' : locale === 'en' ? 'Submit error' : 'Yuborishda xatolik');
+    } finally {
+      setSaving(false);
+    }
+  };
+  
+  // Approve translation (admin action)
+  const handleApprove = async () => {
+    if (!selectedArticle) return;
+    
+    setSaving(true);
+    try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api/v1';
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${API_BASE_URL}/admin/articles/${selectedArticle.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Accept-Language': locale,
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          translation_status: 'approved',
+        }),
+      });
+      
+      if (response.ok) {
+        alert(t.approvedSuccess);
+        // Update local state
+        setArticles(prev => prev.map(a => 
+          a.id === selectedArticle.id 
+            ? { 
+                ...a, 
+                status: 'completed',
+                translationStatus: 'approved',
+              } 
+            : a
+        ));
+        setSelectedArticle(null);
+      } else {
+        const data = await response.json();
+        alert(data.message || 'Error approving translation');
+      }
+    } catch (err) {
+      console.error('Approve error:', err);
+      alert(locale === 'ru' ? 'Ошибка одобрения' : locale === 'en' ? 'Approve error' : 'Tasdiqlashda xatolik');
+    } finally {
+      setSaving(false);
+    }
+  };
+  
+  // Reject translation (admin action) - sends back to translator
+  const handleReject = async () => {
+    if (!selectedArticle) return;
+    
+    setSaving(true);
+    try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api/v1';
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${API_BASE_URL}/admin/articles/${selectedArticle.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Accept-Language': locale,
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          translation_status: 'draft',
+        }),
+      });
+      
+      if (response.ok) {
+        alert(locale === 'ru' ? 'Перевод отклонён' : locale === 'en' ? 'Translation rejected' : 'Tarjima rad etildi');
+        // Update local state
+        setArticles(prev => prev.map(a => 
+          a.id === selectedArticle.id 
+            ? { 
+                ...a, 
+                status: 'needs_translation',
+                translationStatus: 'draft',
+              } 
+            : a
+        ));
+        setSelectedArticle(null);
+      } else {
+        const data = await response.json();
+        alert(data.message || 'Error rejecting translation');
+      }
+    } catch (err) {
+      console.error('Reject error:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
+  
+  // Complete translation (legacy - for backwards compatibility)
+  const handleComplete = async () => {
+    if (canApprove) {
+      await handleApprove();
+    } else {
+      await handleSubmitForReview();
+    }
   };
 
   const filteredArticles = articles.filter(article => {
@@ -422,6 +604,7 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
 
           {/* Action buttons */}
           <div className="flex justify-end gap-3">
+            {/* Save button - available to all */}
             <button 
               onClick={handleSave}
               disabled={saving}
@@ -430,14 +613,60 @@ export default function TranslationsPage({ params: { locale } }: TranslationsPag
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {t.save}
             </button>
-            <button 
-              onClick={handleComplete}
-              disabled={saving}
-              className="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
-            >
-              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-              {t.complete}
-            </button>
+            
+            {/* For translators: Submit for review button */}
+            {isTranslator && selectedArticle.translationStatus !== 'pending' && (
+              <button 
+                onClick={handleSubmitForReview}
+                disabled={saving}
+                className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+              >
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                {t.submitForReview}
+              </button>
+            )}
+            
+            {/* For translators: Show pending status if already submitted */}
+            {isTranslator && selectedArticle.translationStatus === 'pending' && (
+              <span className="px-6 py-2.5 bg-yellow-100 text-yellow-800 rounded-lg inline-flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                {t.pendingApproval}
+              </span>
+            )}
+            
+            {/* For admins: Approve/Reject buttons */}
+            {canApprove && selectedArticle.translationStatus === 'pending' && (
+              <>
+                <button 
+                  onClick={handleReject}
+                  disabled={saving}
+                  className="px-6 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+                >
+                  {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {t.reject}
+                </button>
+                <button 
+                  onClick={handleApprove}
+                  disabled={saving}
+                  className="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+                >
+                  {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {t.approve}
+                </button>
+              </>
+            )}
+            
+            {/* For admins: Complete button if not pending */}
+            {canApprove && selectedArticle.translationStatus !== 'pending' && (
+              <button 
+                onClick={handleComplete}
+                disabled={saving}
+                className="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+              >
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                {t.complete}
+              </button>
+            )}
           </div>
         </div>
       </RoleGuard>
