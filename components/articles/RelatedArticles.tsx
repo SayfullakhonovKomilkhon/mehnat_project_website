@@ -46,6 +46,7 @@ export function RelatedArticles({ article, locale }: RelatedArticlesProps) {
     return () => {
       isMounted = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article.id, article.chapterId, article.sectionId, locale]);
 
   const scroll = (direction: 'left' | 'right') => {
