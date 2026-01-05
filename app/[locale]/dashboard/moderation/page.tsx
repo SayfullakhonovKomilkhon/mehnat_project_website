@@ -223,18 +223,18 @@ export default function ModerationPage({ params: { locale } }: ModerationPagePro
                           </span>
                         </div>
                         <h3 className="truncate font-medium text-gray-900">
-                          {getLocalizedText(article.title, locale)}
+                          {getLocalizedText(article.title as any, locale) || article.title || '-'}
                         </h3>
                         <p className="mt-1 text-sm text-gray-500">
                           {article.chapter?.section && (
                             <>
                               {t.section} {article.chapter.section.section_number}:{' '}
-                              {getLocalizedText(article.chapter.section.name, locale)}
+                              {getLocalizedText(article.chapter.section.name as any, locale) || '-'}
                               {' → '}
                             </>
                           )}
                           {t.chapter} {article.chapter?.chapter_number}:{' '}
-                          {getLocalizedText(article.chapter?.name, locale)}
+                          {getLocalizedText(article.chapter?.name as any, locale) || '-'}
                         </p>
                         <p className="mt-1 text-xs text-gray-400">
                           {new Date(article.created_at).toLocaleDateString(locale)}
