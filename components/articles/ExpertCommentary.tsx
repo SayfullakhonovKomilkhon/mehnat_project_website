@@ -1,98 +1,106 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  ChevronDown, 
-  ChevronUp, 
-  Scale, 
-  Calendar, 
-  Quote, 
+import {
+  ChevronDown,
+  ChevronUp,
+  Scale,
+  Calendar,
+  Quote,
   BadgeCheck,
   Briefcase,
-  AlertCircle
+  AlertCircle,
+  Loader2,
+  ExternalLink,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui';
 import { formatDate } from '@/lib/date-utils';
+import { getArticleExpertisePublic } from '@/lib/api';
+import type { Locale } from '@/types';
 
 interface ExpertCommentaryProps {
   locale: string;
   hasCommentary: boolean;
+  articleId?: number;
+  expertiseData?: {
+    expert_comment: string;
+    legal_references?: Array<{ name: string; url: string }>;
+    court_practice?: string;
+    recommendations?: string;
+    expert_name?: string;
+    created_at?: string;
+  } | null;
 }
 
-// Mock expert data
-const expertData = {
-  name: {
-    uz: "Nodira Xolmatova",
-    ru: "Нодира Холматова",
-    en: "Nodira Kholmatova"
+const translations = {
+  uz: {
+    title: 'Ekspert sharhi',
+    badge: 'Amaliyotga asoslangan',
+    expert: 'Ekspert',
+    noCommentary: "Ushbu moddaga ekspert sharhi hali qo'shilmagan",
+    disclaimer:
+      'Eslatma: Ushbu sharh huquqiy maslahat hisoblanmaydi. Muayyan holat uchun malakali huquqshunos bilan maslahatlashing.',
+    courtPractice: 'Sud amaliyoti',
+    recommendations: 'Tavsiyalar',
+    legalReferences: 'Qonuniy havolalar',
+    loading: 'Yuklanmoqda...',
   },
-  title: {
-    uz: "Mehnat huquqi bo'yicha ekspert, Yuridik fanlar nomzodi",
-    ru: "Эксперт по трудовому праву, кандидат юридических наук",
-    en: "Labor Law Expert, PhD in Legal Sciences"
+  ru: {
+    title: 'Экспертное заключение',
+    badge: 'На основе практики',
+    expert: 'Эксперт',
+    noCommentary: 'Экспертный комментарий к этой статье ещё не добавлен',
+    disclaimer:
+      'Примечание: Данный комментарий не является юридической консультацией. Для конкретной ситуации обратитесь к квалифицированному юристу.',
+    courtPractice: 'Судебная практика',
+    recommendations: 'Рекомендации',
+    legalReferences: 'Правовые ссылки',
+    loading: 'Загрузка...',
   },
-  experience: {
-    uz: "15 yillik amaliy tajriba",
-    ru: "15 лет практического опыта",
-    en: "15 years of practical experience"
+  en: {
+    title: 'Expert Commentary',
+    badge: 'Practice-based',
+    expert: 'Expert',
+    noCommentary: 'Expert commentary for this article has not been added yet',
+    disclaimer:
+      'Note: This commentary is not legal advice. For specific situations, consult a qualified lawyer.',
+    courtPractice: 'Court Practice',
+    recommendations: 'Recommendations',
+    legalReferences: 'Legal References',
+    loading: 'Loading...',
   },
-  date: "2024-02-20"
 };
 
-const expertContent: Record<string, string> = {
-  uz: `**Sud amaliyoti tahlili:**
-
-Oliy sudning 2023-yildagi ko'rsatmalariga ko'ra, ushbu moddaning qo'llanilishi quyidagi muhim jihatlarni o'z ichiga oladi:
-
-1. Mehnat shartnomasini bekor qilishda ish beruvchi ushbu moddada belgilangan tamoyillarga rioya qilishi shart. Aks holda, sud xodimni ishga tiklashi mumkin.
-
-2. Ish vaqtini belgilashda "adolatli mehnat sharoitlari" tamoyili asosiy mezon hisoblanadi. Haftalik 40 soatdan ortiq ish vaqti belgilash qonunga zid.
-
-**Amaliy tavsiyalar:**
-
-- Mehnat nizolarida bu moddaga havola qilish da'voni kuchaytirishga yordam beradi
-- Ish beruvchilar ichki nizomlarini ushbu tamoyillarga moslashtirishlari lozim
-- Kasaba uyushmalari bu moddani xodimlar huquqlarini himoya qilishda asosiy hujjat sifatida qo'llashlari mumkin
-
-**Diqqat:** 2024-yildan boshlab bu moddaga qo'shimcha o'zgartirishlar kiritilishi kutilmoqda.`,
-  ru: `**Анализ судебной практики:**
-
-Согласно указаниям Верховного суда за 2023 год, применение данной статьи включает следующие важные аспекты:
-
-1. При расторжении трудового договора работодатель обязан соблюдать принципы, установленные в данной статье. В противном случае суд может восстановить работника на работе.
-
-2. При установлении рабочего времени принцип "справедливых условий труда" является основным критерием. Установление рабочего времени более 40 часов в неделю противоречит закону.
-
-**Практические рекомендации:**
-
-- Ссылка на эту статью в трудовых спорах помогает усилить иск
-- Работодателям необходимо привести внутренние положения в соответствие с этими принципами
-- Профсоюзы могут использовать эту статью как основной документ для защиты прав работников
-
-**Внимание:** Начиная с 2024 года ожидаются дополнительные изменения в данную статью.`,
-  en: `**Analysis of court practice:**
-
-According to the Supreme Court guidelines for 2023, the application of this article includes the following important aspects:
-
-1. When terminating an employment contract, the employer must comply with the principles established in this article. Otherwise, the court may reinstate the employee.
-
-2. When setting working hours, the principle of "fair working conditions" is the main criterion. Setting working hours of more than 40 hours per week is contrary to law.
-
-**Practical recommendations:**
-
-- Referring to this article in labor disputes helps strengthen the claim
-- Employers need to align their internal regulations with these principles
-- Trade unions can use this article as the main document to protect workers' rights
-
-**Attention:** Starting from 2024, additional amendments to this article are expected.`
-};
-
-export function ExpertCommentary({ locale, hasCommentary }: ExpertCommentaryProps) {
+export function ExpertCommentary({
+  locale,
+  hasCommentary,
+  articleId,
+  expertiseData: initialData,
+}: ExpertCommentaryProps) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [expertiseData, setExpertiseData] = useState(initialData);
 
-  if (!hasCommentary) {
+  const t = translations[locale as keyof typeof translations] || translations.uz;
+
+  // Fetch expertise data if articleId is provided and no initial data
+  useEffect(() => {
+    if (articleId && !initialData && hasCommentary) {
+      setLoading(true);
+      getArticleExpertisePublic(articleId, locale as Locale)
+        .then(result => {
+          if (result.hasExpertise && result.expertise) {
+            setExpertiseData(result.expertise);
+          }
+        })
+        .catch(console.error)
+        .finally(() => setLoading(false));
+    }
+  }, [articleId, locale, initialData, hasCommentary]);
+
+  if (!hasCommentary || (!expertiseData && !loading)) {
     return (
       <motion.section
         id="expert"
@@ -101,72 +109,32 @@ export function ExpertCommentary({ locale, hasCommentary }: ExpertCommentaryProp
         transition={{ delay: 0.3 }}
         className="mb-8"
       >
-        <div className="bg-gov-surface border border-gov-border rounded-xl p-6 text-center">
-          <Scale className="w-12 h-12 text-text-muted mx-auto mb-3" />
-          <p className="text-text-secondary">
-            Ushbu moddaga ekspert sharhi hali qo'shilmagan
-          </p>
+        <div className="rounded-xl border border-gov-border bg-gov-surface p-6 text-center">
+          <Scale className="mx-auto mb-3 h-12 w-12 text-text-muted" />
+          <p className="text-text-secondary">{t.noCommentary}</p>
         </div>
       </motion.section>
     );
   }
 
-  const name = expertData.name[locale as keyof typeof expertData.name] || expertData.name.uz;
-  const title = expertData.title[locale as keyof typeof expertData.title] || expertData.title.uz;
-  const experience = expertData.experience[locale as keyof typeof expertData.experience] || expertData.experience.uz;
-  const commentary = expertContent[locale] || expertContent.uz;
+  if (loading) {
+    return (
+      <motion.section
+        id="expert"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="mb-8"
+      >
+        <div className="rounded-xl border border-gov-border bg-gov-surface p-6 text-center">
+          <Loader2 className="mx-auto mb-3 h-8 w-8 animate-spin text-amber-600" />
+          <p className="text-text-secondary">{t.loading}</p>
+        </div>
+      </motion.section>
+    );
+  }
 
-  // Process content to highlight bold text
-  const formatCommentary = (text: string) => {
-    const paragraphs = text.split('\n\n');
-    
-    return paragraphs.map((paragraph, index) => {
-      // Check if it's a numbered point
-      const isNumberedPoint = /^\d+\./.test(paragraph.trim());
-      const isBulletPoint = /^-/.test(paragraph.trim());
-      
-      const processedText = paragraph.split(/(\*\*[^*]+\*\*)/).map((part, i) => {
-        if (part.startsWith('**') && part.endsWith('**')) {
-          return (
-            <strong key={i} className="text-accent-amber font-semibold">
-              {part.slice(2, -2)}
-            </strong>
-          );
-        }
-        return part;
-      });
-
-      if (isNumberedPoint) {
-        return (
-          <div key={index} className="pl-6 mb-3 relative">
-            <span className="absolute left-0 top-0.5 w-5 h-5 rounded-full bg-accent-gold/20 text-accent-amber text-xs font-medium flex items-center justify-center">
-              {paragraph.match(/^\d+/)?.[0]}
-            </span>
-            <p className="text-text-primary leading-relaxed pl-2">
-              {processedText}
-            </p>
-          </div>
-        );
-      }
-
-      if (isBulletPoint) {
-        return (
-          <div key={index} className="pl-4 mb-2 flex items-start gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent-amber mt-2 flex-shrink-0" />
-            <p className="text-text-primary leading-relaxed">
-              {processedText}
-            </p>
-          </div>
-        );
-      }
-
-      return (
-        <p key={index} className="text-text-primary leading-relaxed mb-4 last:mb-0">
-          {processedText}
-        </p>
-      );
-    });
-  };
+  const data = expertiseData!;
 
   return (
     <motion.section
@@ -179,92 +147,141 @@ export function ExpertCommentary({ locale, hasCommentary }: ExpertCommentaryProp
       {/* Section Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-4 bg-amber-100 text-amber-800 rounded-t-xl border border-b-0 border-amber-200"
+        className="flex w-full items-center justify-between rounded-t-xl border border-b-0 border-amber-200 bg-amber-100 p-4 text-amber-800"
       >
         <div className="flex items-center gap-3">
-          <Scale className="w-5 h-5" />
-          <h2 className="font-heading text-lg font-semibold">
-            Ekspert sharhi
-          </h2>
+          <Scale className="h-5 w-5" />
+          <h2 className="font-heading text-lg font-semibold">{t.title}</h2>
           <Badge variant="gold" size="sm">
-            Amaliyotga asoslangan
+            {t.badge}
           </Badge>
         </div>
-        {isExpanded ? (
-          <ChevronUp className="w-5 h-5" />
-        ) : (
-          <ChevronDown className="w-5 h-5" />
-        )}
+        {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
       </button>
 
       {/* Content */}
       <motion.div
         initial={false}
-        animate={{ 
+        animate={{
           height: isExpanded ? 'auto' : 0,
-          opacity: isExpanded ? 1 : 0 
+          opacity: isExpanded ? 1 : 0,
         }}
         transition={{ duration: 0.3 }}
         className="overflow-hidden"
       >
-        <div className={cn(
-          'bg-gov-surface border border-amber-200 rounded-b-xl',
-          'border-l-4 border-l-accent-gold'
-        )}>
+        <div
+          className={cn(
+            'rounded-b-xl border border-amber-200 bg-gov-surface',
+            'border-l-4 border-l-accent-gold'
+          )}
+        >
           {/* Expert Info */}
-          <div className="p-6 border-b border-gov-border bg-amber-50/50">
-            <div className="flex items-start gap-4">
-              {/* Avatar with Badge */}
-              <div className="relative flex-shrink-0">
-                <div className="w-16 h-16 rounded-full bg-amber-200 flex items-center justify-center overflow-hidden">
-                  <Scale className="w-8 h-8 text-amber-700" />
+          {data.expert_name && (
+            <div className="border-b border-gov-border bg-amber-50/50 p-6">
+              <div className="flex items-start gap-4">
+                <div className="relative flex-shrink-0">
+                  <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-amber-200">
+                    <Scale className="h-8 w-8 text-amber-700" />
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-accent-gold">
+                    <BadgeCheck className="h-4 w-4 text-white" />
+                  </div>
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-accent-gold flex items-center justify-center">
-                  <BadgeCheck className="w-4 h-4 text-white" />
-                </div>
-              </div>
-              
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-heading font-semibold text-text-primary text-lg">
-                    {name}
-                  </h3>
-                  <Badge variant="gold" size="sm">
-                    Ekspert
-                  </Badge>
-                </div>
-                <p className="text-text-secondary text-sm mb-1">
-                  {title}
-                </p>
-                <p className="text-text-muted text-sm flex items-center gap-1">
-                  <Briefcase className="w-4 h-4" />
-                  {experience}
-                </p>
-              </div>
 
-              {/* Date - using suppressHydrationWarning to avoid mismatch */}
-              <div className="hidden sm:flex items-center gap-1.5 text-sm text-text-muted">
-                <Calendar className="w-4 h-4" />
-                <span suppressHydrationWarning>
-                  {formatDate(expertData.date)}
-                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="mb-1 flex items-center gap-2">
+                    <h3 className="font-heading text-lg font-semibold text-text-primary">
+                      {data.expert_name}
+                    </h3>
+                    <Badge variant="gold" size="sm">
+                      {t.expert}
+                    </Badge>
+                  </div>
+                </div>
+
+                {data.created_at && (
+                  <div className="hidden items-center gap-1.5 text-sm text-text-muted sm:flex">
+                    <Calendar className="h-4 w-4" />
+                    <span suppressHydrationWarning>{formatDate(data.created_at)}</span>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Commentary Text */}
+          {/* Expert Comment */}
           <div className="p-6">
-            {formatCommentary(commentary)}
+            <div className="prose prose-sm max-w-none text-text-primary">
+              {data.expert_comment.split('\n').map((paragraph, index) => (
+                <p key={index} className="mb-3 leading-relaxed last:mb-0">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+
+            {/* Court Practice */}
+            {data.court_practice && (
+              <div className="mt-6">
+                <h4 className="mb-2 flex items-center gap-2 font-semibold text-amber-800">
+                  <Briefcase className="h-4 w-4" />
+                  {t.courtPractice}
+                </h4>
+                <div className="rounded-lg bg-amber-50 p-4 text-text-primary">
+                  {data.court_practice.split('\n').map((paragraph, index) => (
+                    <p key={index} className="mb-2 last:mb-0">
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Recommendations */}
+            {data.recommendations && (
+              <div className="mt-6">
+                <h4 className="mb-2 flex items-center gap-2 font-semibold text-amber-800">
+                  <Quote className="h-4 w-4" />
+                  {t.recommendations}
+                </h4>
+                <div className="rounded-lg bg-amber-50 p-4 text-text-primary">
+                  {data.recommendations.split('\n').map((paragraph, index) => (
+                    <p key={index} className="mb-2 last:mb-0">
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Legal References */}
+            {data.legal_references && data.legal_references.length > 0 && (
+              <div className="mt-6">
+                <h4 className="mb-2 flex items-center gap-2 font-semibold text-amber-800">
+                  <Scale className="h-4 w-4" />
+                  {t.legalReferences}
+                </h4>
+                <div className="space-y-2">
+                  {data.legal_references.map((ref, index) => (
+                    <a
+                      key={index}
+                      href={ref.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      {ref.name || ref.url}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Disclaimer */}
-            <div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
+            <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-amber-800">
-                  <strong>Eslatma:</strong> Ushbu sharh huquqiy maslahat hisoblanmaydi. 
-                  Muayyan holat uchun malakali huquqshunos bilan maslahatlashing.
-                </p>
+                <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
+                <p className="text-sm text-amber-800">{t.disclaimer}</p>
               </div>
             </div>
           </div>
@@ -275,8 +292,3 @@ export function ExpertCommentary({ locale, hasCommentary }: ExpertCommentaryProp
 }
 
 export default ExpertCommentary;
-
-
-
-
-

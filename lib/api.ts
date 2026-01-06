@@ -187,6 +187,7 @@ function transformArticle(data: any): Article {
     status: data.is_active ? 'published' : 'draft',
     hasAuthorComment: Boolean(data.has_author_comment),
     hasExpertComment: Boolean(data.has_expert_comment),
+    expertise: data.expertise || null,
     translations: ['uz', 'ru', 'en'] as Locale[],
     viewCount: data.views_count || 0,
     lastUpdated: data.updated_at || new Date().toISOString(),
@@ -1619,6 +1620,44 @@ export async function getExpertiseStats(locale: Locale = 'uz'): Promise<{
     completed: completed,
     total: totalArticles,
   };
+}
+
+// ============================================
+// EXPERTISE PUBLIC API
+// ============================================
+
+/** Get approved expertise for an article (public) */
+export async function getArticleExpertisePublic(
+  articleId: number,
+  locale: Locale = 'uz'
+): Promise<{
+  hasExpertise: boolean;
+  expertise: {
+    expert_comment: string;
+    legal_references: Array<{ name: string; url: string }>;
+    court_practice: string;
+    recommendations: string;
+    expert_name?: string;
+    created_at?: string;
+  } | null;
+}> {
+  const result = await apiRequest<any>(`/admin/expertise/article/${articleId}`, {}, locale);
+
+  if (result.success && result.data) {
+    return {
+      hasExpertise: true,
+      expertise: {
+        expert_comment: result.data.expert_comment || '',
+        legal_references: result.data.legal_references || [],
+        court_practice: result.data.court_practice || '',
+        recommendations: result.data.recommendations || '',
+        expert_name: result.data.user?.name,
+        created_at: result.data.created_at,
+      },
+    };
+  }
+
+  return { hasExpertise: false, expertise: null };
 }
 
 // ============================================

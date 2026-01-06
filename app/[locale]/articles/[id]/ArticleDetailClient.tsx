@@ -1,14 +1,14 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { 
+import {
   ArticleHeader,
   ArticleContent,
   AuthorCommentary,
   ExpertCommentary,
   ArticleSidebar,
   RelatedArticles,
-  ArticleMobileNav
+  ArticleMobileNav,
 } from '@/components/articles';
 import { ArticleSchema, BreadcrumbSchema } from '@/components/seo';
 import { getLocalizedText } from '@/lib/api';
@@ -26,7 +26,10 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
   const breadcrumbItems = [
     { name: 'Bosh sahifa', url: `${BASE_URL}/${locale}` },
     { name: "Bo'limlar", url: `${BASE_URL}/${locale}/sections` },
-    { name: getLocalizedText(article.section.title, locale), url: `${BASE_URL}/${locale}/sections/${article.section.id}` },
+    {
+      name: getLocalizedText(article.section.title, locale),
+      url: `${BASE_URL}/${locale}/sections/${article.section.id}`,
+    },
     { name: `${article.number}-modda`, url: `${BASE_URL}/${locale}/articles/${article.id}` },
   ];
 
@@ -56,23 +59,23 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
         url={`${BASE_URL}/${locale}/articles/${article.id}`}
       />
       <BreadcrumbSchema items={breadcrumbItems} />
-      
+
       {/* Mobile Navigation */}
       <ArticleMobileNav article={article} locale={locale} />
-      
+
       <div className="section-container py-6 md:py-8">
         {/* Article Header */}
         <ArticleHeader article={article} locale={locale} />
 
         {/* Main Content Layout */}
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col gap-8 lg:flex-row">
           {/* Sidebar - Desktop */}
-          <aside className="hidden lg:block lg:w-72 xl:w-80 flex-shrink-0">
+          <aside className="hidden flex-shrink-0 lg:block lg:w-72 xl:w-80">
             <ArticleSidebar article={article} locale={locale} />
           </aside>
 
           {/* Main Content */}
-          <div className="flex-1 min-w-0 space-y-6">
+          <div className="min-w-0 flex-1 space-y-6">
             {/* Article Text */}
             <motion.section
               initial={{ opacity: 0, y: 20 }}
@@ -87,7 +90,12 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
             <AuthorCommentary locale={locale} hasCommentary={article.hasAuthorComment} />
 
             {/* Expert Commentary */}
-            <ExpertCommentary locale={locale} hasCommentary={article.hasExpertComment} />
+            <ExpertCommentary
+              locale={locale}
+              hasCommentary={article.hasExpertComment}
+              articleId={article.id}
+              expertiseData={article.expertise}
+            />
 
             {/* Related Articles */}
             <motion.section
@@ -103,6 +111,3 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
     </div>
   );
 }
-
-
-
