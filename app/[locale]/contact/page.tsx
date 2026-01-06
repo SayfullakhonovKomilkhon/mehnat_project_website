@@ -30,7 +30,7 @@ const translations = {
       },
       {
         title: 'Email',
-        value: 'info@mehnat.uz',
+        value: 'info@bv.gov.uz, bandlik@exat.uz',
         description: 'Savollaringiz uchun',
       },
       {
@@ -76,7 +76,7 @@ const translations = {
       },
       {
         title: 'Email',
-        value: 'info@mehnat.uz',
+        value: 'info@bv.gov.uz, bandlik@exat.uz',
         description: 'Для ваших вопросов',
       },
       {
@@ -122,7 +122,7 @@ const translations = {
       },
       {
         title: 'Email',
-        value: 'info@mehnat.uz',
+        value: 'info@bv.gov.uz, bandlik@exat.uz',
         description: 'For your questions',
       },
       {
@@ -173,7 +173,7 @@ function ContactContent({ locale }: { locale: string }) {
   const t = translations[locale as keyof typeof translations] || translations.uz;
 
   const contactIcons = [Phone, Mail, MapPin, Clock];
-  const contactHrefs = ['tel:1172', 'mailto:info@mehnat.uz', 'https://maps.google.com', null];
+  const contactHrefs = ['tel:1172', 'mailto:info@bv.gov.uz', 'https://maps.google.com', null];
 
   return (
     <main id="main-content" className="min-h-screen bg-gov-light">

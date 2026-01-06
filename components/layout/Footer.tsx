@@ -355,10 +355,10 @@ export function Footer({ locale }: FooterProps) {
               <li className="flex items-center gap-3 text-sm">
                 <Mail className="h-4 w-4 flex-shrink-0 text-accent-gold" />
                 <a
-                  href="mailto:info@mehnat.uz"
+                  href="mailto:info@bv.gov.uz"
                   className="text-primary-200 transition-colors hover:text-white"
                 >
-                  info@mehnat.uz
+                  info@bv.gov.uz
                 </a>
               </li>
               <li className="flex items-start gap-3 text-sm">
