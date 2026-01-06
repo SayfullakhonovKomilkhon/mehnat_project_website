@@ -1622,6 +1622,53 @@ export async function getExpertiseStats(locale: Locale = 'uz'): Promise<{
 }
 
 // ============================================
+// EXPERTISE MODERATION (Admin)
+// ============================================
+
+/** Get pending expertises for moderation */
+export async function adminGetPendingExpertises(locale: Locale = 'uz'): Promise<any[]> {
+  const result = await apiRequest<any>('/admin/expertise/pending', {}, locale);
+
+  if (!result.success) {
+    throw new Error(result.error || 'Failed to fetch pending expertises');
+  }
+
+  const items = result.data?.items || result.data || [];
+  return Array.isArray(items) ? items : [];
+}
+
+/** Approve expertise */
+export async function adminApproveExpertise(
+  id: number,
+  locale: Locale = 'uz'
+): Promise<{ success: boolean; error?: string }> {
+  const result = await apiRequest<any>(
+    `/admin/expertise/${id}/approve`,
+    { method: 'POST' },
+    locale
+  );
+  return result;
+}
+
+/** Reject expertise */
+export async function adminRejectExpertise(
+  id: number,
+  locale: Locale = 'uz'
+): Promise<{ success: boolean; error?: string }> {
+  const result = await apiRequest<any>(`/admin/expertise/${id}/reject`, { method: 'POST' }, locale);
+  return result;
+}
+
+/** Get single expertise for preview */
+export async function adminGetExpertise(id: number, locale: Locale = 'uz'): Promise<any | null> {
+  const result = await apiRequest<any>(`/admin/expertise/${id}`, {}, locale);
+  if (!result.success) {
+    throw new Error(result.error || 'Failed to fetch expertise');
+  }
+  return result.data;
+}
+
+// ============================================
 // EXPORTS
 // ============================================
 
