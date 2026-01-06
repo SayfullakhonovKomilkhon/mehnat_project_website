@@ -35,7 +35,7 @@ const translations = {
       },
       {
         title: 'Manzil',
-        value: "Toshkent sh., Amir Temur ko'chasi, 4",
+        value: "Toshkent sh., Mirobod tumani, Nukus ko'chasi, 8",
         description: 'Mehnat vazirligi',
       },
       {
@@ -59,7 +59,7 @@ const translations = {
     },
     additionalInfo: "Qo'shimcha ma'lumot",
     ministryName: "O'zbekiston Respublikasi Mehnat va ijtimoiy himoya vazirligi",
-    ministryAddress: "100000, Toshkent shahri, Amir Temur ko'chasi, 4-uy",
+    ministryAddress: "100000, Toshkent shahri, Mirobod tumani, Nukus ko'chasi, 8-uy",
     socialNetworks: 'Ijtimoiy tarmoqlar',
     mapLocation: 'Xarita joylashuvi',
   },
@@ -81,7 +81,7 @@ const translations = {
       },
       {
         title: 'Адрес',
-        value: 'г. Ташкент, ул. Амира Темура, 4',
+        value: 'г. Ташкент, Мирабадский район, ул. Нукус, 8',
         description: 'Министерство труда',
       },
       {
@@ -105,7 +105,7 @@ const translations = {
     },
     additionalInfo: 'Дополнительная информация',
     ministryName: 'Министерство труда и социальной защиты Республики Узбекистан',
-    ministryAddress: '100000, г. Ташкент, ул. Амира Темура, дом 4',
+    ministryAddress: '100000, г. Ташкент, Мирабадский район, ул. Нукус, дом 8',
     socialNetworks: 'Социальные сети',
     mapLocation: 'Расположение на карте',
   },
@@ -127,7 +127,7 @@ const translations = {
       },
       {
         title: 'Address',
-        value: 'Tashkent, Amir Temur St., 4',
+        value: 'Tashkent, Mirabad district, Nukus St., 8',
         description: 'Ministry of Labor',
       },
       {
@@ -151,7 +151,7 @@ const translations = {
     },
     additionalInfo: 'Additional Information',
     ministryName: 'Ministry of Labor and Social Protection of the Republic of Uzbekistan',
-    ministryAddress: '100000, Tashkent, Amir Temur Street, 4',
+    ministryAddress: '100000, Tashkent, Mirabad district, Nukus Street, 8',
     socialNetworks: 'Social Networks',
     mapLocation: 'Map Location',
   },

@@ -101,16 +101,16 @@ export function OrganizationSchema({ baseUrl }: OrganizationSchemaProps) {
     '@context': 'https://schema.org',
     '@type': 'GovernmentOrganization',
     name: "O'zbekiston Respublikasi Bandlik va mehnat munosabatlari vazirligi",
-    alternateName: ['Ministry of Employment and Labor Relations', 'Министерство занятости и трудовых отношений'],
+    alternateName: [
+      'Ministry of Employment and Labor Relations',
+      'Министерство занятости и трудовых отношений',
+    ],
     url: 'https://mehnat.uz',
     logo: `${baseUrl}/images/gov-emblem.svg`,
-    sameAs: [
-      'https://t.me/mehaboruz',
-      'https://facebook.com/mehaboruz',
-    ],
+    sameAs: ['https://t.me/mehaboruz', 'https://facebook.com/mehaboruz'],
     address: {
       '@type': 'PostalAddress',
-      streetAddress: "Mustaqillik ko'chasi, 5",
+      streetAddress: "Mirobod tumani, Nukus ko'chasi, 8",
       addressLocality: 'Toshkent',
       addressCountry: 'UZ',
     },
@@ -180,7 +180,7 @@ export function FAQSchema({ faqs }: FAQSchemaProps) {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: faqs.map((faq) => ({
+    mainEntity: faqs.map(faq => ({
       '@type': 'Question',
       name: faq.question,
       acceptedAnswer: {
@@ -246,8 +246,3 @@ export function LegalDocumentSchema({
 }
 
 export default ArticleSchema;
-
-
-
-
-
