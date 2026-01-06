@@ -116,7 +116,7 @@ export function OrganizationSchema({ baseUrl }: OrganizationSchemaProps) {
     },
     contactPoint: {
       '@type': 'ContactPoint',
-      telephone: '+998-71-200-15-15',
+      telephone: '+998-71-203-01-40',
       contactType: 'customer service',
       availableLanguage: ['uz', 'ru', 'en'],
     },

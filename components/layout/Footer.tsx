@@ -345,10 +345,10 @@ export function Footer({ locale }: FooterProps) {
                     {t('footer.hotline')}
                   </a>
                   <a
-                    href="tel:+998712394848"
+                    href="tel:+998712030140"
                     className="block text-primary-200 transition-colors hover:text-white"
                   >
-                    +998 71 239-48-48
+                    +998 71 203 01 40
                   </a>
                 </div>
               </li>
