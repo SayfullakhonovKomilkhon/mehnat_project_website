@@ -62,7 +62,7 @@ const translations = {
     ],
     governmentApproved: 'Davlat tomonidan tasdiqlangan',
     governmentDescription:
-      "Ushbu portal O'zbekiston Respublikasi Mehnat va ijtimoiy himoya vazirligi bilan hamkorlikda ishlab chiqilgan va rasmiy ma'lumotlar manbai hisoblanadi.",
+      "Ushbu portal O'zbekiston Respublikasi Kambag'allikni qisqartirish va bandlik vazirligi bilan hamkorlikda ishlab chiqilgan va rasmiy ma'lumotlar manbai hisoblanadi.",
     officiallyApproved: 'Rasmiy tasdiqlangan',
   },
   ru: {
@@ -111,7 +111,7 @@ const translations = {
     ],
     governmentApproved: 'Одобрено государством',
     governmentDescription:
-      'Данный портал разработан совместно с Министерством труда и социальной защиты Республики Узбекистан и является официальным источником информации.',
+      'Данный портал разработан совместно с Министерством сокращения бедности и занятости Республики Узбекистан и является официальным источником информации.',
     officiallyApproved: 'Официально одобрено',
   },
   en: {
@@ -159,7 +159,7 @@ const translations = {
     ],
     governmentApproved: 'Government Approved',
     governmentDescription:
-      'This portal was developed in cooperation with the Ministry of Labor and Social Protection of the Republic of Uzbekistan and is an official source of information.',
+      'This portal was developed in cooperation with the Ministry of Poverty Reduction and Employment of the Republic of Uzbekistan and is an official source of information.',
     officiallyApproved: 'Officially Approved',
   },
 };

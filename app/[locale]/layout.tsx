@@ -18,7 +18,7 @@ interface LocaleLayoutProps {
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://mehnat-kodeksi.uz';
 
 export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
+  return locales.map(locale => ({ locale }));
 }
 
 export async function generateMetadata({
@@ -27,11 +27,12 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: 'header' });
 
   const title = "Mehnat Kodeksiga Sharh - O'zbekiston Respublikasi";
-  const description = locale === 'uz' 
-    ? "O'zbekiston Respublikasi Mehnat kodeksining barcha moddalariga sharhlar, tushuntirishlar va ekspert izohlari"
-    : locale === 'ru'
-    ? 'Комментарии, разъяснения и экспертные заключения ко всем статьям Трудового кодекса Республики Узбекистан'
-    : 'Comments, explanations and expert opinions on all articles of the Labor Code of the Republic of Uzbekistan';
+  const description =
+    locale === 'uz'
+      ? "O'zbekiston Respublikasi Mehnat kodeksining barcha moddalariga sharhlar, tushuntirishlar va ekspert izohlari"
+      : locale === 'ru'
+        ? 'Комментарии, разъяснения и экспертные заключения ко всем статьям Трудового кодекса Республики Узбекистан'
+        : 'Comments, explanations and expert opinions on all articles of the Labor Code of the Republic of Uzbekistan';
 
   return {
     metadataBase: new URL(BASE_URL),
@@ -56,11 +57,11 @@ export async function generateMetadata({
       'commentary',
     ],
     authors: [
-      { name: "Bandlik va mehnat munosabatlari vazirligi" },
-      { name: 'Ministry of Employment and Labor Relations' },
+      { name: "Kambag'allikni qisqartirish va bandlik vazirligi" },
+      { name: 'Ministry of Poverty Reduction and Employment' },
     ],
     creator: "O'zbekiston Respublikasi Hukumati",
-    publisher: "Bandlik va mehnat munosabatlari vazirligi",
+    publisher: "Kambag'allikni qisqartirish va bandlik vazirligi",
     robots: {
       index: true,
       follow: true,
@@ -113,10 +114,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function LocaleLayout({
-  children,
-  params: { locale },
-}: LocaleLayoutProps) {
+export default async function LocaleLayout({ children, params: { locale } }: LocaleLayoutProps) {
   // Validate locale
   if (!locales.includes(locale as Locale)) {
     notFound();
@@ -131,17 +129,17 @@ export default async function LocaleLayout({
         {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        
+
         {/* DNS Prefetch */}
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        
+
         {/* Favicon */}
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        
+
         {/* Theme Color */}
         <meta name="theme-color" content="#1E3A8A" />
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1E3A5F" />
-        
+
         {/* Mobile optimization */}
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -149,16 +147,14 @@ export default async function LocaleLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Mehnat Kodeksi" />
       </head>
-      <body className={`min-h-screen flex flex-col ${inter.className}`} suppressHydrationWarning>
+      <body className={`flex min-h-screen flex-col ${inter.className}`} suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
           {/* Structured Data */}
           <OrganizationSchema baseUrl={BASE_URL} />
           <WebsiteSchema baseUrl={BASE_URL} locale={locale} />
 
           {/* Layout Wrapper - handles public vs admin layouts */}
-          <LayoutWrapper locale={locale}>
-            {children}
-          </LayoutWrapper>
+          <LayoutWrapper locale={locale}>{children}</LayoutWrapper>
         </NextIntlClientProvider>
       </body>
     </html>

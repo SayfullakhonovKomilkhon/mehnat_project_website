@@ -36,7 +36,7 @@ const translations = {
       {
         title: 'Manzil',
         value: "Toshkent sh., Mirobod tumani, Nukus ko'chasi, 8",
-        description: 'Mehnat vazirligi',
+        description: 'Bandlik vazirligi',
       },
       {
         title: 'Ish vaqti',
@@ -58,7 +58,7 @@ const translations = {
       submit: 'Xabar yuborish',
     },
     additionalInfo: "Qo'shimcha ma'lumot",
-    ministryName: "O'zbekiston Respublikasi Mehnat va ijtimoiy himoya vazirligi",
+    ministryName: "O'zbekiston Respublikasi Kambag'allikni qisqartirish va bandlik vazirligi",
     ministryAddress: "100000, Toshkent shahri, Mirobod tumani, Nukus ko'chasi, 8-uy",
     socialNetworks: 'Ijtimoiy tarmoqlar',
     mapLocation: 'Xarita joylashuvi',
@@ -82,7 +82,7 @@ const translations = {
       {
         title: 'Адрес',
         value: 'г. Ташкент, Мирабадский район, ул. Нукус, 8',
-        description: 'Министерство труда',
+        description: 'Министерство занятости',
       },
       {
         title: 'Рабочее время',
@@ -104,7 +104,7 @@ const translations = {
       submit: 'Отправить сообщение',
     },
     additionalInfo: 'Дополнительная информация',
-    ministryName: 'Министерство труда и социальной защиты Республики Узбекистан',
+    ministryName: 'Министерство сокращения бедности и занятости Республики Узбекистан',
     ministryAddress: '100000, г. Ташкент, Мирабадский район, ул. Нукус, дом 8',
     socialNetworks: 'Социальные сети',
     mapLocation: 'Расположение на карте',
@@ -128,7 +128,7 @@ const translations = {
       {
         title: 'Address',
         value: 'Tashkent, Mirabad district, Nukus St., 8',
-        description: 'Ministry of Labor',
+        description: 'Ministry of Employment',
       },
       {
         title: 'Working Hours',
@@ -150,7 +150,7 @@ const translations = {
       submit: 'Send Message',
     },
     additionalInfo: 'Additional Information',
-    ministryName: 'Ministry of Labor and Social Protection of the Republic of Uzbekistan',
+    ministryName: 'Ministry of Poverty Reduction and Employment of the Republic of Uzbekistan',
     ministryAddress: '100000, Tashkent, Mirabad district, Nukus Street, 8',
     socialNetworks: 'Social Networks',
     mapLocation: 'Map Location',

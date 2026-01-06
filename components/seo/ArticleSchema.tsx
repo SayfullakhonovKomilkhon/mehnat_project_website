@@ -29,12 +29,12 @@ export function ArticleSchema({ article, locale, url }: ArticleSchemaProps) {
     dateModified: article.lastUpdated || new Date().toISOString(),
     author: {
       '@type': 'Organization',
-      name: "O'zbekiston Respublikasi Bandlik va mehnat munosabatlari vazirligi",
+      name: "O'zbekiston Respublikasi Kambag'allikni qisqartirish va bandlik vazirligi",
       url: 'https://mehnat.uz',
     },
     publisher: {
       '@type': 'GovernmentOrganization',
-      name: "O'zbekiston Respublikasi Bandlik va mehnat munosabatlari vazirligi",
+      name: "O'zbekiston Respublikasi Kambag'allikni qisqartirish va bandlik vazirligi",
       logo: {
         '@type': 'ImageObject',
         url: `${url}/images/gov-emblem.svg`,
@@ -100,10 +100,10 @@ export function OrganizationSchema({ baseUrl }: OrganizationSchemaProps) {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'GovernmentOrganization',
-    name: "O'zbekiston Respublikasi Bandlik va mehnat munosabatlari vazirligi",
+    name: "O'zbekiston Respublikasi Kambag'allikni qisqartirish va bandlik vazirligi",
     alternateName: [
-      'Ministry of Employment and Labor Relations',
-      'Министерство занятости и трудовых отношений',
+      'Ministry of Poverty Reduction and Employment',
+      'Министерство сокращения бедности и занятости',
     ],
     url: 'https://mehnat.uz',
     logo: `${baseUrl}/images/gov-emblem.svg`,
@@ -155,7 +155,7 @@ export function WebsiteSchema({ baseUrl, locale }: WebsiteSchemaProps) {
     },
     publisher: {
       '@type': 'GovernmentOrganization',
-      name: "O'zbekiston Respublikasi Bandlik va mehnat munosabatlari vazirligi",
+      name: "O'zbekiston Respublikasi Kambag'allikni qisqartirish va bandlik vazirligi",
     },
   };
 
