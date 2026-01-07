@@ -40,19 +40,29 @@ function getHeaders(locale: Locale = 'uz'): HeadersInit {
   };
 }
 
-/** Generic API request */
+/** Generic API request with Next.js caching */
 export async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {},
   locale: Locale = 'uz'
 ): Promise<{ data?: T; error?: string; success: boolean }> {
   try {
+    // Determine if this is a GET request (cacheable)
+    const isGetRequest = !options.method || options.method === 'GET';
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
       headers: {
         ...getHeaders(locale),
         ...(options.headers || {}),
       },
+      // Enable Next.js caching for GET requests
+      // This dramatically improves performance on Vercel
+      ...(isGetRequest && {
+        next: {
+          revalidate: 300, // Cache for 5 minutes
+        },
+      }),
     });
 
     const json = await response.json();
@@ -632,6 +642,31 @@ export async function getCommentaries(
 /** Get a single commentary */
 export async function getCommentary(id: number, locale: Locale = 'uz'): Promise<Commentary | null> {
   return null; // TODO: implement when backend supports
+}
+
+/** Create a new comment on an article */
+export async function createComment(
+  articleId: number,
+  data: {
+    content: string;
+    parent_id?: number;
+  },
+  locale: Locale = 'uz'
+): Promise<{ success: boolean; data?: any; error?: string }> {
+  const result = await apiRequest<any>(
+    `/articles/${articleId}/comments`,
+    {
+      method: 'POST',
+      body: JSON.stringify(data),
+    },
+    locale
+  );
+
+  return {
+    success: result.success,
+    data: result.data,
+    error: result.error,
+  };
 }
 
 // ============================================
@@ -1265,13 +1300,15 @@ export interface ExpertiseArticle {
   id: number;
   article_number: string;
   title: string;
-  status: 'needs_expertise' | 'in_progress' | 'completed';
+  status: 'needs_expertise' | 'in_progress' | 'completed' | 'rejected';
+  expertise_status?: 'pending' | 'approved' | 'rejected' | null;
+  rejection_reason?: string;
   has_expertise: boolean;
   has_expert_comment?: boolean;
   expert_id?: number;
   expert_name?: string;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface ExpertiseData {
@@ -1281,7 +1318,8 @@ export interface ExpertiseData {
   legal_references: Array<{ name: string; url: string }>;
   court_practice: string;
   recommendations: string;
-  status: 'draft' | 'submitted';
+  status: 'draft' | 'submitted' | 'pending' | 'approved' | 'rejected';
+  rejection_reason?: string;
   expert_id?: number;
   expert_name?: string;
   created_at?: string;
@@ -1293,61 +1331,45 @@ export async function getExpertiseArticles(
   status?: 'needs_expertise' | 'in_progress' | 'completed' | 'all',
   locale: Locale = 'uz'
 ): Promise<ExpertiseArticle[]> {
-  // Use articles API to get all articles
-  const result = await apiRequest<any>('/articles?per_page=100', {}, locale);
+  // Use admin expertise articles API to get articles with expertise status
+  const result = await apiRequest<any>('/admin/expertise/articles', {}, locale);
 
   if (!result.success || !result.data) {
-    return [];
-  }
-
-  const items = result.data.items || result.data || [];
-
-  // Get saved expertise from localStorage
-  const savedExpertise: Record<number, ExpertiseData> = {};
-  if (typeof window !== 'undefined') {
-    try {
-      const listKey = 'expertise_articles_list';
-      const savedList = JSON.parse(localStorage.getItem(listKey) || '[]');
-
-      for (const articleId of savedList) {
-        const storageKey = `expertise_${articleId}`;
-        const savedData = localStorage.getItem(storageKey);
-        if (savedData) {
-          savedExpertise[articleId] = JSON.parse(savedData);
-        }
-      }
-    } catch (err) {
-      console.error('Error reading from localStorage:', err);
+    // Fallback to public articles API
+    const fallbackResult = await apiRequest<any>('/articles?per_page=100', {}, locale);
+    if (!fallbackResult.success || !fallbackResult.data) {
+      return [];
     }
+    const items = fallbackResult.data.items || fallbackResult.data || [];
+    return (Array.isArray(items) ? items : []).map((article: any) => ({
+      id: article.id,
+      article_number: article.article_number || String(article.id),
+      title: typeof article.title === 'string' ? article.title : article.title?.uz || '',
+      status: article.has_expert_comment ? 'completed' : 'needs_expertise',
+      has_expertise: article.has_expert_comment || false,
+      has_expert_comment: article.has_expert_comment || false,
+      created_at: article.created_at,
+      updated_at: article.updated_at,
+    }));
   }
 
-  // Transform articles to expertise format
+  const items = result.data || [];
+
+  // Transform to ExpertiseArticle format
   const expertiseArticles: ExpertiseArticle[] = (Array.isArray(items) ? items : []).map(
-    (article: any) => {
-      // Check localStorage first, then API flag
-      const localExpertise = savedExpertise[article.id];
-
-      let articleStatus: 'needs_expertise' | 'in_progress' | 'completed' = 'needs_expertise';
-      let hasExpertise = article.has_expert_comment || false;
-
-      if (localExpertise) {
-        hasExpertise = true;
-        articleStatus = localExpertise.status === 'submitted' ? 'completed' : 'in_progress';
-      } else if (article.has_expert_comment) {
-        articleStatus = 'completed';
-      }
-
-      return {
-        id: article.id,
-        article_number: article.article_number || String(article.id),
-        title: typeof article.title === 'string' ? article.title : article.title?.uz || '',
-        status: articleStatus,
-        has_expertise: hasExpertise,
-        has_expert_comment: hasExpertise,
-        created_at: article.created_at,
-        updated_at: article.updated_at,
-      };
-    }
+    (article: any) => ({
+      id: article.id,
+      article_number: article.article_number || String(article.id),
+      title: article.title || '',
+      status: article.status || 'needs_expertise',
+      expertise_status: article.expertise_status,
+      rejection_reason: article.rejection_reason,
+      has_expertise: article.has_expertise || false,
+      has_expert_comment: article.has_expertise || false,
+      expert_name: article.expert_name,
+      created_at: article.created_at,
+      updated_at: article.updated_at,
+    })
   );
 
   // Filter by status if provided
@@ -1363,39 +1385,20 @@ export async function getArticleExpertise(
   articleId: number,
   locale: Locale = 'uz'
 ): Promise<ExpertiseData | null> {
-  // First check localStorage for saved expertise
-  if (typeof window !== 'undefined') {
-    try {
-      const storageKey = `expertise_${articleId}`;
-      const savedData = localStorage.getItem(storageKey);
-      if (savedData) {
-        return JSON.parse(savedData) as ExpertiseData;
-      }
-    } catch (err) {
-      console.error('Error reading from localStorage:', err);
-    }
-  }
+  // Try to get user's expertise for this article from backend
+  const result = await apiRequest<any>(`/admin/expertise/article/${articleId}`, {}, locale);
 
-  // Try to get from backend API
-  const result = await apiRequest<any>(`/articles/${articleId}/comments?type=expert`, {}, locale);
-
-  if (!result.success || !result.data) {
-    return null;
-  }
-
-  const comments = result.data.items || result.data || [];
-  const expertComment = comments.find((c: any) => c.type === 'expert' || c.is_expert);
-
-  if (expertComment) {
+  if (result.success && result.data) {
     return {
-      id: expertComment.id,
-      article_id: articleId,
-      expert_comment: expertComment.content || '',
-      legal_references: expertComment.legal_references || [],
-      court_practice: expertComment.court_practice || '',
-      recommendations: expertComment.recommendations || '',
-      status: 'submitted',
-      expert_name: expertComment.author?.name,
+      id: result.data.id,
+      article_id: result.data.article_id || articleId,
+      expert_comment: result.data.expert_comment || '',
+      legal_references: result.data.legal_references || [],
+      court_practice: result.data.court_practice || '',
+      recommendations: result.data.recommendations || '',
+      status: result.data.status || 'pending',
+      expert_name: result.data.user?.name,
+      rejection_reason: result.data.rejection_reason,
     };
   }
 
@@ -1425,51 +1428,18 @@ export async function saveExpertise(
   );
 
   if (expertiseResult.success) {
-    return { ...expertiseResult, isLocal: false } as {
-      success: boolean;
-      data?: ExpertiseData;
-      error?: string;
-      isLocal?: boolean;
+    return {
+      success: true,
+      data: expertiseResult.data,
+      isLocal: false,
     };
   }
 
-  // Fallback: save to localStorage when backend is not available
-  if (typeof window !== 'undefined') {
-    try {
-      const storageKey = `expertise_${data.article_id}`;
-      const expertiseData: ExpertiseData = {
-        id: Date.now(),
-        article_id: data.article_id,
-        expert_comment: data.expert_comment,
-        legal_references: data.legal_references,
-        court_practice: data.court_practice,
-        recommendations: data.recommendations,
-        status: data.status,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-      localStorage.setItem(storageKey, JSON.stringify(expertiseData));
-
-      // Also update the list of expertise articles
-      const listKey = 'expertise_articles_list';
-      const existingList = JSON.parse(localStorage.getItem(listKey) || '[]');
-      if (!existingList.includes(data.article_id)) {
-        existingList.push(data.article_id);
-        localStorage.setItem(listKey, JSON.stringify(existingList));
-      }
-
-      return {
-        success: true,
-        data: expertiseData,
-        isLocal: true,
-      };
-    } catch (err) {
-      console.error('Error saving to localStorage:', err);
-    }
-  }
-
-  return { success: false, error: 'Backend API not available.', isLocal: true };
+  return {
+    success: false,
+    error: expertiseResult.error || 'Failed to save expertise',
+    isLocal: false,
+  };
 }
 
 /** Update existing expertise - with localStorage fallback */
@@ -1485,7 +1455,6 @@ export async function updateExpertise(
   },
   locale: Locale = 'uz'
 ): Promise<{ success: boolean; data?: ExpertiseData; error?: string; isLocal?: boolean }> {
-  // Try dedicated expertise endpoint first
   const expertiseResult = await apiRequest<any>(
     `/admin/expertise/${id}`,
     {
@@ -1496,46 +1465,18 @@ export async function updateExpertise(
   );
 
   if (expertiseResult.success) {
-    return { ...expertiseResult, isLocal: false } as {
-      success: boolean;
-      data?: ExpertiseData;
-      error?: string;
-      isLocal?: boolean;
+    return {
+      success: true,
+      data: expertiseResult.data,
+      isLocal: false,
     };
   }
 
-  // Fallback: update in localStorage
-  if (typeof window !== 'undefined' && data.article_id) {
-    try {
-      const storageKey = `expertise_${data.article_id}`;
-      const existingData = localStorage.getItem(storageKey);
-
-      if (existingData) {
-        const parsed = JSON.parse(existingData);
-        const updatedData: ExpertiseData = {
-          ...parsed,
-          expert_comment: data.expert_comment ?? parsed.expert_comment,
-          legal_references: data.legal_references ?? parsed.legal_references,
-          court_practice: data.court_practice ?? parsed.court_practice,
-          recommendations: data.recommendations ?? parsed.recommendations,
-          status: data.status ?? parsed.status,
-          updated_at: new Date().toISOString(),
-        };
-
-        localStorage.setItem(storageKey, JSON.stringify(updatedData));
-
-        return {
-          success: true,
-          data: updatedData,
-          isLocal: true,
-        };
-      }
-    } catch (err) {
-      console.error('Error updating localStorage:', err);
-    }
-  }
-
-  return { success: false, error: 'Failed to update expertise', isLocal: true };
+  return {
+    success: false,
+    error: expertiseResult.error || 'Failed to update expertise',
+    isLocal: false,
+  };
 }
 
 /** Delete expertise */
@@ -1641,20 +1582,24 @@ export async function getArticleExpertisePublic(
     created_at?: string;
   } | null;
 }> {
-  const result = await apiRequest<any>(`/admin/expertise/article/${articleId}`, {}, locale);
+  // Use public endpoint (no authentication required)
+  const result = await apiRequest<any>(`/articles/${articleId}/expertise`, {}, locale);
 
   if (result.success && result.data) {
-    return {
-      hasExpertise: true,
-      expertise: {
-        expert_comment: result.data.expert_comment || '',
-        legal_references: result.data.legal_references || [],
-        court_practice: result.data.court_practice || '',
-        recommendations: result.data.recommendations || '',
-        expert_name: result.data.user?.name,
-        created_at: result.data.created_at,
-      },
-    };
+    // Server returns { hasExpertise: boolean, expertise: object | null }
+    if (result.data.hasExpertise && result.data.expertise) {
+      return {
+        hasExpertise: true,
+        expertise: {
+          expert_comment: result.data.expertise.expert_comment || '',
+          legal_references: result.data.expertise.legal_references || [],
+          court_practice: result.data.expertise.court_practice || '',
+          recommendations: result.data.expertise.recommendations || '',
+          expert_name: result.data.expertise.expert_name,
+          created_at: result.data.expertise.created_at,
+        },
+      };
+    }
   }
 
   return { hasExpertise: false, expertise: null };
@@ -1692,9 +1637,17 @@ export async function adminApproveExpertise(
 /** Reject expertise */
 export async function adminRejectExpertise(
   id: number,
+  rejectionReason?: string,
   locale: Locale = 'uz'
 ): Promise<{ success: boolean; error?: string }> {
-  const result = await apiRequest<any>(`/admin/expertise/${id}/reject`, { method: 'POST' }, locale);
+  const result = await apiRequest<any>(
+    `/admin/expertise/${id}/reject`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ rejection_reason: rejectionReason }),
+    },
+    locale
+  );
   return result;
 }
 

@@ -20,7 +20,14 @@ export type GetLocalizedText = (content: LocalizedString, locale: string) => str
 // ============================================
 
 /** User roles in the system */
-export type UserRole = 'admin' | 'muallif' | 'tarjimon' | 'ishchi_guruh' | 'ekspert' | 'moderator' | 'user';
+export type UserRole =
+  | 'admin'
+  | 'muallif'
+  | 'tarjimon'
+  | 'ishchi_guruh'
+  | 'ekspert'
+  | 'moderator'
+  | 'user';
 
 /** Role display names */
 export const roleLabels: Record<UserRole, LocalizedString> = {
@@ -36,49 +43,110 @@ export const roleLabels: Record<UserRole, LocalizedString> = {
 /** Role permissions for UI display */
 export const rolePermissions: Record<UserRole, string[]> = {
   admin: [
-    'users.view', 'users.create', 'users.update', 'users.delete', 'users.change_role',
-    'sections.view', 'sections.create', 'sections.update', 'sections.delete',
-    'chapters.view', 'chapters.create', 'chapters.update', 'chapters.delete',
-    'articles.view', 'articles.create', 'articles.update', 'articles.delete', 'articles.approve',
-    'comments.view', 'comments.create', 'comments.update', 'comments.delete', 'comments.moderate',
-    'translations.view', 'translations.create', 'translations.update', 'translations.approve',
-    'analytics.view', 'logs.view', 'settings.view', 'settings.update',
+    'users.view',
+    'users.create',
+    'users.update',
+    'users.delete',
+    'users.change_role',
+    'sections.view',
+    'sections.create',
+    'sections.update',
+    'sections.delete',
+    'chapters.view',
+    'chapters.create',
+    'chapters.update',
+    'chapters.delete',
+    'articles.view',
+    'articles.create',
+    'articles.update',
+    'articles.delete',
+    'articles.approve',
+    'comments.view',
+    'comments.create',
+    'comments.update',
+    'comments.delete',
+    'comments.moderate',
+    'translations.view',
+    'translations.create',
+    'translations.update',
+    'translations.approve',
+    'analytics.view',
+    'logs.view',
+    'settings.view',
+    'settings.update',
   ],
   muallif: [
-    'sections.view', 'chapters.view', 'articles.view',
-    'articles.create', 'articles.update_own', 'articles.submit_for_approval',
-    'comments.view', 'comments.create', 'comments.update_own', 'comments.create_author_comment',
-    'drafts.create', 'drafts.update_own', 'drafts.delete_own',
+    'sections.view',
+    'chapters.view',
+    'articles.view',
+    'articles.create',
+    'articles.update_own',
+    'articles.submit_for_approval',
+    'comments.view',
+    'comments.create',
+    'comments.update_own',
+    'comments.create_author_comment',
+    'drafts.create',
+    'drafts.update_own',
+    'drafts.delete_own',
   ],
   tarjimon: [
-    'sections.view', 'chapters.view', 'articles.view',
-    'translations.view', 'translations.create', 'translations.update_own', 'translations.set_status',
+    'sections.view',
+    'chapters.view',
+    'articles.view',
+    'translations.view',
+    'translations.create',
+    'translations.update_own',
+    'translations.set_status',
     'comments.view',
   ],
   ishchi_guruh: [
-    'sections.view', 'sections.create', 'sections.update', 'sections.delete',
-    'chapters.view', 'chapters.create', 'chapters.update', 'chapters.delete',
-    'articles.view', 'articles.create', 'articles.update',
-    'categories.view', 'categories.create', 'categories.update', 'categories.delete',
+    'sections.view',
+    'sections.create',
+    'sections.update',
+    'sections.delete',
+    'chapters.view',
+    'chapters.create',
+    'chapters.update',
+    'chapters.delete',
+    'articles.view',
+    'articles.create',
+    'articles.update',
+    'categories.view',
+    'categories.create',
+    'categories.update',
+    'categories.delete',
     'comments.view',
   ],
   ekspert: [
-    'sections.view', 'chapters.view', 'articles.view',
-    'comments.view', 'comments.create_expert_comment', 'comments.update_own',
-    'expert_reviews.view', 'expert_reviews.create', 'expert_reviews.update_own',
+    'sections.view',
+    'chapters.view',
+    'articles.view',
+    'comments.view',
+    'comments.create_expert_comment',
+    'comments.update_own',
+    'expert_reviews.view',
+    'expert_reviews.create',
+    'expert_reviews.update_own',
   ],
   moderator: [
-    'sections.view', 'sections.update',
-    'chapters.view', 'chapters.update',
-    'articles.view', 'articles.create', 'articles.update',
-    'comments.view', 'comments.create', 'comments.update', 'comments.delete', 'comments.moderate',
-    'translations.view', 'translations.approve',
+    'sections.view',
+    'sections.update',
+    'chapters.view',
+    'chapters.update',
+    'articles.view',
+    'articles.create',
+    'articles.update',
+    'comments.view',
+    'comments.create',
+    'comments.update',
+    'comments.delete',
+    'comments.moderate',
+    'translations.view',
+    'translations.approve',
     'analytics.view',
   ],
-  user: [
-    'sections.view', 'chapters.view', 'articles.view',
-    'comments.view', 'comments.create',
-  ],
+  user: ['sections.view', 'chapters.view', 'articles.view', 'comments.view', 'comments.create'],
 };
 
 /** User/Author information */
@@ -100,25 +168,28 @@ export interface Author {
 export type ContentStatus = 'draft' | 'pending' | 'published' | 'archived';
 
 /** Status display configuration */
-export const statusConfig: Record<ContentStatus, { 
-  label: LocalizedString; 
-  color: string;
-}> = {
-  draft: { 
-    label: { uz: 'Qoralama', ru: 'Черновик', en: 'Draft' }, 
-    color: 'gray' 
+export const statusConfig: Record<
+  ContentStatus,
+  {
+    label: LocalizedString;
+    color: string;
+  }
+> = {
+  draft: {
+    label: { uz: 'Qoralama', ru: 'Черновик', en: 'Draft' },
+    color: 'gray',
   },
-  pending: { 
-    label: { uz: 'Tekshiruvda', ru: 'На проверке', en: 'Pending' }, 
-    color: 'yellow' 
+  pending: {
+    label: { uz: 'Tekshiruvda', ru: 'На проверке', en: 'Pending' },
+    color: 'yellow',
   },
-  published: { 
-    label: { uz: 'Nashr qilingan', ru: 'Опубликовано', en: 'Published' }, 
-    color: 'green' 
+  published: {
+    label: { uz: 'Nashr qilingan', ru: 'Опубликовано', en: 'Published' },
+    color: 'green',
   },
-  archived: { 
-    label: { uz: 'Arxivlangan', ru: 'Архивировано', en: 'Archived' }, 
-    color: 'red' 
+  archived: {
+    label: { uz: 'Arxivlangan', ru: 'Архивировано', en: 'Archived' },
+    color: 'red',
   },
 };
 
@@ -175,6 +246,16 @@ export interface Article {
   status: ContentStatus;
   hasAuthorComment: boolean;
   hasExpertComment: boolean;
+  expertise?: {
+    id: number;
+    expert_comment: string;
+    legal_references?: Array<{ name: string; url: string }>;
+    court_practice?: string;
+    recommendations?: string;
+    expert_name?: string;
+    created_at?: string;
+    updated_at?: string;
+  } | null;
   translations: Locale[];
   viewCount: number;
   lastUpdated: string;
@@ -367,7 +448,7 @@ export interface ApiResponse<T> {
 }
 
 /** API error codes */
-export type ApiErrorCode = 
+export type ApiErrorCode =
   | 'NOT_FOUND'
   | 'VALIDATION_ERROR'
   | 'UNAUTHORIZED'
@@ -419,8 +500,3 @@ export type KeysOfType<T, V> = {
 
 /** Omit multiple keys */
 export type OmitMultiple<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-
-
-
-
-

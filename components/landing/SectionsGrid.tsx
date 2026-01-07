@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { 
-  BookOpen, 
-  FileText, 
-  Clock, 
-  Coffee, 
-  Wallet, 
+import {
+  BookOpen,
+  FileText,
+  Clock,
+  Coffee,
+  Wallet,
   Shield,
   ChevronRight,
   Layers,
@@ -15,7 +15,7 @@ import {
   Briefcase,
   Heart,
   Award,
-  AlertTriangle
+  AlertTriangle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getSections, getLocalizedText } from '@/lib/api';
@@ -32,12 +32,13 @@ const fallbackSectionsData = [
   {
     id: 1,
     number: 'I',
-    title_uz: "Umumiy qoidalar",
-    title_ru: "Общие положения",
-    title_en: "General Provisions",
-    description_uz: "Mehnat qonunchiligining asosiy tamoyillari, maqsadlari va qo'llanilish doirasi",
-    description_ru: "Основные принципы, цели и сфера применения трудового законодательства",
-    description_en: "Basic principles, objectives and scope of labor legislation",
+    title_uz: 'Umumiy qoidalar',
+    title_ru: 'Общие положения',
+    title_en: 'General Provisions',
+    description_uz:
+      "Mehnat qonunchiligining asosiy tamoyillari, maqsadlari va qo'llanilish doirasi",
+    description_ru: 'Основные принципы, цели и сфера применения трудового законодательства',
+    description_en: 'Basic principles, objectives and scope of labor legislation',
     chaptersCount: 5,
     articlesCount: 28,
     icon: 'BookOpen',
@@ -46,12 +47,12 @@ const fallbackSectionsData = [
   {
     id: 2,
     number: 'II',
-    title_uz: "Mehnat shartnomasi",
-    title_ru: "Трудовой договор",
-    title_en: "Employment Contract",
+    title_uz: 'Mehnat shartnomasi',
+    title_ru: 'Трудовой договор',
+    title_en: 'Employment Contract',
     description_uz: "Mehnat shartnomasini tuzish, o'zgartirish va bekor qilish tartibi",
-    description_ru: "Порядок заключения, изменения и расторжения трудового договора",
-    description_en: "Procedure for concluding, amending and terminating employment contract",
+    description_ru: 'Порядок заключения, изменения и расторжения трудового договора',
+    description_en: 'Procedure for concluding, amending and terminating employment contract',
     chaptersCount: 8,
     articlesCount: 45,
     icon: 'FileText',
@@ -60,12 +61,12 @@ const fallbackSectionsData = [
   {
     id: 3,
     number: 'III',
-    title_uz: "Ish vaqti",
-    title_ru: "Рабочее время",
-    title_en: "Working Hours",
+    title_uz: 'Ish vaqti',
+    title_ru: 'Рабочее время',
+    title_en: 'Working Hours',
     description_uz: "Ish vaqti normalari, ish tartibi va qo'shimcha ish vaqti tartibga solish",
-    description_ru: "Нормы рабочего времени, режим работы и регулирование сверхурочной работы",
-    description_en: "Working time standards, work schedules and overtime regulation",
+    description_ru: 'Нормы рабочего времени, режим работы и регулирование сверхурочной работы',
+    description_en: 'Working time standards, work schedules and overtime regulation',
     chaptersCount: 4,
     articlesCount: 22,
     icon: 'Clock',
@@ -74,12 +75,12 @@ const fallbackSectionsData = [
   {
     id: 4,
     number: 'IV',
-    title_uz: "Dam olish vaqti",
-    title_ru: "Время отдыха",
-    title_en: "Rest Time",
+    title_uz: 'Dam olish vaqti',
+    title_ru: 'Время отдыха',
+    title_en: 'Rest Time',
     description_uz: "Tanaffuslar, dam olish kunlari, bayram kunlari va mehnat ta'tillari",
-    description_ru: "Перерывы, выходные дни, праздничные дни и трудовые отпуска",
-    description_en: "Breaks, days off, holidays and labor vacations",
+    description_ru: 'Перерывы, выходные дни, праздничные дни и трудовые отпуска',
+    description_en: 'Breaks, days off, holidays and labor vacations',
     chaptersCount: 6,
     articlesCount: 35,
     icon: 'Coffee',
@@ -88,12 +89,12 @@ const fallbackSectionsData = [
   {
     id: 5,
     number: 'V',
-    title_uz: "Mehnat haqi",
-    title_ru: "Оплата труда",
-    title_en: "Wages",
+    title_uz: 'Mehnat haqi',
+    title_ru: 'Оплата труда',
+    title_en: 'Wages',
     description_uz: "Ish haqi tizimi, minimal ish haqi, mukofotlar va qo'shimcha to'lovlar",
-    description_ru: "Система оплаты труда, минимальная заработная плата, премии и надбавки",
-    description_en: "Wage system, minimum wage, bonuses and additional payments",
+    description_ru: 'Система оплаты труда, минимальная заработная плата, премии и надбавки',
+    description_en: 'Wage system, minimum wage, bonuses and additional payments',
     chaptersCount: 4,
     articlesCount: 30,
     icon: 'Wallet',
@@ -102,12 +103,12 @@ const fallbackSectionsData = [
   {
     id: 6,
     number: 'VI',
-    title_uz: "Mehnat intizomi",
-    title_ru: "Трудовая дисциплина",
-    title_en: "Labor Discipline",
+    title_uz: 'Mehnat intizomi',
+    title_ru: 'Трудовая дисциплина',
+    title_en: 'Labor Discipline',
     description_uz: "Intizomiy javobgarlik, rag'batlantirish va jazolash choralari",
-    description_ru: "Дисциплинарная ответственность, меры поощрения и взыскания",
-    description_en: "Disciplinary responsibility, incentives and penalties",
+    description_ru: 'Дисциплинарная ответственность, меры поощрения и взыскания',
+    description_en: 'Disciplinary responsibility, incentives and penalties',
     chaptersCount: 3,
     articlesCount: 18,
     icon: 'Shield',
@@ -116,12 +117,12 @@ const fallbackSectionsData = [
   {
     id: 7,
     number: 'VII',
-    title_uz: "Moddiy javobgarlik",
-    title_ru: "Материальная ответственность",
-    title_en: "Material Liability",
-    description_uz: "Xodim va ish beruvchining moddiy javobgarligi",
-    description_ru: "Материальная ответственность работника и работодателя",
-    description_en: "Material liability of employee and employer",
+    title_uz: 'Moddiy javobgarlik',
+    title_ru: 'Материальная ответственность',
+    title_en: 'Material Liability',
+    description_uz: 'Xodim va ish beruvchining moddiy javobgarligi',
+    description_ru: 'Материальная ответственность работника и работодателя',
+    description_en: 'Material liability of employee and employer',
     chaptersCount: 3,
     articlesCount: 15,
     icon: 'Scale',
@@ -130,12 +131,12 @@ const fallbackSectionsData = [
   {
     id: 8,
     number: 'VIII',
-    title_uz: "Mehnat muhofazasi",
-    title_ru: "Охрана труда",
-    title_en: "Labor Protection",
+    title_uz: 'Mehnat muhofazasi',
+    title_ru: 'Охрана труда',
+    title_en: 'Labor Protection',
     description_uz: "Mehnat xavfsizligi va sog'lom mehnat sharoitlarini ta'minlash",
-    description_ru: "Обеспечение безопасности труда и здоровых условий труда",
-    description_en: "Ensuring occupational safety and healthy working conditions",
+    description_ru: 'Обеспечение безопасности труда и здоровых условий труда',
+    description_en: 'Ensuring occupational safety and healthy working conditions',
     chaptersCount: 5,
     articlesCount: 32,
     icon: 'Heart',
@@ -144,12 +145,12 @@ const fallbackSectionsData = [
   {
     id: 9,
     number: 'IX',
-    title_uz: "Ayrim toifadagi xodimlar mehnati",
-    title_ru: "Труд отдельных категорий работников",
-    title_en: "Labor of Certain Categories of Workers",
-    description_uz: "Ayollar, yoshlar va boshqa maxsus toifadagi xodimlar mehnati",
-    description_ru: "Труд женщин, молодежи и других особых категорий работников",
-    description_en: "Labor of women, youth and other special categories of workers",
+    title_uz: 'Ayrim toifadagi xodimlar mehnati',
+    title_ru: 'Труд отдельных категорий работников',
+    title_en: 'Labor of Certain Categories of Workers',
+    description_uz: 'Ayollar, yoshlar va boshqa maxsus toifadagi xodimlar mehnati',
+    description_ru: 'Труд женщин, молодежи и других особых категорий работников',
+    description_en: 'Labor of women, youth and other special categories of workers',
     chaptersCount: 6,
     articlesCount: 40,
     icon: 'Users',
@@ -189,8 +190,18 @@ const colorMap: Record<string, { border: string; bg: string; text: string }> = {
 // Convert API section to display format
 function sectionToDisplayFormat(section: Section, index: number) {
   const colors = ['blue', 'indigo', 'emerald', 'amber', 'green', 'red', 'purple', 'rose', 'cyan'];
-  const icons = ['BookOpen', 'FileText', 'Clock', 'Coffee', 'Wallet', 'Shield', 'Scale', 'Heart', 'Users'];
-  
+  const icons = [
+    'BookOpen',
+    'FileText',
+    'Clock',
+    'Coffee',
+    'Wallet',
+    'Shield',
+    'Scale',
+    'Heart',
+    'Users',
+  ];
+
   return {
     id: section.id,
     number: section.number,
@@ -203,24 +214,36 @@ function sectionToDisplayFormat(section: Section, index: number) {
   };
 }
 
+// Helper: Fetch with timeout to prevent slow backend from blocking page render
+async function fetchWithTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number = 3000
+): Promise<T | null> {
+  return Promise.race([
+    promise,
+    new Promise<null>(resolve => setTimeout(() => resolve(null), timeoutMs)),
+  ]);
+}
+
 // Server component - fetches data from API
 export async function SectionsGrid({ locale, showHeader = true, maxItems }: SectionsGridProps) {
   const t = await getTranslations();
-  
-  // Try to fetch from API, fallback to static data
+
+  // Try to fetch from API with 3 second timeout, fallback to static data
   let sectionsData: any[] = [];
   try {
-    const apiSections = await getSections(locale as Locale);
+    const apiSections = await fetchWithTimeout(getSections(locale as Locale), 3000);
     if (apiSections && apiSections.length > 0) {
       sectionsData = apiSections.map((s, i) => sectionToDisplayFormat(s, i));
     } else {
+      // API timeout or empty response - use fallback data
       sectionsData = fallbackSectionsData;
     }
   } catch (error) {
     console.error('Failed to fetch sections from API:', error);
     sectionsData = fallbackSectionsData;
   }
-  
+
   const displayedSections = maxItems ? sectionsData.slice(0, maxItems) : sectionsData;
 
   // Get localized title
@@ -230,9 +253,12 @@ export async function SectionsGrid({ locale, showHeader = true, maxItems }: Sect
       return getLocalizedText(section.title, locale);
     }
     switch (locale) {
-      case 'ru': return section.title_ru;
-      case 'en': return section.title_en;
-      default: return section.title_uz;
+      case 'ru':
+        return section.title_ru;
+      case 'en':
+        return section.title_en;
+      default:
+        return section.title_uz;
     }
   };
 
@@ -243,9 +269,12 @@ export async function SectionsGrid({ locale, showHeader = true, maxItems }: Sect
       return getLocalizedText(section.description, locale);
     }
     switch (locale) {
-      case 'ru': return section.description_ru;
-      case 'en': return section.description_en;
-      default: return section.description_uz;
+      case 'ru':
+        return section.description_ru;
+      case 'en':
+        return section.description_en;
+      default:
+        return section.description_uz;
     }
   };
 
@@ -262,47 +291,49 @@ export async function SectionsGrid({ locale, showHeader = true, maxItems }: Sect
   };
 
   return (
-    <section className="py-10 sm:py-16 md:py-24 bg-gov-light">
+    <section className="bg-gov-light py-10 sm:py-16 md:py-24">
       <div className="section-container">
         {/* Section Header */}
         {showHeader && (
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 sm:gap-4 mb-6 sm:mb-10 animate-fadeIn">
+          <div className="animate-fadeIn mb-6 flex flex-col gap-3 sm:mb-10 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
             <div>
-              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-primary-100 flex items-center justify-center">
-                  <Layers className="w-5 h-5 sm:w-6 sm:h-6 text-primary-700" />
+              <div className="mb-2 flex items-center gap-2 sm:mb-3 sm:gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-100 sm:h-12 sm:w-12 sm:rounded-xl">
+                  <Layers className="h-5 w-5 text-primary-700 sm:h-6 sm:w-6" />
                 </div>
                 <div>
-                  <h2 className="font-heading text-xl sm:text-2xl md:text-3xl font-bold text-text-primary">
+                  <h2 className="font-heading text-xl font-bold text-text-primary sm:text-2xl md:text-3xl">
                     {t('sections.title')}
                   </h2>
-                  <p className="text-text-secondary text-xs sm:text-sm">
-                    {locale === 'ru' ? 'Структура Трудового кодекса' : 
-                     locale === 'en' ? 'Labor Code Structure' : 
-                     'Mehnat kodeksi tuzilishi'}
+                  <p className="text-xs text-text-secondary sm:text-sm">
+                    {locale === 'ru'
+                      ? 'Структура Трудового кодекса'
+                      : locale === 'en'
+                        ? 'Labor Code Structure'
+                        : 'Mehnat kodeksi tuzilishi'}
                   </p>
                 </div>
               </div>
             </div>
-            
-            <Link 
+
+            <Link
               href={`/${locale}/sections`}
-              className="group inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium text-sm sm:text-base transition-colors"
+              className="group inline-flex items-center gap-2 text-sm font-medium text-primary-600 transition-colors hover:text-primary-700 sm:text-base"
             >
               {t('common.viewAll')}
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
         )}
 
         {/* Sections Grid - CSS animations */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:gap-6 lg:grid-cols-3">
           {displayedSections.map((section, index) => {
             const Icon = iconMap[section.icon] || BookOpen;
             const colors = colorMap[section.color] || colorMap.blue;
 
             return (
-              <div 
+              <div
                 key={section.id}
                 className="animate-fadeIn"
                 style={{ animationDelay: `${index * 0.05}s` }}
@@ -310,8 +341,8 @@ export async function SectionsGrid({ locale, showHeader = true, maxItems }: Sect
                 <Link href={`/${locale}/sections/${section.id}`}>
                   <article
                     className={cn(
-                      'group relative bg-gov-surface rounded-lg sm:rounded-xl overflow-hidden',
-                      'border border-gov-border border-l-4',
+                      'group relative overflow-hidden rounded-lg bg-gov-surface sm:rounded-xl',
+                      'border border-l-4 border-gov-border',
                       colors.border,
                       'h-full cursor-pointer',
                       'card-interactive' // CSS-only hover animation
@@ -319,47 +350,47 @@ export async function SectionsGrid({ locale, showHeader = true, maxItems }: Sect
                   >
                     <div className="p-4 sm:p-6">
                       {/* Header Row */}
-                      <div className="flex items-start justify-between mb-3 sm:mb-4">
+                      <div className="mb-3 flex items-start justify-between sm:mb-4">
                         {/* Roman Numeral */}
-                        <span className="text-2xl sm:text-4xl font-heading font-bold text-gov-border select-none">
+                        <span className="select-none font-heading text-2xl font-bold text-gov-border sm:text-4xl">
                           {section.number}
                         </span>
-                        
+
                         {/* Icon */}
                         <div
                           className={cn(
-                            'w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center',
+                            'flex h-10 w-10 items-center justify-center rounded-lg sm:h-12 sm:w-12 sm:rounded-xl',
                             'transition-transform duration-200 group-hover:scale-110',
                             colors.bg
                           )}
                         >
-                          <Icon className={cn('w-5 h-5 sm:w-6 sm:h-6', colors.text)} />
+                          <Icon className={cn('h-5 w-5 sm:h-6 sm:w-6', colors.text)} />
                         </div>
                       </div>
 
                       {/* Title */}
-                      <h3 className="font-heading text-base sm:text-lg font-semibold text-text-primary mb-1.5 sm:mb-2 group-hover:text-primary-700 transition-colors line-clamp-2">
+                      <h3 className="mb-1.5 line-clamp-2 font-heading text-base font-semibold text-text-primary transition-colors group-hover:text-primary-700 sm:mb-2 sm:text-lg">
                         {getLocalizedTitle(section)}
                       </h3>
 
                       {/* Description */}
-                      <p className="text-text-secondary text-xs sm:text-sm leading-relaxed mb-3 sm:mb-4 line-clamp-2">
+                      <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-text-secondary sm:mb-4 sm:text-sm">
                         {getLocalizedDescription(section)}
                       </p>
 
                       {/* Stats & Arrow */}
-                      <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-gov-border">
-                        <span className="text-xs sm:text-sm text-text-muted">
+                      <div className="flex items-center justify-between border-t border-gov-border pt-3 sm:pt-4">
+                        <span className="text-xs text-text-muted sm:text-sm">
                           {getCountLabel(section.chaptersCount, section.articlesCount)}
                         </span>
-                        <div className="text-primary-600 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <div className="text-primary-600 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+                          <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
                         </div>
                       </div>
                     </div>
 
                     {/* Hover Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary-50/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                   </article>
                 </Link>
               </div>
@@ -369,11 +400,14 @@ export async function SectionsGrid({ locale, showHeader = true, maxItems }: Sect
 
         {/* View All Button - Mobile */}
         {showHeader && (
-          <div className="mt-6 text-center sm:hidden animate-fadeIn" style={{ animationDelay: '0.3s' }}>
+          <div
+            className="animate-fadeIn mt-6 text-center sm:hidden"
+            style={{ animationDelay: '0.3s' }}
+          >
             <Link href={`/${locale}/sections`}>
-              <button className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-50 text-primary-700 rounded-lg font-medium text-sm hover:bg-primary-100 transition-colors active:bg-primary-100">
+              <button className="inline-flex items-center gap-2 rounded-lg bg-primary-50 px-5 py-2.5 text-sm font-medium text-primary-700 transition-colors hover:bg-primary-100 active:bg-primary-100">
                 {t('common.viewAll')}
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="h-4 w-4" />
               </button>
             </Link>
           </div>

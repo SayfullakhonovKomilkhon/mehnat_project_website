@@ -293,7 +293,7 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
 
   if (loading) {
     return (
-      <RoleGuard allowedRoles={['admin', 'ishchi_guruh']}>
+      <RoleGuard allowedRoles={['admin', 'muallif', 'ishchi_guruh']}>
         <div className="flex min-h-[400px] items-center justify-center">
           <div className="text-center">
             <Loader2 className="mx-auto mb-2 h-8 w-8 animate-spin text-primary-600" />
@@ -305,7 +305,7 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
   }
 
   return (
-    <RoleGuard allowedRoles={['admin', 'ishchi_guruh']}>
+    <RoleGuard allowedRoles={['admin', 'muallif', 'ishchi_guruh']}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">

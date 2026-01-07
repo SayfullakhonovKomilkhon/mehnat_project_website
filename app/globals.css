@@ -7,33 +7,33 @@
 @layer base {
   :root {
     /* Primary Colors */
-    --color-primary-50: #EFF6FF;
-    --color-primary-100: #DBEAFE;
-    --color-primary-500: #3B82F6;
-    --color-primary-600: #2563EB;
-    --color-primary-700: #1D4ED8;
-    --color-primary-800: #1E3A8A;
-    --color-primary-900: #1E3A5F;
-    
+    --color-primary-50: #eff6ff;
+    --color-primary-100: #dbeafe;
+    --color-primary-500: #3b82f6;
+    --color-primary-600: #2563eb;
+    --color-primary-700: #1d4ed8;
+    --color-primary-800: #1e3a8a;
+    --color-primary-900: #1e3a5f;
+
     /* Accent Colors */
-    --color-accent-gold: #F59E0B;
-    --color-accent-amber: #D97706;
-    
+    --color-accent-gold: #f59e0b;
+    --color-accent-amber: #d97706;
+
     /* Government Colors */
-    --color-gov-blue: #1E3A8A;
-    --color-gov-light: #F8FAFC;
-    --color-gov-border: #E2E8F0;
-    --color-gov-surface: #FFFFFF;
-    
+    --color-gov-blue: #1e3a8a;
+    --color-gov-light: #f8fafc;
+    --color-gov-border: #e2e8f0;
+    --color-gov-surface: #ffffff;
+
     /* Text Colors */
-    --color-text-primary: #0F172A;
-    --color-text-secondary: #64748B;
-    --color-text-muted: #94A3B8;
-    
+    --color-text-primary: #0f172a;
+    --color-text-secondary: #64748b;
+    --color-text-muted: #94a3b8;
+
     /* Semantic Colors */
-    --color-success: #10B981;
-    --color-error: #EF4444;
-    
+    --color-success: #10b981;
+    --color-error: #ef4444;
+
     /* Spacing */
     --header-height: 4.5rem;
     --container-max: 1280px;
@@ -55,7 +55,12 @@
     background: linear-gradient(to bottom, var(--color-gov-light) 0%, #f1f5f9 100%) !important;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     @apply font-semibold tracking-tight;
   }
@@ -74,28 +79,28 @@
 @layer components {
   /* Government Badge */
   .gov-badge {
-    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium;
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium;
     @apply bg-primary-800 text-white;
   }
-  
+
   .gov-badge-gold {
-    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium;
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium;
     @apply bg-accent-gold text-white;
   }
 
   /* Card Variants */
   .card {
-    @apply bg-gov-surface rounded-xl border border-gov-border shadow-card;
+    @apply rounded-xl border border-gov-border bg-gov-surface shadow-card;
     @apply transition-shadow duration-200;
   }
-  
+
   .card-hover:hover {
     @apply shadow-card-hover;
   }
 
   /* Section Container */
   .section-container {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
   /* Government Header Stripe */
@@ -119,30 +124,30 @@
   /* ==========================================
      PERFORMANT CSS ANIMATIONS
      ========================================== */
-  
+
   /* Simple Fade In Animation */
   .animate-fade-in {
     animation: fadeIn 0.4s ease-out forwards;
   }
-  
+
   .animate-fadeIn {
     animation: fadeIn 0.4s ease-out forwards;
   }
-  
+
   .animate-slideUp {
     animation: slideUp 0.5s ease-out forwards;
   }
-  
+
   .animate-slideUp-delay-1 {
     animation: slideUp 0.5s ease-out 0.1s forwards;
     opacity: 0;
   }
-  
+
   .animate-slideUp-delay-2 {
     animation: slideUp 0.5s ease-out 0.2s forwards;
     opacity: 0;
   }
-  
+
   .animate-slideUp-delay-3 {
     animation: slideUp 0.5s ease-out 0.3s forwards;
     opacity: 0;
@@ -150,31 +155,49 @@
 
   /* Performant hover effects using CSS transforms */
   .hover-lift {
-    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+    transition:
+      transform 0.2s ease-out,
+      box-shadow 0.2s ease-out;
     will-change: transform;
   }
-  
+
   .hover-lift:hover {
     transform: translateY(-4px);
   }
 
   /* CSS-only card hover effect */
   .card-interactive {
-    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+    transition:
+      transform 0.2s ease-out,
+      box-shadow 0.2s ease-out;
   }
-  
+
   .card-interactive:hover {
     transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    box-shadow:
+      0 20px 25px -5px rgb(0 0 0 / 0.1),
+      0 8px 10px -6px rgb(0 0 0 / 0.1);
   }
 
   /* Stagger animation classes */
-  .stagger-1 { animation-delay: 50ms; }
-  .stagger-2 { animation-delay: 100ms; }
-  .stagger-3 { animation-delay: 150ms; }
-  .stagger-4 { animation-delay: 200ms; }
-  .stagger-5 { animation-delay: 250ms; }
-  .stagger-6 { animation-delay: 300ms; }
+  .stagger-1 {
+    animation-delay: 50ms;
+  }
+  .stagger-2 {
+    animation-delay: 100ms;
+  }
+  .stagger-3 {
+    animation-delay: 150ms;
+  }
+  .stagger-4 {
+    animation-delay: 200ms;
+  }
+  .stagger-5 {
+    animation-delay: 250ms;
+  }
+  .stagger-6 {
+    animation-delay: 300ms;
+  }
 
   @keyframes fadeIn {
     from {
@@ -202,10 +225,15 @@
   .animate-pulse-soft {
     animation: pulseSoft 3s ease-in-out infinite;
   }
-  
+
   @keyframes pulseSoft {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 0.3; }
+    0%,
+    100% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 0.3;
+    }
   }
 
   /* Text Balance for Headings */
@@ -218,14 +246,14 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
 
   /* Gradient Text */
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-800 to-primary-600;
+    @apply bg-gradient-to-r from-primary-800 to-primary-600 bg-clip-text text-transparent;
   }
 
   /* Animation Delays */
@@ -247,18 +275,13 @@
     position: relative;
     overflow: hidden;
   }
-  
+
   .skeleton-wave::after {
     content: '';
     position: absolute;
     inset: 0;
     transform: translateX(-100%);
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.4),
-      transparent
-    );
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
     animation: skeleton-wave 1.5s infinite;
   }
 }
@@ -286,15 +309,15 @@
     width: 8px;
     height: 8px;
   }
-  
+
   ::-webkit-scrollbar-track {
     @apply bg-gov-light;
   }
-  
+
   ::-webkit-scrollbar-thumb {
-    @apply bg-gov-border rounded-full;
+    @apply rounded-full bg-gov-border;
   }
-  
+
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-text-secondary/30;
   }
@@ -324,21 +347,22 @@
   .touch-manipulation {
     touch-action: manipulation;
   }
-  
+
   /* Prevent text selection on buttons */
-  button, a {
+  button,
+  a {
     -webkit-tap-highlight-color: transparent;
     user-select: none;
   }
-  
+
   /* Better touch targets */
-  button, 
-  a, 
-  [role="button"] {
+  button,
+  a,
+  [role='button'] {
     min-height: 44px;
     min-width: 44px;
   }
-  
+
   /* Improve scrolling */
   .overflow-y-auto,
   .overflow-x-auto {
@@ -360,7 +384,7 @@
 }
 
 .prose-legal strong {
-  @apply text-primary-800 font-semibold;
+  @apply font-semibold text-primary-800;
 }
 
 .prose-legal ol {
@@ -376,7 +400,7 @@
 }
 
 .prose-legal ol > li::before {
-  content: counter(item) ")";
+  content: counter(item) ')';
   counter-increment: item;
   position: absolute;
   left: 0;
@@ -497,21 +521,23 @@ html.text-spacing-increased span {
   line-height: 1.8 !important;
 }
 
-/* Dyslexia-Friendly Font */
+/* Dyslexia-Friendly Font - loaded only when needed (optional = non-blocking) */
 @font-face {
   font-family: 'OpenDyslexic';
-  src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Regular.woff') format('woff');
+  src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Regular.woff')
+    format('woff');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* Non-blocking: won't delay page render */
 }
 
 @font-face {
   font-family: 'OpenDyslexic';
-  src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Bold.woff') format('woff');
+  src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Bold.woff')
+    format('woff');
   font-weight: bold;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* Non-blocking: won't delay page render */
 }
 
 html.dyslexic-font body,
@@ -578,7 +604,7 @@ html.highlight-links a:focus {
     --color-text-primary: #000000;
     --color-text-secondary: #333333;
   }
-  
+
   * {
     border-color: currentColor !important;
   }
@@ -589,26 +615,31 @@ html.highlight-links a:focus {
   .no-print {
     display: none !important;
   }
-  
+
   body {
     background: white !important;
     color: black !important;
     font-size: 12pt;
     line-height: 1.5;
   }
-  
-  h1 { font-size: 18pt; }
-  h2 { font-size: 14pt; }
-  h3 { font-size: 12pt; }
-  
+
+  h1 {
+    font-size: 18pt;
+  }
+  h2 {
+    font-size: 14pt;
+  }
+  h3 {
+    font-size: 12pt;
+  }
+
   .shadow-card,
   .shadow-card-hover {
     box-shadow: none !important;
   }
-  
+
   a {
     text-decoration: none;
     color: inherit;
   }
 }
-

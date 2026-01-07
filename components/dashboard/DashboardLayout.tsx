@@ -140,6 +140,7 @@ export function DashboardLayout({ children, locale }: DashboardLayoutProps) {
   }
 
   const menuItems = getMenuItems(locale);
+  // Use role name (e.g., 'admin') which is the slug in our User type
   const userRole = user?.role?.name as UserRole;
   const filteredMenuItems = menuItems.filter(item => item.roles.includes(userRole));
 

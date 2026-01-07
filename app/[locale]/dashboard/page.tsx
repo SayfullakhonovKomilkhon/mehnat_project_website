@@ -2,11 +2,11 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { 
-  FileText, 
-  MessageSquare, 
-  Users, 
-  Clock, 
+import {
+  FileText,
+  MessageSquare,
+  Users,
+  Clock,
   TrendingUp,
   CheckCircle,
   XCircle,
@@ -20,8 +20,8 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import Link from 'next/link';
-import { 
-  adminGetDashboardAnalytics, 
+import {
+  adminGetDashboardAnalytics,
   adminGetActivityLogs,
   adminGetUsers,
   getSections,
@@ -74,18 +74,18 @@ const translations = {
     needsTranslation: 'Tarjima talab qiladi',
     myTranslations: 'Mening tarjimalarim',
     translationProgress: 'Tarjima jarayoni',
-    structureOverview: 'Tuzilma ko\'rinishi',
-    sectionsCount: 'Bo\'limlar',
+    structureOverview: "Tuzilma ko'rinishi",
+    sectionsCount: "Bo'limlar",
     chaptersCount: 'Boblar',
     articlesCount: 'Moddalar',
     needsExpertise: 'Ekspertiza talab qiladi',
     myExpertReviews: 'Mening xulosalarim',
     quickActions: 'Tezkor harakatlar',
-    addArticle: 'Modda qo\'shish',
-    addComment: 'Sharh qo\'shish',
-    addTranslation: 'Tarjima qo\'shish',
-    addSection: 'Bo\'lim qo\'shish',
-    addExpertise: 'Ekspertiza qo\'shish',
+    addArticle: "Modda qo'shish",
+    addComment: "Sharh qo'shish",
+    addTranslation: "Tarjima qo'shish",
+    addSection: "Bo'lim qo'shish",
+    addExpertise: "Ekspertiza qo'shish",
   },
   ru: {
     welcome: 'Добро пожаловать',
@@ -194,16 +194,16 @@ const translations = {
 };
 
 // Stats Card Component
-function StatCard({ 
-  title, 
-  value, 
-  icon: Icon, 
+function StatCard({
+  title,
+  value,
+  icon: Icon,
   color,
   trend,
-}: { 
-  title: string; 
-  value: string | number; 
-  icon: any; 
+}: {
+  title: string;
+  value: string | number;
+  icon: any;
   color: string;
   trend?: string;
 }) {
@@ -216,20 +216,22 @@ function StatCard({
   };
 
   return (
-    <div className={`bg-white rounded-xl shadow-sm border-t-4 ${colorClasses[color]} p-6`}>
+    <div className={`rounded-xl border-t-4 bg-white shadow-sm ${colorClasses[color]} p-6`}>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-gray-500 mb-1">{title}</p>
+          <p className="mb-1 text-sm text-gray-500">{title}</p>
           <p className="text-3xl font-bold text-gray-900">{value}</p>
           {trend && (
-            <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
-              <TrendingUp className="w-3 h-3" />
+            <p className="mt-1 flex items-center gap-1 text-xs text-green-600">
+              <TrendingUp className="h-3 w-3" />
               {trend}
             </p>
           )}
         </div>
-        <div className={`w-12 h-12 ${colorClasses[color].split(' ')[0]} rounded-lg flex items-center justify-center`}>
-          <Icon className="w-6 h-6 text-white" />
+        <div
+          className={`h-12 w-12 ${colorClasses[color].split(' ')[0]} flex items-center justify-center rounded-lg`}
+        >
+          <Icon className="h-6 w-6 text-white" />
         </div>
       </div>
     </div>
@@ -237,24 +239,24 @@ function StatCard({
 }
 
 // Quick Action Button
-function QuickActionButton({ 
-  icon: Icon, 
-  label, 
+function QuickActionButton({
+  icon: Icon,
+  label,
   href,
-  color = 'primary'
-}: { 
-  icon: any; 
-  label: string; 
+  color = 'primary',
+}: {
+  icon: any;
+  label: string;
   href: string;
   color?: string;
 }) {
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-100"
+      className="flex items-center gap-3 rounded-lg border border-gray-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
     >
-      <div className={`w-10 h-10 bg-${color}-100 rounded-lg flex items-center justify-center`}>
-        <Icon className={`w-5 h-5 text-${color}-600`} />
+      <div className={`h-10 w-10 bg-${color}-100 flex items-center justify-center rounded-lg`}>
+        <Icon className={`h-5 w-5 text-${color}-600`} />
       </div>
       <span className="font-medium text-gray-700">{label}</span>
     </Link>
@@ -304,7 +306,7 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
 
       // Calculate stats
       const totalChapters = sectionsData.reduce((acc, s) => acc + (s.chaptersCount || 0), 0);
-      
+
       setStats({
         totalArticles: articlesData.pagination.total || articlesData.data.length,
         pendingApproval: analyticsData?.pending_comments || 0,
@@ -349,19 +351,20 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
           const userName = log.user?.name || 'System';
           const userRole = log.user?.role_display || log.user?.role || '';
           const userDisplay = userRole ? `${userName} (${userRole})` : userName;
-          
+
           return {
             id: log.id,
             user: userDisplay,
             action: actionLabels[log.action] || log.action || t.updated,
             article: log.description || `ID: ${log.model_id || '-'}`,
-            status: log.action?.includes('approved') || log.action === 'login' || log.action === 'create' 
-              ? 'approved' 
-              : log.action?.includes('rejected') || log.action === 'delete'
-              ? 'rejected'
-              : log.action?.includes('pending') || log.action?.includes('submitted')
-              ? 'pending'
-              : 'approved',
+            status:
+              log.action?.includes('approved') || log.action === 'login' || log.action === 'create'
+                ? 'approved'
+                : log.action?.includes('rejected') || log.action === 'delete'
+                  ? 'rejected'
+                  : log.action?.includes('pending') || log.action?.includes('submitted')
+                    ? 'pending'
+                    : 'approved',
             date: new Date(log.created_at).toLocaleString('ru-RU'),
           };
         });
@@ -380,9 +383,9 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-primary-600 mx-auto mb-2" />
+          <Loader2 className="mx-auto mb-2 h-8 w-8 animate-spin text-primary-600" />
           <p className="text-gray-500">Loading...</p>
         </div>
       </div>
@@ -392,24 +395,24 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
             {t.welcome}, {user?.name}!
           </h1>
-          <p className="text-gray-500 mt-1">{t.dashboard}</p>
+          <p className="mt-1 text-gray-500">{t.dashboard}</p>
         </div>
         <button
           onClick={loadDashboardData}
-          className="inline-flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-gray-600 transition-colors hover:bg-gray-100"
         >
-          <RefreshCw className="w-4 h-4" />
+          <RefreshCw className="h-4 w-4" />
         </button>
       </div>
 
       {/* Admin Stats */}
       {isAdmin && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             title={t.totalArticles}
             value={stats.totalArticles}
@@ -430,42 +433,27 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
             color="green"
             trend="+47 this week"
           />
-          <StatCard
-            title={t.totalUsers}
-            value={stats.totalUsers}
-            icon={Users}
-            color="purple"
-          />
+          <StatCard title={t.totalUsers} value={stats.totalUsers} icon={Users} color="purple" />
         </div>
       )}
 
       {/* Muallif Stats */}
       {isMuallif && !isAdmin && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <StatCard
-            title={t.myArticles}
-            value={stats.myArticles}
-            icon={FileText}
-            color="blue"
-          />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <StatCard title={t.myArticles} value={stats.myArticles} icon={FileText} color="blue" />
           <StatCard
             title={t.myComments}
             value={stats.myComments}
             icon={MessageSquare}
             color="green"
           />
-          <StatCard
-            title={t.pendingApproval}
-            value={5}
-            icon={Clock}
-            color="yellow"
-          />
+          <StatCard title={t.pendingApproval} value={5} icon={Clock} color="yellow" />
         </div>
       )}
 
       {/* Tarjimon Stats */}
       {isTarjimon && !isAdmin && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <StatCard
             title={t.needsTranslation}
             value={stats.needsTranslation}
@@ -478,42 +466,27 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
             icon={CheckCircle}
             color="green"
           />
-          <StatCard
-            title={t.pendingApproval}
-            value={3}
-            icon={Clock}
-            color="yellow"
-          />
+          <StatCard title={t.pendingApproval} value={3} icon={Clock} color="yellow" />
         </div>
       )}
 
       {/* Ishchi Guruh Stats */}
       {isIshchiGuruh && !isAdmin && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatCard
-            title={t.sectionsCount}
-            value={stats.sections}
-            icon={FolderTree}
-            color="blue"
-          />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <StatCard title={t.sectionsCount} value={stats.sections} icon={FolderTree} color="blue" />
           <StatCard
             title={t.chaptersCount}
             value={stats.chapters}
             icon={FolderTree}
             color="green"
           />
-          <StatCard
-            title={t.articlesCount}
-            value={stats.articles}
-            icon={FileText}
-            color="purple"
-          />
+          <StatCard title={t.articlesCount} value={stats.articles} icon={FileText} color="purple" />
         </div>
       )}
 
       {/* Ekspert Stats */}
       {isEkspert && !isAdmin && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <StatCard
             title={t.needsExpertise}
             value={stats.needsExpertise}
@@ -530,22 +503,22 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
       )}
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">{t.quickActions}</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="rounded-xl bg-white p-6 shadow-sm">
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">{t.quickActions}</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {isAdmin && (
-            <>
-              <QuickActionButton
-                icon={Plus}
-                label={t.addArticle}
-                href={`/${locale}/dashboard/articles/create`}
-              />
-              <QuickActionButton
-                icon={Users}
-                label={t.totalUsers}
-                href={`/${locale}/dashboard/users`}
-              />
-            </>
+            <QuickActionButton
+              icon={Users}
+              label={t.totalUsers}
+              href={`/${locale}/dashboard/users`}
+            />
+          )}
+          {(isMuallif || isAdmin) && (
+            <QuickActionButton
+              icon={Plus}
+              label={t.addArticle}
+              href={`/${locale}/dashboard/articles/create`}
+            />
           )}
           {(isMuallif || isAdmin) && (
             <QuickActionButton
@@ -580,12 +553,12 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
 
       {/* Recent Updates - Admin Only */}
       {isAdmin && (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <h2 className="text-lg font-semibold text-gray-900">{t.recentUpdates}</h2>
             <Link
               href={`/${locale}/dashboard/articles`}
-              className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+              className="text-sm font-medium text-primary-600 hover:text-primary-700"
             >
               {t.viewAll} →
             </Link>
@@ -594,19 +567,19 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     {t.date}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     {t.user}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     {t.action}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     {t.article}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     {t.status}
                   </th>
                 </tr>
@@ -619,36 +592,46 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
                     </td>
                   </tr>
                 ) : (
-                  recentUpdates.map((update) => (
+                  recentUpdates.map(update => (
                     <tr key={update.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                         {update.date}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
                         {update.user}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1 text-sm ${
-                          update.action === 'created' || update.action === 'create' ? 'text-green-600' : 'text-blue-600'
-                        }`}>
-                          {update.action === 'created' || update.action === 'create' ? <Plus className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
+                      <td className="whitespace-nowrap px-6 py-4">
+                        <span
+                          className={`inline-flex items-center gap-1 text-sm ${
+                            update.action === 'created' || update.action === 'create'
+                              ? 'text-green-600'
+                              : 'text-blue-600'
+                          }`}
+                        >
+                          {update.action === 'created' || update.action === 'create' ? (
+                            <Plus className="h-4 w-4" />
+                          ) : (
+                            <Edit className="h-4 w-4" />
+                          )}
                           {t[update.action as keyof typeof t] || update.action}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
                         {update.article}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          update.status === 'approved' 
-                            ? 'bg-green-100 text-green-800'
-                            : update.status === 'pending'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {update.status === 'approved' && <CheckCircle className="w-3 h-3" />}
-                          {update.status === 'pending' && <Clock className="w-3 h-3" />}
-                          {update.status === 'rejected' && <XCircle className="w-3 h-3" />}
+                      <td className="whitespace-nowrap px-6 py-4">
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                            update.status === 'approved'
+                              ? 'bg-green-100 text-green-800'
+                              : update.status === 'pending'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-red-100 text-red-800'
+                          }`}
+                        >
+                          {update.status === 'approved' && <CheckCircle className="h-3 w-3" />}
+                          {update.status === 'pending' && <Clock className="h-3 w-3" />}
+                          {update.status === 'rejected' && <XCircle className="h-3 w-3" />}
                           {t[update.status as keyof typeof t] || update.status}
                         </span>
                       </td>
@@ -663,4 +646,3 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
     </div>
   );
 }
-

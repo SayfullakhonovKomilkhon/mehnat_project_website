@@ -8,7 +8,6 @@ import {
   Clock,
   FileText,
   User,
-  Calendar,
   ExternalLink,
   BookOpen,
   Scale,
@@ -17,13 +16,16 @@ import {
   AlertCircle,
   RefreshCw,
   Trash2,
+  XCircle,
+  List,
+  Eye,
+  X,
 } from 'lucide-react';
 import {
   getExpertiseArticles,
   getArticleExpertise,
   saveExpertise,
   updateExpertise,
-  getExpertiseStats,
   type ExpertiseArticle,
   type ExpertiseData,
 } from '@/lib/api';
@@ -38,16 +40,17 @@ const translations = {
   uz: {
     title: 'Ekspertiza',
     subtitle: "Moddalar bo'yicha ekspert xulosalari",
-    needsExpertise: 'Ekspertiza talab qiladi',
-    myReviews: 'Mening xulosalarim',
-    completed: 'Tugallangan',
-    all: 'Barchasi',
+    all: 'Barcha moddalar',
+    pending: 'Kutilmoqda',
+    approved: 'Tasdiqlangan',
+    rejected: 'Rad etilgan',
     articleNumber: 'Modda raqami',
     articleTitle: 'Modda nomi',
     status: 'Holat',
     action: 'Amal',
     addExpertise: "Xulosa qo'shish",
     viewExpertise: "Xulosani ko'rish",
+    editExpertise: 'Xulosani tahrirlash',
     search: 'Modda raqami yoki sarlavhasini kiriting...',
     noResults: 'Natija topilmadi',
     expertComment: 'Ekspert xulosasi',
@@ -66,28 +69,32 @@ const translations = {
     retry: 'Qayta urinish',
     saving: 'Saqlanmoqda...',
     saved: 'Saqlandi!',
-    savedLocally: "Mahalliy saqlandi! (Backend tayyor bo'lganda sinxronlanadi)",
     submitted: 'Tekshirishga yuborildi! Admin tasdiqlashini kuting.',
-    submittedLocally: "Mahalliy yuborildi! (Backend tayyor bo'lganda sinxronlanadi)",
-    pendingReview: 'Tekshirishda. Admin tasdiqlashini kuting.',
     expertCommentPlaceholder: 'Ekspert xulosasini kiriting...',
     courtPracticePlaceholder: "Sud amaliyotiga oid ma'lumotlarni kiriting...",
     recommendationsPlaceholder: 'Professional tavsiyalarni kiriting...',
-    inProgress: 'Jarayonda',
+    rejectionReason: 'Rad etish sababi',
+    viewReason: "Sababni ko'rish",
+    noExpertise: "Hali ekspertiza qo'shilmagan",
+    statusPending: 'Tekshirilmoqda',
+    statusApproved: 'Tasdiqlangan',
+    statusRejected: 'Rad etilgan',
+    statusNone: "Ekspertiza yo'q",
   },
   ru: {
     title: 'Экспертиза',
     subtitle: 'Экспертные заключения по статьям',
-    needsExpertise: 'Требует экспертизы',
-    myReviews: 'Мои заключения',
-    completed: 'Завершено',
-    all: 'Все',
+    all: 'Все статьи',
+    pending: 'Ожидают',
+    approved: 'Одобренные',
+    rejected: 'Отклонённые',
     articleNumber: 'Номер статьи',
     articleTitle: 'Название статьи',
     status: 'Статус',
     action: 'Действие',
     addExpertise: 'Добавить заключение',
     viewExpertise: 'Посмотреть заключение',
+    editExpertise: 'Редактировать заключение',
     search: 'Введите номер или название статьи...',
     noResults: 'Ничего не найдено',
     expertComment: 'Экспертное заключение',
@@ -106,28 +113,32 @@ const translations = {
     retry: 'Повторить',
     saving: 'Сохранение...',
     saved: 'Сохранено!',
-    savedLocally: 'Сохранено локально! (Синхронизируется когда backend будет готов)',
     submitted: 'Отправлено на проверку! Ожидайте одобрения администратора.',
-    submittedLocally: 'Отправлено локально! (Синхронизируется когда backend будет готов)',
-    pendingReview: 'На проверке. Ожидайте одобрения администратора.',
     expertCommentPlaceholder: 'Введите экспертное заключение...',
     courtPracticePlaceholder: 'Введите информацию о судебной практике...',
     recommendationsPlaceholder: 'Введите профессиональные рекомендации...',
-    inProgress: 'В процессе',
+    rejectionReason: 'Причина отклонения',
+    viewReason: 'Посмотреть причину',
+    noExpertise: 'Экспертиза ещё не добавлена',
+    statusPending: 'На проверке',
+    statusApproved: 'Одобрено',
+    statusRejected: 'Отклонено',
+    statusNone: 'Нет экспертизы',
   },
   en: {
     title: 'Expertise',
     subtitle: 'Expert reviews on articles',
-    needsExpertise: 'Needs Expertise',
-    myReviews: 'My Reviews',
-    completed: 'Completed',
-    all: 'All',
+    all: 'All Articles',
+    pending: 'Pending',
+    approved: 'Approved',
+    rejected: 'Rejected',
     articleNumber: 'Article Number',
     articleTitle: 'Article Title',
     status: 'Status',
     action: 'Action',
     addExpertise: 'Add Expertise',
     viewExpertise: 'View Expertise',
+    editExpertise: 'Edit Expertise',
     search: 'Enter article number or title...',
     noResults: 'No results found',
     expertComment: 'Expert Opinion',
@@ -146,32 +157,40 @@ const translations = {
     retry: 'Retry',
     saving: 'Saving...',
     saved: 'Saved!',
-    savedLocally: 'Saved locally! (Will sync when backend is ready)',
     submitted: 'Submitted for review! Wait for admin approval.',
-    submittedLocally: 'Submitted locally! (Will sync when backend is ready)',
-    pendingReview: 'Under review. Wait for admin approval.',
     expertCommentPlaceholder: 'Enter expert opinion...',
     courtPracticePlaceholder: 'Enter court practice information...',
     recommendationsPlaceholder: 'Enter professional recommendations...',
-    inProgress: 'In Progress',
+    rejectionReason: 'Rejection Reason',
+    viewReason: 'View Reason',
+    noExpertise: 'No expertise added yet',
+    statusPending: 'Under Review',
+    statusApproved: 'Approved',
+    statusRejected: 'Rejected',
+    statusNone: 'No Expertise',
   },
 };
+
+type TabType = 'all' | 'pending' | 'approved' | 'rejected';
+
+interface ExpertiseWithStatus extends ExpertiseArticle {
+  expertise_status?: 'pending' | 'approved' | 'rejected' | null;
+  rejection_reason?: string;
+}
 
 export default function ExpertisePage({ params: { locale } }: ExpertisePageProps) {
   const t = translations[locale as keyof typeof translations] || translations.uz;
 
   // State
-  const [articles, setArticles] = useState<ExpertiseArticle[]>([]);
+  const [articles, setArticles] = useState<ExpertiseWithStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
-  const [activeTab, setActiveTab] = useState<
-    'needs_expertise' | 'in_progress' | 'completed' | 'all'
-  >('needs_expertise');
+  const [activeTab, setActiveTab] = useState<TabType>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedArticle, setSelectedArticle] = useState<ExpertiseArticle | null>(null);
+  const [selectedArticle, setSelectedArticle] = useState<ExpertiseWithStatus | null>(null);
   const [existingExpertise, setExistingExpertise] = useState<ExpertiseData | null>(null);
 
   // Form state
@@ -184,34 +203,81 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
 
   // Stats
   const [stats, setStats] = useState({
-    needs_expertise: 0,
-    in_progress: 0,
-    completed: 0,
-    total: 0,
+    all: 0,
+    pending: 0,
+    approved: 0,
+    rejected: 0,
   });
+
+  // Rejection reason modal state
+  const [showReasonModal, setShowReasonModal] = useState(false);
+  const [currentRejectionReason, setCurrentRejectionReason] = useState('');
 
   // Load articles
   const loadArticles = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [articlesData, statsData] = await Promise.all([
-        getExpertiseArticles(activeTab, locale as Locale),
-        getExpertiseStats(locale as Locale),
-      ]);
-      setArticles(articlesData);
-      setStats(statsData);
+      const articlesData = await getExpertiseArticles('all', locale as Locale);
+
+      // Transform to include expertise status from backend
+      const transformedArticles: ExpertiseWithStatus[] = articlesData.map((article: any) => ({
+        ...article,
+        // Use expertise_status from backend if available, otherwise infer from status
+        expertise_status:
+          article.expertise_status ||
+          (article.status === 'completed'
+            ? 'approved'
+            : article.status === 'in_progress'
+              ? 'pending'
+              : article.status === 'rejected'
+                ? 'rejected'
+                : null),
+        rejection_reason: article.rejection_reason,
+      }));
+
+      setArticles(transformedArticles);
+
+      // Calculate stats
+      const pending = transformedArticles.filter(a => a.expertise_status === 'pending').length;
+      const approved = transformedArticles.filter(a => a.expertise_status === 'approved').length;
+      const rejected = transformedArticles.filter(a => a.expertise_status === 'rejected').length;
+
+      setStats({
+        all: transformedArticles.length,
+        pending,
+        approved,
+        rejected,
+      });
     } catch (err) {
       console.error('Error loading articles:', err);
       setError(t.error);
     } finally {
       setLoading(false);
     }
-  }, [activeTab, locale, t.error]);
+  }, [locale, t.error]);
 
   useEffect(() => {
     loadArticles();
   }, [loadArticles]);
+
+  // Filter articles based on tab and search
+  const filteredArticles = articles.filter(article => {
+    const matchesSearch =
+      article.article_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.title?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    let matchesTab = true;
+    if (activeTab === 'pending') {
+      matchesTab = article.expertise_status === 'pending';
+    } else if (activeTab === 'approved') {
+      matchesTab = article.expertise_status === 'approved';
+    } else if (activeTab === 'rejected') {
+      matchesTab = article.expertise_status === 'rejected';
+    }
+
+    return matchesSearch && matchesTab;
+  });
 
   // Load expertise when article is selected
   const loadExpertise = useCallback(
@@ -229,7 +295,6 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
               : [{ id: 1, name: '', url: '' }]
           );
         } else {
-          // Reset form for new expertise
           setExistingExpertise(null);
           setExpertComment('');
           setCourtPractice('');
@@ -244,18 +309,10 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
   );
 
   // Handle article selection
-  const handleSelectArticle = async (article: ExpertiseArticle) => {
+  const handleSelectArticle = async (article: ExpertiseWithStatus) => {
     setSelectedArticle(article);
     await loadExpertise(article.id);
   };
-
-  // Filter articles based on search
-  const filteredArticles = articles.filter(article => {
-    const matchesSearch =
-      article.article_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.title?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
-  });
 
   // Save expertise
   const handleSave = async (status: 'draft' | 'submitted') => {
@@ -284,31 +341,22 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
       }
 
       if (result.success) {
-        // Show appropriate message based on whether saved to server or locally
-        const isLocal = (result as any).isLocal;
         if (status === 'submitted') {
-          setSaveMessage(isLocal ? (t as any).submittedLocally || t.submitted : t.submitted);
+          setSaveMessage(t.submitted);
         } else {
-          setSaveMessage(isLocal ? (t as any).savedLocally || t.saved : t.saved);
+          setSaveMessage(t.saved);
         }
 
         if (result.data) {
           setExistingExpertise(result.data);
         }
-        // Reload articles to update counts
         await loadArticles();
+        setTimeout(() => setSaveMessage(null), 2000);
 
-        // Clear message after 3 seconds (longer for local save info)
-        setTimeout(() => setSaveMessage(null), isLocal ? 4000 : 2000);
-
-        // If submitted, go back to list
         if (status === 'submitted') {
-          setTimeout(
-            () => {
-              setSelectedArticle(null);
-            },
-            isLocal ? 3000 : 1500
-          );
+          setTimeout(() => {
+            setSelectedArticle(null);
+          }, 1500);
         }
       } else {
         setError(result.error || t.error);
@@ -322,28 +370,38 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
   };
 
   // Status badge
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string | null | undefined) => {
+    if (!status) {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+          <Clock className="h-3 w-3" />
+          {t.statusNone}
+        </span>
+      );
+    }
+
     const styles: Record<string, string> = {
-      needs_expertise: 'bg-red-100 text-red-800',
-      in_progress: 'bg-yellow-100 text-yellow-800',
-      completed: 'bg-green-100 text-green-800',
+      pending: 'bg-yellow-100 text-yellow-800',
+      approved: 'bg-green-100 text-green-800',
+      rejected: 'bg-red-100 text-red-800',
     };
     const labels: Record<string, string> = {
-      needs_expertise: t.needsExpertise,
-      in_progress: t.inProgress,
-      completed: t.completed,
+      pending: t.statusPending,
+      approved: t.statusApproved,
+      rejected: t.statusRejected,
+    };
+    const icons: Record<string, JSX.Element> = {
+      pending: <Clock className="h-3 w-3" />,
+      approved: <CheckCircle className="h-3 w-3" />,
+      rejected: <XCircle className="h-3 w-3" />,
     };
 
     return (
       <span
-        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${styles[status] || styles.needs_expertise}`}
+        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${styles[status]}`}
       >
-        {status === 'completed' ? (
-          <CheckCircle className="h-3 w-3" />
-        ) : (
-          <Clock className="h-3 w-3" />
-        )}
-        {labels[status] || status}
+        {icons[status]}
+        {labels[status]}
       </span>
     );
   };
@@ -371,6 +429,48 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
     setCourtPractice('');
     setRecommendations('');
     setReferences([{ id: 1, name: '', url: '' }]);
+  };
+
+  // Get action button based on status
+  const getActionButton = (article: ExpertiseWithStatus) => {
+    if (article.expertise_status === 'approved') {
+      return (
+        <button
+          onClick={() => handleSelectArticle(article)}
+          className="inline-flex items-center gap-1 rounded-lg bg-green-600 px-3 py-1.5 text-sm text-white transition-colors hover:bg-green-700"
+        >
+          {t.viewExpertise}
+        </button>
+      );
+    }
+    if (article.expertise_status === 'pending') {
+      return (
+        <button
+          onClick={() => handleSelectArticle(article)}
+          className="inline-flex items-center gap-1 rounded-lg bg-yellow-600 px-3 py-1.5 text-sm text-white transition-colors hover:bg-yellow-700"
+        >
+          {t.viewExpertise}
+        </button>
+      );
+    }
+    if (article.expertise_status === 'rejected') {
+      return (
+        <button
+          onClick={() => handleSelectArticle(article)}
+          className="inline-flex items-center gap-1 rounded-lg bg-red-600 px-3 py-1.5 text-sm text-white transition-colors hover:bg-red-700"
+        >
+          {t.editExpertise}
+        </button>
+      );
+    }
+    return (
+      <button
+        onClick={() => handleSelectArticle(article)}
+        className="inline-flex items-center gap-1 rounded-lg bg-primary-600 px-3 py-1.5 text-sm text-white transition-colors hover:bg-primary-700"
+      >
+        {t.addExpertise}
+      </button>
+    );
   };
 
   // Loading state
@@ -410,6 +510,8 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
 
   // Article detail view
   if (selectedArticle) {
+    const isReadOnly = selectedArticle.expertise_status === 'approved';
+
     return (
       <RoleGuard allowedRoles={['admin', 'ekspert']}>
         <div className="space-y-6">
@@ -428,19 +530,23 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
                 {selectedArticle.article_number}-modda
               </span>
               <h1 className="text-xl font-bold text-gray-900">{selectedArticle.title}</h1>
+              {getStatusBadge(selectedArticle.expertise_status)}
             </div>
-            {selectedArticle.has_expertise && (
-              <div className="flex items-center gap-2 text-green-600">
-                <Award className="h-5 w-5" />
-                <span className="text-sm font-medium">{t.verifiedByExpert}</span>
-                {selectedArticle.expert_name && (
-                  <span className="text-gray-500">- {selectedArticle.expert_name}</span>
-                )}
-              </div>
-            )}
+
+            {/* Rejection reason if rejected */}
+            {selectedArticle.expertise_status === 'rejected' &&
+              selectedArticle.rejection_reason && (
+                <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4">
+                  <h3 className="mb-2 flex items-center gap-2 font-medium text-red-800">
+                    <XCircle className="h-5 w-5" />
+                    {t.rejectionReason}
+                  </h3>
+                  <p className="text-red-700">{selectedArticle.rejection_reason}</p>
+                </div>
+              )}
           </div>
 
-          {/* Success/Error message */}
+          {/* Messages */}
           {saveMessage && (
             <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-700">
               <CheckCircle className="h-5 w-5" />
@@ -464,9 +570,9 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
               rows={6}
               value={expertComment}
               onChange={e => setExpertComment(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100"
               placeholder={t.expertCommentPlaceholder}
-              disabled={saving}
+              disabled={saving || isReadOnly}
             />
           </div>
 
@@ -477,13 +583,15 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
                 <Scale className="h-5 w-5 text-blue-600" />
                 {t.legalReferences}
               </h2>
-              <button
-                onClick={addReference}
-                className="text-sm font-medium text-primary-600 hover:text-primary-700"
-                disabled={saving}
-              >
-                + {t.addReference}
-              </button>
+              {!isReadOnly && (
+                <button
+                  onClick={addReference}
+                  className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                  disabled={saving}
+                >
+                  + {t.addReference}
+                </button>
+              )}
             </div>
             <div className="space-y-3">
               {references.map(ref => (
@@ -494,16 +602,16 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
                       placeholder={t.referenceName}
                       value={ref.name}
                       onChange={e => updateReference(ref.id, 'name', e.target.value)}
-                      className="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      disabled={saving}
+                      className="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100"
+                      disabled={saving || isReadOnly}
                     />
                     <input
                       type="url"
                       placeholder={t.referenceUrl}
                       value={ref.url}
                       onChange={e => updateReference(ref.id, 'url', e.target.value)}
-                      className="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      disabled={saving}
+                      className="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100"
+                      disabled={saving || isReadOnly}
                     />
                   </div>
                   {ref.url && (
@@ -516,7 +624,7 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
                       <ExternalLink className="h-5 w-5" />
                     </a>
                   )}
-                  {references.length > 1 && (
+                  {references.length > 1 && !isReadOnly && (
                     <button
                       onClick={() => removeReference(ref.id)}
                       className="rounded-lg p-2 text-red-600 hover:bg-red-50"
@@ -540,9 +648,9 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
               rows={4}
               value={courtPractice}
               onChange={e => setCourtPractice(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100"
               placeholder={t.courtPracticePlaceholder}
-              disabled={saving}
+              disabled={saving || isReadOnly}
             />
           </div>
 
@@ -556,31 +664,33 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
               rows={4}
               value={recommendations}
               onChange={e => setRecommendations(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100"
               placeholder={t.recommendationsPlaceholder}
-              disabled={saving}
+              disabled={saving || isReadOnly}
             />
           </div>
 
           {/* Action buttons */}
-          <div className="flex justify-end gap-3">
-            <button
-              onClick={() => handleSave('draft')}
-              disabled={saving}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-6 py-2.5 transition-colors hover:bg-gray-50 disabled:opacity-50"
-            >
-              {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-              {t.save}
-            </button>
-            <button
-              onClick={() => handleSave('submitted')}
-              disabled={saving || !expertComment.trim()}
-              className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-6 py-2.5 text-white transition-colors hover:bg-green-700 disabled:opacity-50"
-            >
-              {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-              {t.submit}
-            </button>
-          </div>
+          {!isReadOnly && (
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => handleSave('draft')}
+                disabled={saving}
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-6 py-2.5 transition-colors hover:bg-gray-50 disabled:opacity-50"
+              >
+                {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+                {t.save}
+              </button>
+              <button
+                onClick={() => handleSave('submitted')}
+                disabled={saving || !expertComment.trim()}
+                className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-6 py-2.5 text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+              >
+                {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+                {t.submit}
+              </button>
+            </div>
+          )}
         </div>
       </RoleGuard>
     );
@@ -607,14 +717,15 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
         {/* Tabs */}
         <div className="inline-flex flex-wrap gap-1 rounded-xl bg-white p-1 shadow-sm">
           {[
+            { key: 'all' as const, label: t.all, count: stats.all, icon: List },
+            { key: 'pending' as const, label: t.pending, count: stats.pending, icon: Clock },
             {
-              key: 'needs_expertise' as const,
-              label: t.needsExpertise,
-              count: stats.needs_expertise,
+              key: 'approved' as const,
+              label: t.approved,
+              count: stats.approved,
+              icon: CheckCircle,
             },
-            { key: 'in_progress' as const, label: t.myReviews, count: stats.in_progress },
-            { key: 'completed' as const, label: t.completed, count: stats.completed },
-            { key: 'all' as const, label: t.all, count: stats.total },
+            { key: 'rejected' as const, label: t.rejected, count: stats.rejected, icon: XCircle },
           ].map(tab => (
             <button
               key={tab.key}
@@ -625,14 +736,19 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
+              <tab.icon className="h-4 w-4" />
               {tab.label}
               <span
                 className={`rounded-full px-2 py-0.5 text-xs ${
                   activeTab === tab.key
                     ? 'bg-white/20 text-white'
-                    : tab.key === 'needs_expertise'
-                      ? 'bg-red-100 text-red-700'
-                      : 'bg-gray-100 text-gray-600'
+                    : tab.key === 'pending'
+                      ? 'bg-yellow-100 text-yellow-700'
+                      : tab.key === 'approved'
+                        ? 'bg-green-100 text-green-700'
+                        : tab.key === 'rejected'
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-gray-100 text-gray-600'
                 }`}
               >
                 {tab.count}
@@ -687,7 +803,9 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <span className="text-sm text-gray-900">{article.title}</span>
-                          {article.has_expertise && <Award className="h-4 w-4 text-yellow-500" />}
+                          {article.expertise_status === 'approved' && (
+                            <Award className="h-4 w-4 text-yellow-500" />
+                          )}
                         </div>
                         {article.expert_name && (
                           <div className="mt-1 flex items-center gap-1 text-xs text-gray-500">
@@ -697,15 +815,26 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
                         )}
                       </td>
                       <td className="whitespace-nowrap px-6 py-4">
-                        {getStatusBadge(article.status)}
+                        {getStatusBadge(article.expertise_status)}
                       </td>
                       <td className="whitespace-nowrap px-6 py-4 text-right">
-                        <button
-                          onClick={() => handleSelectArticle(article)}
-                          className="inline-flex items-center gap-1 rounded-lg bg-primary-600 px-3 py-1.5 text-sm text-white transition-colors hover:bg-primary-700"
-                        >
-                          {article.status === 'completed' ? t.viewExpertise : t.addExpertise}
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          {/* Show view reason button for rejected articles */}
+                          {article.expertise_status === 'rejected' && article.rejection_reason && (
+                            <button
+                              onClick={() => {
+                                setCurrentRejectionReason(article.rejection_reason || '');
+                                setShowReasonModal(true);
+                              }}
+                              className="inline-flex items-center gap-1 rounded-lg border border-red-300 bg-white px-3 py-1.5 text-sm text-red-600 transition-colors hover:bg-red-50"
+                              title={t.viewReason}
+                            >
+                              <Eye className="h-4 w-4" />
+                              {t.viewReason}
+                            </button>
+                          )}
+                          {getActionButton(article)}
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -727,6 +856,37 @@ export default function ExpertisePage({ params: { locale } }: ExpertisePageProps
             </table>
           </div>
         </div>
+
+        {/* Rejection Reason Modal */}
+        {showReasonModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+            <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                  <XCircle className="h-5 w-5 text-red-600" />
+                  {t.rejectionReason}
+                </h3>
+                <button
+                  onClick={() => setShowReasonModal(false)}
+                  className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                <p className="whitespace-pre-wrap text-red-700">{currentRejectionReason}</p>
+              </div>
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={() => setShowReasonModal(false)}
+                  className="rounded-lg bg-gray-100 px-4 py-2 text-gray-700 hover:bg-gray-200"
+                >
+                  {t.back}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </RoleGuard>
   );

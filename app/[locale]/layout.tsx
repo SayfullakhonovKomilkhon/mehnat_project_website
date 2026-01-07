@@ -126,6 +126,10 @@ export default async function LocaleLayout({ children, params: { locale } }: Loc
   return (
     <html lang={locale} className={`scroll-smooth ${fontVariables}`}>
       <head>
+        {/* Preconnect to API server - reduces latency for API calls */}
+        <link rel="preconnect" href="https://mehnat-project.onrender.com" />
+        <link rel="dns-prefetch" href="https://mehnat-project.onrender.com" />
+
         {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
