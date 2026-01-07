@@ -6,9 +6,6 @@ import { SectionsSkeleton } from '@/components/skeletons';
 // This makes the page static and fast, while still updating periodically
 export const revalidate = 300;
 
-// Force static generation for faster initial load
-export const dynamic = 'force-static';
-
 interface HomePageProps {
   params: { locale: string };
 }
