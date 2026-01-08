@@ -76,16 +76,16 @@ export function Hero({ locale }: HeroProps) {
                     name="q"
                     variant="search"
                     placeholder={t('header.searchPlaceholder')}
-                    className="h-14 w-full border-gov-border text-base shadow-lg"
+                    className="h-12 w-full border-gov-border pr-12 text-sm shadow-lg sm:h-14 sm:pr-36 sm:text-base"
                   />
                   <Button
                     type="submit"
                     variant="primary"
                     size="md"
-                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                    className="absolute right-1.5 top-1/2 h-9 -translate-y-1/2 px-3 sm:right-2 sm:h-10 sm:px-4"
                   >
-                    {t('hero.searchBtn')}
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <span className="hidden sm:inline">{t('hero.searchBtn')}</span>
+                    <ArrowRight className="h-4 w-4 sm:ml-2" />
                   </Button>
                 </form>
               </div>

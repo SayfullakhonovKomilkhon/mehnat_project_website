@@ -109,11 +109,11 @@ export async function HeroSection({ locale }: HeroSectionProps) {
 
         {/* Stats Strip - Static render, no animated counters */}
         <div
-          className="animate-fadeIn relative z-10 mt-6 pb-6 sm:mt-8 sm:pb-8 lg:mt-0"
+          className="animate-fadeIn relative z-10 mt-4 pb-4 sm:mt-6 sm:pb-6 lg:mt-0 lg:pb-8"
           style={{ animationDelay: '0.4s' }}
         >
-          <div className="rounded-xl border border-white/20 bg-primary-700/80 p-5 shadow-xl backdrop-blur-md sm:rounded-2xl sm:p-6 lg:p-8">
-            <div className="grid grid-cols-2 gap-6 sm:gap-8 lg:grid-cols-4 lg:gap-10">
+          <div className="rounded-lg border border-white/20 bg-primary-700/80 p-3 shadow-xl backdrop-blur-md sm:rounded-xl sm:p-5 lg:rounded-2xl lg:p-8">
+            <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4 lg:gap-10">
               {statsData.map((stat, index) => (
                 <StatItem key={stat.key} stat={stat} index={index} label={t(`stats.${stat.key}`)} />
               ))}
@@ -139,15 +139,17 @@ function StatItem({
 
   return (
     <div className="animate-fadeIn text-center" style={{ animationDelay: `${0.5 + index * 0.1}s` }}>
-      <div className="mb-2 flex items-center justify-center">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/15 sm:h-11 sm:w-11">
-          <Icon className="sm:w-5.5 sm:h-5.5 h-5 w-5 text-accent-gold" />
+      <div className="mb-1.5 flex items-center justify-center sm:mb-2">
+        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-white/15 sm:h-10 sm:w-10 sm:rounded-lg lg:h-11 lg:w-11">
+          <Icon className="h-4 w-4 text-accent-gold sm:h-5 sm:w-5" />
         </div>
       </div>
-      <div className="mb-1 font-heading text-2xl font-bold text-white sm:text-3xl lg:text-4xl">
+      <div className="mb-0.5 font-heading text-xl font-bold text-white sm:mb-1 sm:text-2xl lg:text-4xl">
         {stat.value}
       </div>
-      <div className="text-sm font-semibold text-white sm:text-base">{label}</div>
+      <div className="text-[10px] font-semibold leading-tight text-white/90 sm:text-sm lg:text-base">
+        {label}
+      </div>
     </div>
   );
 }

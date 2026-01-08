@@ -3,15 +3,8 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
-// Role types
-export type UserRole =
-  | 'admin'
-  | 'muallif'
-  | 'tarjimon'
-  | 'ishchi_guruh'
-  | 'ekspert'
-  | 'moderator'
-  | 'user';
+// Role types (simplified - only admin and user)
+export type UserRole = 'admin' | 'user';
 
 export interface User {
   id: number;

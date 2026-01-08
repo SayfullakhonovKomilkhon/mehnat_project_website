@@ -3,13 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { 
-  Search, 
-  X, 
-  Grid3X3, 
-  List,
-  SlidersHorizontal,
-} from 'lucide-react';
+import { Search, X, Grid3X3, List, SlidersHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui';
 import { sections, chapters, getLocalizedText } from '@/lib/mock-data';
@@ -63,7 +57,7 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
   }, [searchParams]);
 
   // Get chapters for selected section
-  const availableChapters = filters.sectionId 
+  const availableChapters = filters.sectionId
     ? chapters.filter(c => c.sectionId === parseInt(filters.sectionId))
     : chapters;
 
@@ -80,7 +74,7 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
     if (filters.hasExpertComment) params.set('expertComment', filters.hasExpertComment);
     if (filters.translation) params.set('translation', filters.translation);
     params.set('page', '1');
-    
+
     router.push(`/${locale}/articles?${params.toString()}`);
   };
 
@@ -102,7 +96,7 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
     const newFilters = { ...filters, [key]: '' };
     if (key === 'sectionId') newFilters.chapterId = ''; // Reset chapter when section is removed
     setFilters(newFilters);
-    
+
     const params = new URLSearchParams(searchParams.toString());
     params.delete(key === 'sectionId' ? 'section' : key === 'chapterId' ? 'chapter' : key);
     if (key === 'sectionId') params.delete('chapter');
@@ -118,92 +112,99 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
   };
 
   return (
-    <div className="bg-gov-surface rounded-xl border border-gov-border shadow-card mb-4 sm:mb-6">
+    <div className="mb-4 rounded-xl border border-gov-border bg-gov-surface shadow-card sm:mb-6">
       {/* Main Filter Bar */}
       <div className="p-3 sm:p-4">
         {/* Search Input */}
         <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-text-muted" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted sm:h-5 sm:w-5" />
           <input
             type="text"
             value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            onChange={e => setFilters({ ...filters, search: e.target.value })}
             onKeyDown={handleSearchKeyDown}
             placeholder={t('header.searchPlaceholder')}
             className={cn(
-              'w-full h-10 sm:h-11 pl-9 sm:pl-11 pr-4 rounded-lg text-sm sm:text-base',
-              'bg-gov-light border border-gov-border',
+              'h-10 w-full rounded-lg pl-9 pr-4 text-sm sm:h-11 sm:pl-11 sm:text-base',
+              'border border-gov-border bg-gov-light',
               'text-text-primary placeholder:text-text-muted',
-              'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500',
+              'focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20',
               'transition-all duration-200'
             )}
           />
         </div>
 
         {/* Quick Actions - Responsive */}
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           {/* Filter Toggle */}
           <Button
             variant={isExpanded ? 'primary' : 'outline'}
             size="sm"
             onClick={() => setIsExpanded(!isExpanded)}
-            leftIcon={<SlidersHorizontal className="w-4 h-4" />}
-            className="relative text-sm"
+            leftIcon={<SlidersHorizontal className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
+            className="relative h-9 px-2.5 text-xs sm:h-10 sm:px-3 sm:text-sm"
           >
-            {t('article.filters')}
+            <span className="xs:inline hidden">{t('article.filters')}</span>
+            <span className="xs:hidden">Filter</span>
             {activeFilterCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-accent-gold text-white text-[10px] sm:text-xs rounded-full flex items-center justify-center">
+              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent-gold text-[10px] text-white sm:h-5 sm:w-5 sm:text-xs">
                 {activeFilterCount}
               </span>
             )}
           </Button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {/* View Toggle */}
-            <div className="flex items-center border border-gov-border rounded-lg overflow-hidden">
+            <div className="flex items-center overflow-hidden rounded-lg border border-gov-border">
               <button
                 onClick={() => onViewChange('grid')}
                 className={cn(
-                  'p-2 sm:p-2.5 transition-colors',
-                  view === 'grid' 
-                    ? 'bg-primary-800 text-white' 
+                  'p-1.5 transition-colors sm:p-2.5',
+                  view === 'grid'
+                    ? 'bg-primary-800 text-white'
                     : 'bg-gov-surface text-text-secondary hover:bg-gov-light'
                 )}
                 aria-label={t('article.gridView')}
               >
-                <Grid3X3 className="w-4 h-4 sm:w-5 sm:h-5" />
+                <Grid3X3 className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
               <button
                 onClick={() => onViewChange('list')}
                 className={cn(
-                  'p-2 sm:p-2.5 transition-colors',
-                  view === 'list' 
-                    ? 'bg-primary-800 text-white' 
+                  'p-1.5 transition-colors sm:p-2.5',
+                  view === 'list'
+                    ? 'bg-primary-800 text-white'
                     : 'bg-gov-surface text-text-secondary hover:bg-gov-light'
                 )}
                 aria-label={t('article.listView')}
               >
-                <List className="w-4 h-4 sm:w-5 sm:h-5" />
+                <List className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             </div>
 
             {/* Search Button */}
-            <Button variant="primary" size="sm" onClick={applyFilters} className="text-sm">
-              {t('common.search')}
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={applyFilters}
+              className="h-9 px-2.5 text-xs sm:h-10 sm:px-4 sm:text-sm"
+            >
+              <Search className="h-3.5 w-3.5 sm:hidden" />
+              <span className="hidden sm:inline">{t('common.search')}</span>
             </Button>
           </div>
         </div>
 
         {/* Results Count */}
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-gov-border">
-          <p className="text-xs sm:text-sm text-text-secondary">
+        <div className="mt-3 flex items-center justify-between border-t border-gov-border pt-3">
+          <p className="text-xs text-text-secondary sm:text-sm">
             {t('article.resultsFound', { count: totalResults })}
           </p>
-          
+
           {activeFilterCount > 0 && (
             <button
               onClick={clearFilters}
-              className="text-xs sm:text-sm text-primary-600 hover:text-primary-700 font-medium"
+              className="text-xs font-medium text-primary-600 hover:text-primary-700 sm:text-sm"
             >
               {t('article.clearAll')}
             </button>
@@ -212,121 +213,124 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
       </div>
 
       {/* Expanded Filters - CSS animation */}
-      <div 
+      <div
         className={cn(
           'overflow-hidden transition-all duration-200 ease-out',
           isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
         )}
       >
         {isExpanded && (
-          <div className="p-4 pt-0 border-t border-gov-border mt-0">
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
-                {/* Section Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-1.5">
-                    {t('article.section')}
-                  </label>
-                  <select
-                    value={filters.sectionId}
-                    onChange={(e) => setFilters({ ...filters, sectionId: e.target.value, chapterId: '' })}
-                    className={cn(
-                      'w-full h-10 px-3 rounded-lg',
-                      'bg-gov-light border border-gov-border',
-                      'text-text-primary text-sm',
-                      'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500'
-                    )}
-                  >
-                    <option value="">{t('article.allSections')}</option>
-                    {sections.map(section => (
-                      <option key={section.id} value={section.id}>
-                        {section.number}. {getLocalizedText(section.title, locale)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Chapter Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-1.5">
-                    {t('article.chapter')}
-                  </label>
-                  <select
-                    value={filters.chapterId}
-                    onChange={(e) => setFilters({ ...filters, chapterId: e.target.value })}
-                    className={cn(
-                      'w-full h-10 px-3 rounded-lg',
-                      'bg-gov-light border border-gov-border',
-                      'text-text-primary text-sm',
-                      'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500'
-                    )}
-                  >
-                    <option value="">{t('article.allChapters')}</option>
-                    {availableChapters.map(chapter => (
-                      <option key={chapter.id} value={chapter.id}>
-                        {chapter.number}-{t('article.chapter').toLowerCase()}. {getLocalizedText(chapter.title, locale)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Comment Type Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-1.5">
-                    {t('article.commentType')}
-                  </label>
-                  <select
-                    value={filters.hasAuthorComment || filters.hasExpertComment}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setFilters({
-                        ...filters,
-                        hasAuthorComment: value === 'author' ? 'true' : '',
-                        hasExpertComment: value === 'expert' ? 'true' : '',
-                      });
-                    }}
-                    className={cn(
-                      'w-full h-10 px-3 rounded-lg',
-                      'bg-gov-light border border-gov-border',
-                      'text-text-primary text-sm',
-                      'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500'
-                    )}
-                  >
-                    <option value="">{t('article.allArticles')}</option>
-                    <option value="author">{t('article.hasAuthorComment')}</option>
-                    <option value="expert">{t('article.hasExpertComment')}</option>
-                  </select>
-                </div>
-
-                {/* Translation Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-1.5">
-                    {t('article.translation')}
-                  </label>
-                  <select
-                    value={filters.translation}
-                    onChange={(e) => setFilters({ ...filters, translation: e.target.value })}
-                    className={cn(
-                      'w-full h-10 px-3 rounded-lg',
-                      'bg-gov-light border border-gov-border',
-                      'text-text-primary text-sm',
-                      'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500'
-                    )}
-                  >
-                    <option value="">{t('article.allLanguages')}</option>
-                    <option value="uz">🇺🇿 O&apos;zbekcha</option>
-                    <option value="ru">🇷🇺 Русский</option>
-                    <option value="en">🇬🇧 English</option>
-                  </select>
-                </div>
+          <div className="mt-0 border-t border-gov-border p-4 pt-0">
+            <div className="grid gap-4 pt-4 sm:grid-cols-2 lg:grid-cols-4">
+              {/* Section Filter */}
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-text-primary">
+                  {t('article.section')}
+                </label>
+                <select
+                  value={filters.sectionId}
+                  onChange={e =>
+                    setFilters({ ...filters, sectionId: e.target.value, chapterId: '' })
+                  }
+                  className={cn(
+                    'h-10 w-full rounded-lg px-3',
+                    'border border-gov-border bg-gov-light',
+                    'text-sm text-text-primary',
+                    'focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20'
+                  )}
+                >
+                  <option value="">{t('article.allSections')}</option>
+                  {sections.map(section => (
+                    <option key={section.id} value={section.id}>
+                      {section.number}. {getLocalizedText(section.title, locale)}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {/* Apply Button */}
-              <div className="mt-4 flex justify-end">
-                <Button variant="primary" onClick={applyFilters}>
-                  {t('article.applyFilters')}
-                </Button>
+              {/* Chapter Filter */}
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-text-primary">
+                  {t('article.chapter')}
+                </label>
+                <select
+                  value={filters.chapterId}
+                  onChange={e => setFilters({ ...filters, chapterId: e.target.value })}
+                  className={cn(
+                    'h-10 w-full rounded-lg px-3',
+                    'border border-gov-border bg-gov-light',
+                    'text-sm text-text-primary',
+                    'focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20'
+                  )}
+                >
+                  <option value="">{t('article.allChapters')}</option>
+                  {availableChapters.map(chapter => (
+                    <option key={chapter.id} value={chapter.id}>
+                      {chapter.number}-{t('article.chapter').toLowerCase()}.{' '}
+                      {getLocalizedText(chapter.title, locale)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Comment Type Filter */}
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-text-primary">
+                  {t('article.commentType')}
+                </label>
+                <select
+                  value={filters.hasAuthorComment || filters.hasExpertComment}
+                  onChange={e => {
+                    const value = e.target.value;
+                    setFilters({
+                      ...filters,
+                      hasAuthorComment: value === 'author' ? 'true' : '',
+                      hasExpertComment: value === 'expert' ? 'true' : '',
+                    });
+                  }}
+                  className={cn(
+                    'h-10 w-full rounded-lg px-3',
+                    'border border-gov-border bg-gov-light',
+                    'text-sm text-text-primary',
+                    'focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20'
+                  )}
+                >
+                  <option value="">{t('article.allArticles')}</option>
+                  <option value="author">{t('article.hasAuthorComment')}</option>
+                  <option value="expert">{t('article.hasExpertComment')}</option>
+                </select>
+              </div>
+
+              {/* Translation Filter */}
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-text-primary">
+                  {t('article.translation')}
+                </label>
+                <select
+                  value={filters.translation}
+                  onChange={e => setFilters({ ...filters, translation: e.target.value })}
+                  className={cn(
+                    'h-10 w-full rounded-lg px-3',
+                    'border border-gov-border bg-gov-light',
+                    'text-sm text-text-primary',
+                    'focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20'
+                  )}
+                >
+                  <option value="">{t('article.allLanguages')}</option>
+                  <option value="uz">🇺🇿 O&apos;zbekcha</option>
+                  <option value="ru">🇷🇺 Русский</option>
+                  <option value="en">🇬🇧 English</option>
+                </select>
               </div>
             </div>
+
+            {/* Apply Button */}
+            <div className="mt-4 flex justify-end">
+              <Button variant="primary" onClick={applyFilters}>
+                {t('article.applyFilters')}
+              </Button>
+            </div>
+          </div>
         )}
       </div>
 
@@ -380,14 +384,14 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
 // Filter Chip Component
 function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-full text-sm font-medium">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1.5 text-sm font-medium text-primary-700">
       {label}
       <button
         onClick={onRemove}
-        className="p-0.5 hover:bg-primary-100 rounded-full transition-colors"
+        className="rounded-full p-0.5 transition-colors hover:bg-primary-100"
         aria-label={`Remove ${label} filter`}
       >
-        <X className="w-3.5 h-3.5" />
+        <X className="h-3.5 w-3.5" />
       </button>
     </span>
   );

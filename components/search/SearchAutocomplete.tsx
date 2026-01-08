@@ -6,13 +6,13 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Search, Clock, TrendingUp, FileText, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { 
-  getSearchSuggestions, 
-  getRecentSearches, 
+import {
+  getSearchSuggestions,
+  getRecentSearches,
   clearRecentSearches,
   saveRecentSearch,
   popularSearches,
-  type SearchSuggestion 
+  type SearchSuggestion,
 } from '@/lib/search-utils';
 
 interface SearchAutocompleteProps {
@@ -30,7 +30,7 @@ export function SearchAutocomplete({
   isOpen,
   onClose,
   onSelect,
-  className
+  className,
 }: SearchAutocompleteProps) {
   const t = useTranslations();
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
@@ -54,8 +54,8 @@ export function SearchAutocomplete({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
 
-      const totalItems = query.trim() 
-        ? suggestions.length 
+      const totalItems = query.trim()
+        ? suggestions.length
         : recentSearches.length + Math.min(4, popularSearches.length);
 
       switch (e.key) {
@@ -74,9 +74,10 @@ export function SearchAutocomplete({
               onSelect(suggestions[selectedIndex]);
             } else {
               // Handle recent or popular search
-              const item = selectedIndex < recentSearches.length
-                ? recentSearches[selectedIndex]
-                : popularSearches[selectedIndex - recentSearches.length];
+              const item =
+                selectedIndex < recentSearches.length
+                  ? recentSearches[selectedIndex]
+                  : popularSearches[selectedIndex - recentSearches.length];
               if (item) {
                 saveRecentSearch(item);
                 router.push(`/${locale}/search?q=${encodeURIComponent(item)}`);
@@ -93,7 +94,17 @@ export function SearchAutocomplete({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, selectedIndex, suggestions, recentSearches, query, locale, router, onClose, onSelect]);
+  }, [
+    isOpen,
+    selectedIndex,
+    suggestions,
+    recentSearches,
+    query,
+    locale,
+    router,
+    onClose,
+    onSelect,
+  ]);
 
   const handleClearRecent = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -108,23 +119,23 @@ export function SearchAutocomplete({
     <div
       ref={listRef}
       className={cn(
-        'absolute top-full left-0 right-0 mt-2',
-        'bg-gov-surface rounded-xl shadow-2xl',
+        'absolute left-0 right-0 top-full mt-1 sm:mt-2',
+        'rounded-lg bg-gov-surface shadow-2xl sm:rounded-xl',
         'border border-gov-border',
-        'overflow-hidden z-50',
+        'z-50 max-h-[60vh] overflow-hidden overflow-y-auto',
         'transition-all duration-150 ease-out',
-        isOpen 
-          ? 'opacity-100 translate-y-0 pointer-events-auto' 
-          : 'opacity-0 -translate-y-2 pointer-events-none',
+        isOpen
+          ? 'pointer-events-auto translate-y-0 opacity-100'
+          : 'pointer-events-none -translate-y-2 opacity-0',
         className
       )}
     >
       {hasQuery ? (
         // Search suggestions
-        <div className="py-2">
+        <div className="py-1.5 sm:py-2">
           {suggestions.length > 0 ? (
             <>
-              <p className="px-4 py-2 text-xs text-text-muted font-medium uppercase tracking-wider">
+              <p className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-text-muted sm:px-4 sm:py-2 sm:text-xs">
                 {t('search.articles')}
               </p>
               {suggestions.map((suggestion, index) => (
@@ -132,45 +143,45 @@ export function SearchAutocomplete({
                   key={`${suggestion.type}-${index}`}
                   onClick={() => onSelect(suggestion)}
                   className={cn(
-                    'w-full flex items-center gap-3 px-4 py-3 text-left',
-                    'hover:bg-primary-50 transition-colors',
+                    'flex w-full items-center gap-2 px-3 py-2.5 text-left sm:gap-3 sm:px-4 sm:py-3',
+                    'transition-colors hover:bg-primary-50',
                     selectedIndex === index && 'bg-primary-50'
                   )}
                 >
-                  <div className="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
-                    <FileText className="w-4 h-4 text-primary-600" />
+                  <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-primary-100 sm:h-8 sm:w-8 sm:rounded-lg">
+                    <FileText className="h-3.5 w-3.5 text-primary-600 sm:h-4 sm:w-4" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-text-primary truncate">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-medium text-text-primary sm:text-sm">
                       {suggestion.text}
                     </p>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-text-muted" />
+                  <ArrowRight className="h-3.5 w-3.5 flex-shrink-0 text-text-muted sm:h-4 sm:w-4" />
                 </button>
               ))}
-              
+
               {/* See all results */}
-              <div className="px-4 py-3 border-t border-gov-border mt-2">
+              <div className="mt-1.5 border-t border-gov-border px-3 py-2.5 sm:mt-2 sm:px-4 sm:py-3">
                 <Link
                   href={`/${locale}/search?q=${encodeURIComponent(query)}`}
                   onClick={() => {
                     saveRecentSearch(query);
                     onClose();
                   }}
-                  className="flex items-center justify-center gap-2 text-sm text-primary-600 hover:text-primary-700 font-medium"
+                  className="flex items-center justify-center gap-1.5 text-xs font-medium text-primary-600 hover:text-primary-700 sm:gap-2 sm:text-sm"
                 >
                   {t('search.viewAllResults')}
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </Link>
               </div>
             </>
           ) : (
-            <div className="px-4 py-8 text-center">
-              <Search className="w-10 h-10 text-text-muted mx-auto mb-2" />
-              <p className="text-text-secondary text-sm">
+            <div className="px-3 py-6 text-center sm:px-4 sm:py-8">
+              <Search className="mx-auto mb-2 h-8 w-8 text-text-muted sm:h-10 sm:w-10" />
+              <p className="text-xs text-text-secondary sm:text-sm">
                 {t('search.noResultsFound', { query })}
               </p>
-              <p className="text-text-muted text-xs mt-1">
+              <p className="mt-1 text-[10px] text-text-muted sm:text-xs">
                 {t('search.tryDifferentWords')}
               </p>
             </div>
@@ -178,17 +189,17 @@ export function SearchAutocomplete({
         </div>
       ) : (
         // Recent + Popular searches
-        <div className="py-2">
+        <div className="py-1.5 sm:py-2">
           {/* Recent Searches */}
           {recentSearches.length > 0 && (
-            <div className="mb-2">
-              <div className="flex items-center justify-between px-4 py-2">
-                <p className="text-xs text-text-muted font-medium uppercase tracking-wider">
+            <div className="mb-1.5 sm:mb-2">
+              <div className="flex items-center justify-between px-3 py-1.5 sm:px-4 sm:py-2">
+                <p className="text-[10px] font-medium uppercase tracking-wider text-text-muted sm:text-xs">
                   {t('search.recentSearches')}
                 </p>
                 <button
                   onClick={handleClearRecent}
-                  className="text-xs text-primary-600 hover:text-primary-700"
+                  className="text-[10px] text-primary-600 hover:text-primary-700 sm:text-xs"
                 >
                   {t('search.clear')}
                 </button>
@@ -202,13 +213,13 @@ export function SearchAutocomplete({
                     onClose();
                   }}
                   className={cn(
-                    'w-full flex items-center gap-3 px-4 py-2.5 text-left',
-                    'hover:bg-primary-50 transition-colors',
+                    'flex w-full items-center gap-2 px-3 py-2 text-left sm:gap-3 sm:px-4 sm:py-2.5',
+                    'transition-colors hover:bg-primary-50',
                     selectedIndex === index && 'bg-primary-50'
                   )}
                 >
-                  <Clock className="w-4 h-4 text-text-muted" />
-                  <span className="text-sm text-text-primary">{text}</span>
+                  <Clock className="h-3.5 w-3.5 flex-shrink-0 text-text-muted sm:h-4 sm:w-4" />
+                  <span className="truncate text-xs text-text-primary sm:text-sm">{text}</span>
                 </button>
               ))}
             </div>
@@ -216,7 +227,7 @@ export function SearchAutocomplete({
 
           {/* Popular Searches */}
           <div>
-            <p className="px-4 py-2 text-xs text-text-muted font-medium uppercase tracking-wider">
+            <p className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-text-muted sm:px-4 sm:py-2 sm:text-xs">
               {t('search.popularSearches')}
             </p>
             {popularSearches.slice(0, 4).map((text, index) => {
@@ -230,13 +241,13 @@ export function SearchAutocomplete({
                     onClose();
                   }}
                   className={cn(
-                    'w-full flex items-center gap-3 px-4 py-2.5 text-left',
-                    'hover:bg-primary-50 transition-colors',
+                    'flex w-full items-center gap-2 px-3 py-2 text-left sm:gap-3 sm:px-4 sm:py-2.5',
+                    'transition-colors hover:bg-primary-50',
                     selectedIndex === itemIndex && 'bg-primary-50'
                   )}
                 >
-                  <TrendingUp className="w-4 h-4 text-accent-amber" />
-                  <span className="text-sm text-text-primary">{text}</span>
+                  <TrendingUp className="h-3.5 w-3.5 flex-shrink-0 text-accent-amber sm:h-4 sm:w-4" />
+                  <span className="truncate text-xs text-text-primary sm:text-sm">{text}</span>
                 </button>
               );
             })}

@@ -179,17 +179,22 @@ export function Footer({ locale }: FooterProps) {
 
       {/* Newsletter Section */}
       <div className="border-b border-primary-700/50">
-        <div className="section-container py-8">
-          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+        <div className="section-container py-6 sm:py-8">
+          <div className="flex flex-col items-center justify-between gap-4 sm:gap-6 md:flex-row">
             <div className="text-center md:text-left">
-              <h3 className="mb-1 font-heading text-lg font-semibold">{t('footer.newsletter')}</h3>
-              <p className="text-sm text-primary-200">{t('footer.newsletterDesc')}</p>
+              <h3 className="mb-1 font-heading text-base font-semibold sm:text-lg">
+                {t('footer.newsletter')}
+              </h3>
+              <p className="text-xs text-primary-200 sm:text-sm">{t('footer.newsletterDesc')}</p>
             </div>
 
             {!isSubscribed ? (
-              <form onSubmit={handleSubscribe} className="flex w-full gap-2 md:w-auto">
+              <form
+                onSubmit={handleSubscribe}
+                className="flex w-full flex-col gap-2 sm:flex-row sm:gap-2 md:w-auto"
+              >
                 <div className="relative flex-1 md:w-72">
-                  <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-primary-400" />
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary-400 sm:h-5 sm:w-5" />
                   <input
                     type="email"
                     value={email}
@@ -197,7 +202,7 @@ export function Footer({ locale }: FooterProps) {
                     placeholder={t('footer.email')}
                     required
                     className={cn(
-                      'h-11 w-full rounded-lg pl-10 pr-4',
+                      'h-10 w-full rounded-lg pl-9 pr-4 text-sm sm:h-11 sm:pl-10 sm:text-base',
                       'border border-primary-600 bg-primary-700/50',
                       'text-white placeholder:text-primary-400',
                       'focus:border-accent-gold focus:outline-none focus:ring-2 focus:ring-accent-gold/50'
@@ -208,21 +213,21 @@ export function Footer({ locale }: FooterProps) {
                   type="submit"
                   variant="primary"
                   disabled={isSubscribing}
-                  className="bg-accent-gold px-6 text-primary-900 hover:bg-accent-amber"
+                  className="h-10 justify-center bg-accent-gold px-4 text-primary-900 hover:bg-accent-amber sm:h-11 sm:px-6"
                 >
                   {isSubscribing ? (
-                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary-900/30 border-t-primary-900" />
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-900/30 border-t-primary-900 sm:h-5 sm:w-5" />
                   ) : (
                     <>
-                      <Send className="h-4 w-4 md:mr-2" />
-                      <span className="hidden md:inline">{t('footer.subscribe')}</span>
+                      <Send className="h-4 w-4 sm:mr-2" />
+                      <span className="sm:inline">{t('footer.subscribe')}</span>
                     </>
                   )}
                 </Button>
               </form>
             ) : (
-              <div className="flex items-center gap-2 text-green-400">
-                <CheckCircle className="h-5 w-5" />
+              <div className="flex items-center gap-2 text-sm text-green-400 sm:text-base">
+                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                 <span>{t('footer.subscribeSuccess')}</span>
               </div>
             )}

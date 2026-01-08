@@ -4,8 +4,7 @@ import { motion } from 'framer-motion';
 import {
   ArticleHeader,
   ArticleContent,
-  AuthorCommentary,
-  ExpertCommentary,
+  ArticleCommentary,
   ArticleSidebar,
   RelatedArticles,
   ArticleMobileNav,
@@ -33,6 +32,17 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
     { name: `${article.number}-modda`, url: `${BASE_URL}/${locale}/articles/${article.id}` },
   ];
 
+  // Prepare comment data from article
+  const commentData =
+    article.article_comment ||
+    (article.expertise
+      ? {
+          ...article.expertise,
+          comment: article.expertise.expert_comment,
+          has_expert_content: true,
+        }
+      : null);
+
   return (
     <div className="min-h-screen bg-gov-light pb-20 lg:pb-8">
       {/* SEO Schemas */}
@@ -52,8 +62,8 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
             number: article.chapter.number,
             title: getLocalizedText(article.chapter.title, locale),
           },
-          hasAuthorComment: article.hasAuthorComment,
-          hasExpertComment: article.hasExpertComment,
+          hasAuthorComment: article.hasAuthorComment || article.has_comment,
+          hasExpertComment: article.hasExpertComment || commentData?.has_expert_content,
         }}
         locale={locale}
         url={`${BASE_URL}/${locale}/articles/${article.id}`}
@@ -85,16 +95,12 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
               <ArticleContent article={article} locale={locale} />
             </motion.section>
 
-            {/* Author Commentary */}
-            {/* Author Commentary */}
-            <AuthorCommentary locale={locale} hasCommentary={article.hasAuthorComment} />
-
-            {/* Expert Commentary */}
-            <ExpertCommentary
+            {/* Unified Commentary (Author + Expert) */}
+            <ArticleCommentary
               locale={locale}
-              hasCommentary={article.hasExpertComment}
               articleId={article.id}
-              expertiseData={article.expertise}
+              hasComment={article.hasAuthorComment || article.has_comment || !!commentData}
+              commentData={commentData}
             />
 
             {/* Related Articles */}

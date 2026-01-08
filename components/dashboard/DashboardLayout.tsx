@@ -13,9 +13,7 @@ import {
   LogOut,
   Menu,
   ChevronDown,
-  Globe,
   FolderTree,
-  Award,
   Bell,
   Shield,
   Clock,
@@ -34,19 +32,31 @@ interface MenuItem {
   badge?: number;
 }
 
-// Role-based menu configuration
+// Simplified menu - admin only
 const getMenuItems = (locale: string): MenuItem[] => [
   {
     key: 'dashboard',
     icon: <LayoutDashboard className="h-5 w-5" />,
     href: `/${locale}/dashboard`,
-    roles: ['admin', 'muallif', 'tarjimon', 'ishchi_guruh', 'ekspert'],
+    roles: ['admin'],
   },
   {
     key: 'articles',
     icon: <FileText className="h-5 w-5" />,
     href: `/${locale}/dashboard/articles`,
-    roles: ['admin', 'muallif'],
+    roles: ['admin'],
+  },
+  {
+    key: 'structure',
+    icon: <FolderTree className="h-5 w-5" />,
+    href: `/${locale}/dashboard/structure`,
+    roles: ['admin'],
+  },
+  {
+    key: 'comments',
+    icon: <MessageSquare className="h-5 w-5" />,
+    href: `/${locale}/dashboard/comments`,
+    roles: ['admin'],
   },
   {
     key: 'users',
@@ -55,34 +65,10 @@ const getMenuItems = (locale: string): MenuItem[] => [
     roles: ['admin'],
   },
   {
-    key: 'comments',
-    icon: <MessageSquare className="h-5 w-5" />,
-    href: `/${locale}/dashboard/comments`,
-    roles: ['admin', 'muallif'],
-  },
-  {
-    key: 'translations',
-    icon: <Globe className="h-5 w-5" />,
-    href: `/${locale}/dashboard/translations`,
-    roles: ['admin', 'tarjimon'],
-  },
-  {
-    key: 'structure',
-    icon: <FolderTree className="h-5 w-5" />,
-    href: `/${locale}/dashboard/structure`,
-    roles: ['admin', 'ishchi_guruh'],
-  },
-  {
-    key: 'expertise',
-    icon: <Award className="h-5 w-5" />,
-    href: `/${locale}/dashboard/expertise`,
-    roles: ['admin', 'ekspert'],
-  },
-  {
-    key: 'moderation',
+    key: 'logs',
     icon: <Clock className="h-5 w-5" />,
-    href: `/${locale}/dashboard/moderation`,
-    roles: ['admin', 'moderator'],
+    href: `/${locale}/dashboard/logs`,
+    roles: ['admin'],
   },
   {
     key: 'settings',
@@ -96,28 +82,21 @@ const getMenuItems = (locale: string): MenuItem[] => [
 const menuLabels: Record<string, Record<string, string>> = {
   dashboard: { uz: 'Bosh sahifa', ru: 'Главная', en: 'Dashboard' },
   articles: { uz: 'Moddalar', ru: 'Статьи', en: 'Articles' },
-  users: { uz: 'Foydalanuvchilar', ru: 'Пользователи', en: 'Users' },
-  comments: { uz: 'Sharhlar', ru: 'Комментарии', en: 'Comments' },
-  translations: { uz: 'Tarjimalar', ru: 'Переводы', en: 'Translations' },
   structure: { uz: "Bo'limlar", ru: 'Разделы', en: 'Sections' },
-  expertise: { uz: 'Ekspertiza', ru: 'Экспертиза', en: 'Expertise' },
-  moderation: { uz: 'Moderatsiya', ru: 'Модерация', en: 'Moderation' },
+  comments: { uz: 'Sharhlar', ru: 'Комментарии', en: 'Comments' },
+  users: { uz: 'Foydalanuvchilar', ru: 'Пользователи', en: 'Users' },
+  logs: { uz: 'Jurnallar', ru: 'Журналы', en: 'Logs' },
   settings: { uz: 'Sozlamalar', ru: 'Настройки', en: 'Settings' },
 };
 
-// Role display names
+// Role display names (simplified)
 const roleDisplayNames: Record<UserRole, Record<string, string>> = {
   admin: { uz: 'Administrator', ru: 'Администратор', en: 'Administrator' },
-  muallif: { uz: 'Muallif', ru: 'Автор', en: 'Author' },
-  tarjimon: { uz: 'Tarjimon', ru: 'Переводчик', en: 'Translator' },
-  ishchi_guruh: { uz: 'Ishchi guruh', ru: 'Рабочая группа', en: 'Working Group' },
-  ekspert: { uz: 'Ekspert', ru: 'Эксперт', en: 'Expert' },
-  moderator: { uz: 'Moderator', ru: 'Модератор', en: 'Moderator' },
   user: { uz: 'Foydalanuvchi', ru: 'Пользователь', en: 'User' },
 };
 
 export function DashboardLayout({ children, locale }: DashboardLayoutProps) {
-  const { user, logout, isAuthenticated, isLoading, checkRole } = useAuth();
+  const { user, logout, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -140,8 +119,7 @@ export function DashboardLayout({ children, locale }: DashboardLayoutProps) {
   }
 
   const menuItems = getMenuItems(locale);
-  // Use role name (e.g., 'admin') which is the slug in our User type
-  const userRole = user?.role?.name as UserRole;
+  const userRole = (user?.role?.name || 'user') as UserRole;
   const filteredMenuItems = menuItems.filter(item => item.roles.includes(userRole));
 
   const handleLogout = () => {
@@ -201,7 +179,6 @@ export function DashboardLayout({ children, locale }: DashboardLayoutProps) {
             {/* Notifications */}
             <button className="relative rounded-lg p-2 hover:bg-gray-100">
               <Bell className="h-5 w-5 text-gray-600" />
-              <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500"></span>
             </button>
 
             {/* User Menu */}

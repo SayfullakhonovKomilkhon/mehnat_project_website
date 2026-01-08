@@ -1661,6 +1661,364 @@ export async function adminGetExpertise(id: number, locale: Locale = 'uz'): Prom
 }
 
 // ============================================
+// AUTHOR COMMENTS API (MUALLIF SHARHI)
+// ============================================
+
+export interface AuthorCommentArticle {
+  id: number;
+  article_number: string;
+  title: string;
+  status: 'needs_comment' | 'in_progress' | 'completed' | 'rejected';
+  has_comment: boolean;
+  author_name?: string;
+  comment_status?: 'pending' | 'approved' | 'rejected' | null;
+  rejection_reason?: string;
+}
+
+export interface AuthorCommentData {
+  id?: number;
+  article_id: number;
+  author_title?: string;
+  organization?: string;
+  comment_uz: string;
+  comment_ru?: string;
+  comment_en?: string;
+  comment?: string;
+  status?: string;
+  user?: { id: number; name: string };
+  rejection_reason?: string;
+}
+
+/** Get articles for author comments panel */
+export async function getAuthorCommentArticles(
+  status?: 'needs_comment' | 'in_progress' | 'completed' | 'rejected' | 'all',
+  locale: Locale = 'uz'
+): Promise<AuthorCommentArticle[]> {
+  const result = await apiRequest<any>('/admin/author-comments/articles', {}, locale);
+
+  if (!result.success || !result.data) {
+    return [];
+  }
+
+  const articles = result.data || [];
+  return (Array.isArray(articles) ? articles : []).map((article: any) => ({
+    id: article.id,
+    article_number: article.article_number || String(article.id),
+    title: typeof article.title === 'string' ? article.title : article.title?.uz || '',
+    status: article.status || 'needs_comment',
+    has_comment: article.has_comment || false,
+    author_name: article.author_name,
+    comment_status: article.comment_status,
+    rejection_reason: article.rejection_reason,
+  }));
+}
+
+/** Get author comment for specific article */
+export async function getArticleAuthorComment(
+  articleId: number,
+  locale: Locale = 'uz'
+): Promise<AuthorCommentData | null> {
+  const result = await apiRequest<any>(`/admin/author-comments/article/${articleId}`, {}, locale);
+
+  if (result.success && result.data) {
+    return result.data;
+  }
+
+  return null;
+}
+
+/** Save new author comment */
+export async function saveAuthorComment(
+  data: {
+    article_id: number;
+    author_title?: string;
+    organization?: string;
+    comment_uz: string;
+    comment_ru?: string;
+    comment_en?: string;
+  },
+  locale: Locale = 'uz'
+): Promise<{ success: boolean; data?: AuthorCommentData; error?: string }> {
+  const result = await apiRequest<any>(
+    '/admin/author-comments',
+    {
+      method: 'POST',
+      body: JSON.stringify(data),
+    },
+    locale
+  );
+
+  if (result.success) {
+    return {
+      success: true,
+      data: result.data,
+    };
+  }
+
+  return {
+    success: false,
+    error: result.error || 'Failed to save author comment',
+  };
+}
+
+/** Update existing author comment */
+export async function updateAuthorComment(
+  id: number,
+  data: {
+    author_title?: string;
+    organization?: string;
+    comment_uz?: string;
+    comment_ru?: string;
+    comment_en?: string;
+  },
+  locale: Locale = 'uz'
+): Promise<{ success: boolean; data?: AuthorCommentData; error?: string }> {
+  const result = await apiRequest<any>(
+    `/admin/author-comments/${id}`,
+    {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    },
+    locale
+  );
+
+  if (result.success) {
+    return {
+      success: true,
+      data: result.data,
+    };
+  }
+
+  return {
+    success: false,
+    error: result.error || 'Failed to update author comment',
+  };
+}
+
+/** Get author comment stats */
+export async function getAuthorCommentStats(
+  locale: Locale = 'uz'
+): Promise<{
+  needs_comment: number;
+  in_progress: number;
+  completed: number;
+  rejected: number;
+  total: number;
+}> {
+  const result = await apiRequest<any>('/admin/author-comments/stats', {}, locale);
+
+  if (result.success && result.data) {
+    return result.data;
+  }
+
+  return { needs_comment: 0, in_progress: 0, completed: 0, rejected: 0, total: 0 };
+}
+
+/** Get public author comment for article */
+export async function getArticleAuthorCommentPublic(
+  articleId: number,
+  locale: Locale = 'uz'
+): Promise<{
+  hasAuthorComment: boolean;
+  authorComment: {
+    author_name?: string;
+    author_title?: string;
+    organization?: string;
+    comment: string;
+    created_at?: string;
+  } | null;
+}> {
+  const result = await apiRequest<any>(`/articles/${articleId}/author-comment`, {}, locale);
+
+  if (result.success && result.data) {
+    if (result.data.hasAuthorComment && result.data.authorComment) {
+      return {
+        hasAuthorComment: true,
+        authorComment: result.data.authorComment,
+      };
+    }
+  }
+
+  return {
+    hasAuthorComment: false,
+    authorComment: null,
+  };
+}
+
+/** Admin: Approve author comment */
+export async function adminApproveAuthorComment(
+  id: number,
+  locale: Locale = 'uz'
+): Promise<{ success: boolean; error?: string }> {
+  const result = await apiRequest<any>(
+    `/admin/author-comments/${id}/approve`,
+    { method: 'POST' },
+    locale
+  );
+  return result;
+}
+
+/** Admin: Reject author comment */
+export async function adminRejectAuthorComment(
+  id: number,
+  rejectionReason?: string,
+  locale: Locale = 'uz'
+): Promise<{ success: boolean; error?: string }> {
+  const result = await apiRequest<any>(
+    `/admin/author-comments/${id}/reject`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ rejection_reason: rejectionReason }),
+    },
+    locale
+  );
+  return result;
+}
+
+/** Admin: Get pending author comments */
+export async function adminGetPendingAuthorComments(locale: Locale = 'uz'): Promise<any[]> {
+  const result = await apiRequest<any>('/admin/author-comments/pending', {}, locale);
+  if (!result.success) {
+    return [];
+  }
+  const items = result.data?.items || result.data || [];
+  return Array.isArray(items) ? items : [];
+}
+
+// ============================================
+// MUALLIF ASSIGNMENTS API
+// ============================================
+
+export interface MuallifAssignment {
+  id: number;
+  user: { id: number; name: string; email: string };
+  assignment_type: 'article' | 'chapter' | 'section';
+  item_id: number;
+  item_name: string;
+  notes?: string;
+  assigned_by: { id: number; name: string };
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface AssignedArticle {
+  id: number;
+  article_number: string;
+  title: string;
+  content?: string;
+  summary?: string;
+  is_active?: boolean;
+  translation_status?: 'draft' | 'pending' | 'approved';
+  chapter?: {
+    id: number;
+    order_number: number;
+    title: string;
+  };
+  section?: {
+    id: number;
+    title: string;
+  };
+}
+
+/** Get all muallif assignments (admin only) */
+export async function getMuallifAssignments(
+  locale: Locale = 'uz'
+): Promise<{ items: MuallifAssignment[]; pagination: any }> {
+  const result = await apiRequest<any>('/admin/muallif-assignments', {}, locale);
+  if (!result.success) {
+    return { items: [], pagination: {} };
+  }
+  return result.data || { items: [], pagination: {} };
+}
+
+/** Get list of muallifs for assignment dropdown (admin only) */
+export async function getMuallifsForAssignment(
+  locale: Locale = 'uz'
+): Promise<Array<{ id: number; name: string; email: string }>> {
+  const result = await apiRequest<any>('/admin/muallif-assignments/muallifs', {}, locale);
+  if (!result.success) {
+    return [];
+  }
+  return result.data || [];
+}
+
+/** Get assignable items (articles, chapters, sections) */
+export async function getAssignableItems(
+  type: 'article' | 'chapter' | 'section',
+  locale: Locale = 'uz'
+): Promise<Array<{ id: number; name: string; type: string }>> {
+  const result = await apiRequest<any>(`/admin/muallif-assignments/items?type=${type}`, {}, locale);
+  if (!result.success) {
+    return [];
+  }
+  return result.data || [];
+}
+
+/** Create a new muallif assignment (admin only) */
+export async function createMuallifAssignment(
+  data: {
+    user_id: number;
+    assignment_type: 'article' | 'chapter' | 'section';
+    item_id: number;
+    notes?: string;
+  },
+  locale: Locale = 'uz'
+): Promise<{ success: boolean; data?: MuallifAssignment; error?: string }> {
+  const result = await apiRequest<any>(
+    '/admin/muallif-assignments',
+    {
+      method: 'POST',
+      body: JSON.stringify(data),
+    },
+    locale
+  );
+  return result;
+}
+
+/** Delete muallif assignment (admin only) */
+export async function deleteMuallifAssignment(
+  id: number,
+  locale: Locale = 'uz'
+): Promise<{ success: boolean; error?: string }> {
+  const result = await apiRequest<any>(
+    `/admin/muallif-assignments/${id}`,
+    { method: 'DELETE' },
+    locale
+  );
+  return result;
+}
+
+/** Get my assigned articles (for muallif) */
+export async function getMyAssignedArticles(locale: Locale = 'uz'): Promise<AssignedArticle[]> {
+  const result = await apiRequest<any>('/admin/muallif-assignments/my-assignments', {}, locale);
+  if (!result.success) {
+    return [];
+  }
+  return result.data || [];
+}
+
+/** Get assignment stats (admin only) */
+export async function getMuallifAssignmentStats(locale: Locale = 'uz'): Promise<{
+  total_assignments: number;
+  article_assignments: number;
+  chapter_assignments: number;
+  section_assignments: number;
+  muallifs_with_assignments: number;
+}> {
+  const result = await apiRequest<any>('/admin/muallif-assignments/stats', {}, locale);
+  if (!result.success) {
+    return {
+      total_assignments: 0,
+      article_assignments: 0,
+      chapter_assignments: 0,
+      section_assignments: 0,
+      muallifs_with_assignments: 0,
+    };
+  }
+  return result.data;
+}
+
+// ============================================
 // EXPORTS
 // ============================================
 

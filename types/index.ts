@@ -16,27 +16,15 @@ export type Locale = 'uz' | 'ru' | 'en';
 export type GetLocalizedText = (content: LocalizedString, locale: string) => string;
 
 // ============================================
-// USER & ROLE TYPES
+// USER & ROLE TYPES (Simplified)
 // ============================================
 
-/** User roles in the system */
-export type UserRole =
-  | 'admin'
-  | 'muallif'
-  | 'tarjimon'
-  | 'ishchi_guruh'
-  | 'ekspert'
-  | 'moderator'
-  | 'user';
+/** User roles in the system (simplified - only admin and user) */
+export type UserRole = 'admin' | 'user';
 
 /** Role display names */
 export const roleLabels: Record<UserRole, LocalizedString> = {
   admin: { uz: 'Administrator', ru: 'Администратор', en: 'Administrator' },
-  muallif: { uz: 'Muallif', ru: 'Автор', en: 'Author' },
-  tarjimon: { uz: 'Tarjimon', ru: 'Переводчик', en: 'Translator' },
-  ishchi_guruh: { uz: 'Ishchi guruh', ru: 'Рабочая группа', en: 'Working Group' },
-  ekspert: { uz: 'Ekspert', ru: 'Эксперт', en: 'Expert' },
-  moderator: { uz: 'Moderator', ru: 'Модератор', en: 'Moderator' },
   user: { uz: 'Foydalanuvchi', ru: 'Пользователь', en: 'User' },
 };
 
@@ -47,7 +35,6 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'users.create',
     'users.update',
     'users.delete',
-    'users.change_role',
     'sections.view',
     'sections.create',
     'sections.update',
@@ -60,93 +47,16 @@ export const rolePermissions: Record<UserRole, string[]> = {
     'articles.create',
     'articles.update',
     'articles.delete',
-    'articles.approve',
     'comments.view',
     'comments.create',
     'comments.update',
     'comments.delete',
-    'comments.moderate',
-    'translations.view',
-    'translations.create',
-    'translations.update',
-    'translations.approve',
     'analytics.view',
     'logs.view',
     'settings.view',
     'settings.update',
   ],
-  muallif: [
-    'sections.view',
-    'chapters.view',
-    'articles.view',
-    'articles.create',
-    'articles.update_own',
-    'articles.submit_for_approval',
-    'comments.view',
-    'comments.create',
-    'comments.update_own',
-    'comments.create_author_comment',
-    'drafts.create',
-    'drafts.update_own',
-    'drafts.delete_own',
-  ],
-  tarjimon: [
-    'sections.view',
-    'chapters.view',
-    'articles.view',
-    'translations.view',
-    'translations.create',
-    'translations.update_own',
-    'translations.set_status',
-    'comments.view',
-  ],
-  ishchi_guruh: [
-    'sections.view',
-    'sections.create',
-    'sections.update',
-    'sections.delete',
-    'chapters.view',
-    'chapters.create',
-    'chapters.update',
-    'chapters.delete',
-    'articles.view',
-    'articles.create',
-    'articles.update',
-    'categories.view',
-    'categories.create',
-    'categories.update',
-    'categories.delete',
-    'comments.view',
-  ],
-  ekspert: [
-    'sections.view',
-    'chapters.view',
-    'articles.view',
-    'comments.view',
-    'comments.create_expert_comment',
-    'comments.update_own',
-    'expert_reviews.view',
-    'expert_reviews.create',
-    'expert_reviews.update_own',
-  ],
-  moderator: [
-    'sections.view',
-    'sections.update',
-    'chapters.view',
-    'chapters.update',
-    'articles.view',
-    'articles.create',
-    'articles.update',
-    'comments.view',
-    'comments.create',
-    'comments.update',
-    'comments.delete',
-    'comments.moderate',
-    'translations.view',
-    'translations.approve',
-    'analytics.view',
-  ],
-  user: ['sections.view', 'chapters.view', 'articles.view', 'comments.view', 'comments.create'],
+  user: ['sections.view', 'chapters.view', 'articles.view', 'comments.view'],
 };
 
 /** User/Author information */
