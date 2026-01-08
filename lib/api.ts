@@ -195,8 +195,10 @@ function transformArticle(data: any): Article {
         : data.summary
       : undefined,
     status: data.is_active ? 'published' : 'draft',
-    hasAuthorComment: Boolean(data.has_author_comment),
+    hasAuthorComment: Boolean(data.has_author_comment || data.has_comment),
     hasExpertComment: Boolean(data.has_expert_comment),
+    has_comment: Boolean(data.has_comment),
+    article_comment: data.article_comment || null,
     expertise: data.expertise || null,
     translations: ['uz', 'ru', 'en'] as Locale[],
     viewCount: data.views_count || 0,

@@ -156,6 +156,22 @@ export interface Article {
   status: ContentStatus;
   hasAuthorComment: boolean;
   hasExpertComment: boolean;
+  has_comment?: boolean;
+  article_comment?: {
+    id: number;
+    comment: string;
+    comment_uz?: string;
+    comment_ru?: string;
+    comment_en?: string;
+    author_name?: string;
+    author_title?: string;
+    organization?: string;
+    legal_references?: any;
+    court_practice?: string;
+    recommendations?: string;
+    has_expert_content?: boolean;
+    created_at?: string;
+  } | null;
   expertise?: {
     id: number;
     expert_comment: string;
