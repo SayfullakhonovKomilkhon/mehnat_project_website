@@ -33,15 +33,7 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
   ];
 
   // Prepare comment data from article
-  const commentData =
-    article.article_comment ||
-    (article.expertise
-      ? {
-          ...article.expertise,
-          comment: article.expertise.expert_comment,
-          has_expert_content: true,
-        }
-      : null);
+  const commentData = article.article_comment || null;
 
   return (
     <div className="min-h-screen bg-gov-light pb-20 lg:pb-8">
@@ -62,8 +54,7 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
             number: article.chapter.number,
             title: getLocalizedText(article.chapter.title, locale),
           },
-          hasAuthorComment: article.hasAuthorComment || article.has_comment,
-          hasExpertComment: article.hasExpertComment || commentData?.has_expert_content,
+          hasAuthorComment: article.hasAuthorComment || article.has_comment || !!commentData,
         }}
         locale={locale}
         url={`${BASE_URL}/${locale}/articles/${article.id}`}
@@ -95,7 +86,7 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
               <ArticleContent article={article} locale={locale} />
             </motion.section>
 
-            {/* Unified Commentary (Author + Expert) */}
+            {/* Commentary Section */}
             <ArticleCommentary
               locale={locale}
               articleId={article.id}
