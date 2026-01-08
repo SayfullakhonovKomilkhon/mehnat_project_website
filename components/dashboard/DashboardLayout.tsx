@@ -16,7 +16,7 @@ import {
   FolderTree,
   Bell,
   Shield,
-  Clock,
+  Lightbulb,
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -65,9 +65,9 @@ const getMenuItems = (locale: string): MenuItem[] => [
     roles: ['admin'],
   },
   {
-    key: 'logs',
-    icon: <Clock className="h-5 w-5" />,
-    href: `/${locale}/dashboard/logs`,
+    key: 'suggestions',
+    icon: <Lightbulb className="h-5 w-5" />,
+    href: `/${locale}/dashboard/suggestions`,
     roles: ['admin'],
   },
   {
@@ -85,7 +85,7 @@ const menuLabels: Record<string, Record<string, string>> = {
   structure: { uz: "Bo'limlar", ru: 'Разделы', en: 'Sections' },
   comments: { uz: 'Sharhlar', ru: 'Комментарии', en: 'Comments' },
   users: { uz: 'Foydalanuvchilar', ru: 'Пользователи', en: 'Users' },
-  logs: { uz: 'Jurnallar', ru: 'Журналы', en: 'Logs' },
+  suggestions: { uz: 'Takliflar', ru: 'Предложения', en: 'Suggestions' },
   settings: { uz: 'Sozlamalar', ru: 'Настройки', en: 'Settings' },
 };
 
