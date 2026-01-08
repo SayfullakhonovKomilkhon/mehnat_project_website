@@ -4,6 +4,10 @@ import { getArticle, getLocalizedText } from '@/lib/api';
 import ArticleDetailClient from './ArticleDetailClient';
 import type { Locale } from '@/types';
 
+// Force dynamic rendering to always get fresh data
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface ArticleDetailPageProps {
   params: {
     locale: string;
@@ -14,9 +18,7 @@ interface ArticleDetailPageProps {
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://mehnat-kodeksi.uz';
 
 // Generate metadata for each article
-export async function generateMetadata({ 
-  params 
-}: ArticleDetailPageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: ArticleDetailPageProps): Promise<Metadata> {
   const { locale, id } = params;
   const articleId = parseInt(id);
   const article = await getArticle(articleId, locale as Locale);
@@ -33,7 +35,8 @@ export async function generateMetadata({
   const sectionTitle = getLocalizedText(article.section.title, locale);
 
   const fullTitle = `${article.number}-modda. ${title}`;
-  const description = excerpt || `${sectionTitle} - ${title}. O'zbekiston Respublikasi Mehnat kodeksi.`;
+  const description =
+    excerpt || `${sectionTitle} - ${title}. O'zbekiston Respublikasi Mehnat kodeksi.`;
 
   return {
     title: fullTitle,
@@ -81,10 +84,10 @@ export async function generateMetadata({
 export default async function ArticleDetailPage({ params }: ArticleDetailPageProps) {
   const { locale, id } = params;
   const articleId = parseInt(id);
-  
+
   // Fetch the article from API
   const article = await getArticle(articleId, locale as Locale);
-  
+
   if (!article) {
     notFound();
   }

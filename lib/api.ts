@@ -57,10 +57,10 @@ export async function apiRequest<T>(
         ...(options.headers || {}),
       },
       // Enable Next.js caching for GET requests
-      // This dramatically improves performance on Vercel
+      // Reduced cache time for faster updates
       ...(isGetRequest && {
         next: {
-          revalidate: 300, // Cache for 5 minutes
+          revalidate: 30, // Cache for 30 seconds
         },
       }),
     });
