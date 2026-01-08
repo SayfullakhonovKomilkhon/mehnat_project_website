@@ -8,6 +8,7 @@ import {
   ArticleSidebar,
   RelatedArticles,
   ArticleMobileNav,
+  SuggestionSection,
 } from '@/components/articles';
 import { ArticleSchema, BreadcrumbSchema } from '@/components/seo';
 import { getLocalizedText } from '@/lib/api';
@@ -92,6 +93,13 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
               articleId={article.id}
               hasComment={article.hasAuthorComment || article.has_comment || !!commentData}
               commentData={commentData}
+            />
+
+            {/* User Suggestions Section */}
+            <SuggestionSection
+              articleId={article.id}
+              articleNumber={article.number}
+              locale={locale}
             />
 
             {/* Related Articles */}

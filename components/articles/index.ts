@@ -12,3 +12,4 @@ export { ArticleCommentary } from './ArticleCommentary';
 export { ArticleSidebar } from './ArticleSidebar';
 export { RelatedArticles } from './RelatedArticles';
 export { ArticleMobileNav } from './ArticleMobileNav';
+export { SuggestionSection } from './SuggestionSection';
