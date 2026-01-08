@@ -56,13 +56,8 @@ export async function apiRequest<T>(
         ...getHeaders(locale),
         ...(options.headers || {}),
       },
-      // Enable Next.js caching for GET requests
-      // Reduced cache time for faster updates
-      ...(isGetRequest && {
-        next: {
-          revalidate: 30, // Cache for 30 seconds
-        },
-      }),
+      // Disable caching to always get fresh data
+      cache: 'no-store',
     });
 
     const json = await response.json();
