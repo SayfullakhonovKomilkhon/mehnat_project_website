@@ -21,8 +21,6 @@ const translations = {
     modalSubtitle: "modda bo'yicha",
     nameLabel: 'Ismingiz',
     namePlaceholder: 'Ismingizni kiriting',
-    emailLabel: 'Email (ixtiyoriy)',
-    emailPlaceholder: 'email@example.com',
     suggestionLabel: 'Taklifingiz',
     suggestionPlaceholder: 'Taklif yoki tuzatishlaringizni batafsil yozing...',
     cancel: 'Bekor qilish',
@@ -41,8 +39,6 @@ const translations = {
     modalSubtitle: 'по статье',
     nameLabel: 'Ваше имя',
     namePlaceholder: 'Введите ваше имя',
-    emailLabel: 'Email (необязательно)',
-    emailPlaceholder: 'email@example.com',
     suggestionLabel: 'Ваше предложение',
     suggestionPlaceholder: 'Подробно опишите ваше предложение или исправление...',
     cancel: 'Отмена',
@@ -61,8 +57,6 @@ const translations = {
     modalSubtitle: 'for article',
     nameLabel: 'Your name',
     namePlaceholder: 'Enter your name',
-    emailLabel: 'Email (optional)',
-    emailPlaceholder: 'email@example.com',
     suggestionLabel: 'Your suggestion',
     suggestionPlaceholder: 'Describe your suggestion or correction in detail...',
     cancel: 'Cancel',
@@ -80,7 +74,6 @@ export function SuggestionSection({ articleId, articleNumber, locale }: Suggesti
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
     suggestion: '',
   });
   const [errors, setErrors] = useState<{ name?: string; suggestion?: string }>({});
@@ -120,7 +113,6 @@ export function SuggestionSection({ articleId, articleNumber, locale }: Suggesti
             article_id: articleId,
             article_number: articleNumber,
             name: formData.name,
-            email: formData.email || null,
             suggestion: formData.suggestion,
           }),
         }
@@ -128,7 +120,7 @@ export function SuggestionSection({ articleId, articleNumber, locale }: Suggesti
 
       if (response.ok) {
         setSubmitStatus('success');
-        setFormData({ name: '', email: '', suggestion: '' });
+        setFormData({ name: '', suggestion: '' });
         setTimeout(() => {
           setIsModalOpen(false);
           setSubmitStatus('idle');
@@ -257,21 +249,6 @@ export function SuggestionSection({ articleId, articleNumber, locale }: Suggesti
                         }`}
                       />
                       {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
-                    </div>
-
-                    {/* Email */}
-                    <div>
-                      <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                        {t.emailLabel}
-                      </label>
-                      <input
-                        type="email"
-                        value={formData.email}
-                        onChange={e => setFormData({ ...formData, email: e.target.value })}
-                        placeholder={t.emailPlaceholder}
-                        disabled={isSubmitting}
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
-                      />
                     </div>
 
                     {/* Suggestion */}
