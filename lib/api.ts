@@ -1059,6 +1059,73 @@ export async function adminUpdateArticle(
   );
 }
 
+/** Upload images for an article */
+export async function adminUploadArticleImages(
+  articleId: number,
+  images: File[],
+  locale: Locale = 'uz'
+): Promise<{ success: boolean; data?: { images: any[] }; error?: string }> {
+  const formData = new FormData();
+  images.forEach(image => {
+    formData.append('images[]', image);
+  });
+
+  try {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const response = await fetch(`${API_BASE_URL}/admin/articles/${articleId}/images`, {
+      method: 'POST',
+      headers: {
+        'Accept-Language': locale,
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: formData,
+    });
+
+    const json = await response.json();
+
+    if (!response.ok) {
+      return {
+        error: json.message || 'Upload failed',
+        success: false,
+      };
+    }
+
+    return {
+      data: json.data,
+      success: true,
+    };
+  } catch (error) {
+    console.error('Image upload error:', error);
+    return {
+      error: 'Network error. Please check your connection.',
+      success: false,
+    };
+  }
+}
+
+/** Get images for an article */
+export async function adminGetArticleImages(
+  articleId: number,
+  locale: Locale = 'uz'
+): Promise<{ images: any[] }> {
+  const result = await apiRequest<any>(`/admin/articles/${articleId}/images`, {}, locale);
+  return result.data || { images: [] };
+}
+
+/** Delete an article image */
+export async function adminDeleteArticleImage(
+  imageId: number,
+  locale: Locale = 'uz'
+): Promise<{ success: boolean; error?: string }> {
+  return apiRequest<any>(
+    `/admin/articles/images/${imageId}`,
+    {
+      method: 'DELETE',
+    },
+    locale
+  );
+}
+
 /** Delete an article */
 export async function adminDeleteArticle(
   id: number,

@@ -15,12 +15,16 @@ import {
   CheckCircle,
   Clock,
   MessageSquare,
+  ImagePlus,
+  X,
+  Image as ImageIcon,
 } from 'lucide-react';
 import {
   adminGetSections,
   adminCreateArticle,
   adminGetArticle,
   adminUpdateArticle,
+  adminUploadArticleImages,
 } from '@/lib/api';
 import type { Locale } from '@/types';
 
@@ -68,6 +72,13 @@ const translations = {
     pendingModeration: 'Modda moderatsiyaga yuborildi. Admin tasdiqlashini kuting.',
     submitForReview: 'Tekshirishga yuborish',
     update: 'Yangilash',
+    images: 'Rasmlar',
+    imagesDescription: "Moddaga rasmlar qo'shing (ixtiyoriy)",
+    addImages: "Rasm qo'shish",
+    dragDrop: 'Rasmlarni bu yerga tashlang yoki',
+    browse: 'tanlang',
+    maxSize: "Maksimal o'lcham: 5MB. Formatlar: JPG, PNG, GIF",
+    removeImage: "Rasmni o'chirish",
   },
   ru: {
     title: 'Создать статью',
@@ -108,6 +119,13 @@ const translations = {
     pendingModeration: 'Статья отправлена на модерацию. Ожидайте подтверждения администратора.',
     submitForReview: 'Отправить на проверку',
     update: 'Обновить',
+    images: 'Изображения',
+    imagesDescription: 'Добавьте изображения к статье (необязательно)',
+    addImages: 'Добавить изображения',
+    dragDrop: 'Перетащите изображения сюда или',
+    browse: 'выберите',
+    maxSize: 'Максимальный размер: 5MB. Форматы: JPG, PNG, GIF',
+    removeImage: 'Удалить изображение',
   },
   en: {
     title: 'Create Article',
@@ -148,6 +166,13 @@ const translations = {
     pendingModeration: 'Article submitted for moderation. Wait for admin approval.',
     submitForReview: 'Submit for Review',
     update: 'Update',
+    images: 'Images',
+    imagesDescription: 'Add images to the article (optional)',
+    addImages: 'Add images',
+    dragDrop: 'Drag and drop images here or',
+    browse: 'browse',
+    maxSize: 'Max size: 5MB. Formats: JPG, PNG, GIF',
+    removeImage: 'Remove image',
   },
 };
 
@@ -187,6 +212,11 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
     en: { title: '', content: '', summary: '', keywords: '' },
     comment: { uz: '', ru: '', en: '' },
   });
+
+  // Images state
+  const [images, setImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<{ id: number; url: string }[]>([]);
 
   // Load sections and chapters from API
   useEffect(() => {
@@ -267,6 +297,17 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
                 en: articleComment.comment_en || '',
               },
             });
+
+            // Load existing images
+            if (article.images && Array.isArray(article.images)) {
+              setExistingImages(
+                article.images.map((img: any) => ({
+                  id: img.id,
+                  url: img.url,
+                }))
+              );
+            }
+
             setArticleLoaded(true);
           }
         }
@@ -386,6 +427,12 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
       }
 
       if (result.success) {
+        // Upload images if any
+        const articleId = isEditMode ? parseInt(editId!) : result.data?.id;
+        if (articleId && images.length > 0) {
+          await adminUploadArticleImages(articleId, images, locale as Locale);
+        }
+
         // Show success message
         setSuccessMessage(
           isEditMode ? t.successEdit : !canPublishDirectly ? t.pendingModeration : t.success
@@ -687,6 +734,128 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
               disabled={saving}
             />
           </div>
+        </div>
+
+        {/* Images Section */}
+        <div className="rounded-xl bg-white p-6 shadow-sm">
+          <h2 className="mb-2 flex items-center gap-2 text-lg font-semibold text-gray-900">
+            <ImageIcon className="h-5 w-5 text-primary-600" />
+            {t.images}
+          </h2>
+          <p className="mb-4 text-sm text-gray-500">{t.imagesDescription}</p>
+
+          {/* Image Upload Area */}
+          <div
+            className="relative rounded-lg border-2 border-dashed border-gray-300 p-6 transition-colors hover:border-primary-400"
+            onDragOver={e => {
+              e.preventDefault();
+              e.currentTarget.classList.add('border-primary-500', 'bg-primary-50');
+            }}
+            onDragLeave={e => {
+              e.preventDefault();
+              e.currentTarget.classList.remove('border-primary-500', 'bg-primary-50');
+            }}
+            onDrop={e => {
+              e.preventDefault();
+              e.currentTarget.classList.remove('border-primary-500', 'bg-primary-50');
+              const files = Array.from(e.dataTransfer.files).filter(
+                file => file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024
+              );
+              if (files.length > 0) {
+                setImages(prev => [...prev, ...files]);
+                files.forEach(file => {
+                  const reader = new FileReader();
+                  reader.onload = e => {
+                    setImagePreviews(prev => [...prev, e.target?.result as string]);
+                  };
+                  reader.readAsDataURL(file);
+                });
+              }
+            }}
+          >
+            <input
+              type="file"
+              multiple
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              onChange={e => {
+                const files = Array.from(e.target.files || []).filter(
+                  file => file.size <= 5 * 1024 * 1024
+                );
+                if (files.length > 0) {
+                  setImages(prev => [...prev, ...files]);
+                  files.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                      setImagePreviews(prev => [...prev, e.target?.result as string]);
+                    };
+                    reader.readAsDataURL(file);
+                  });
+                }
+              }}
+              className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+              disabled={saving}
+            />
+            <div className="flex flex-col items-center justify-center text-center">
+              <ImagePlus className="mb-3 h-10 w-10 text-gray-400" />
+              <p className="text-sm text-gray-600">
+                {t.dragDrop} <span className="font-medium text-primary-600">{t.browse}</span>
+              </p>
+              <p className="mt-1 text-xs text-gray-400">{t.maxSize}</p>
+            </div>
+          </div>
+
+          {/* Image Previews */}
+          {(imagePreviews.length > 0 || existingImages.length > 0) && (
+            <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+              {/* Existing Images */}
+              {existingImages.map((img, index) => (
+                <div
+                  key={`existing-${img.id}`}
+                  className="group relative aspect-square overflow-hidden rounded-lg bg-gray-100"
+                >
+                  <img
+                    src={img.url}
+                    alt={`Image ${index + 1}`}
+                    className="h-full w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setExistingImages(prev => prev.filter(i => i.id !== img.id))}
+                    className="absolute right-2 top-2 rounded-full bg-red-500 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                    title={t.removeImage}
+                    disabled={saving}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+              {/* New Images */}
+              {imagePreviews.map((preview, index) => (
+                <div
+                  key={`new-${index}`}
+                  className="group relative aspect-square overflow-hidden rounded-lg bg-gray-100"
+                >
+                  <img
+                    src={preview}
+                    alt={`Preview ${index + 1}`}
+                    className="h-full w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImages(prev => prev.filter((_, i) => i !== index));
+                      setImagePreviews(prev => prev.filter((_, i) => i !== index));
+                    }}
+                    className="absolute right-2 top-2 rounded-full bg-red-500 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                    title={t.removeImage}
+                    disabled={saving}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Action Buttons */}
