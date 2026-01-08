@@ -16,7 +16,12 @@ import {
   Clock,
   MessageSquare,
 } from 'lucide-react';
-import { adminGetSections, adminCreateArticle } from '@/lib/api';
+import {
+  adminGetSections,
+  adminCreateArticle,
+  adminGetArticle,
+  adminUpdateArticle,
+} from '@/lib/api';
 import type { Locale } from '@/types';
 
 interface CreateArticlePageProps {
@@ -26,6 +31,7 @@ interface CreateArticlePageProps {
 const translations = {
   uz: {
     title: 'Yangi modda yaratish',
+    editTitle: 'Moddani tahrirlash',
     back: 'Orqaga',
     basicInfo: "Asosiy ma'lumotlar",
     articleNumber: 'Modda raqami',
@@ -58,11 +64,14 @@ const translations = {
     saving: 'Saqlanmoqda...',
     error: 'Xatolik yuz berdi',
     success: 'Modda muvaffaqiyatli yaratildi',
+    successEdit: 'Modda muvaffaqiyatli tahrirlandi',
     pendingModeration: 'Modda moderatsiyaga yuborildi. Admin tasdiqlashini kuting.',
     submitForReview: 'Tekshirishga yuborish',
+    update: 'Yangilash',
   },
   ru: {
     title: 'Создать статью',
+    editTitle: 'Редактировать статью',
     back: 'Назад',
     basicInfo: 'Основная информация',
     articleNumber: 'Номер статьи',
@@ -95,11 +104,14 @@ const translations = {
     saving: 'Сохранение...',
     error: 'Произошла ошибка',
     success: 'Статья успешно создана',
+    successEdit: 'Статья успешно обновлена',
     pendingModeration: 'Статья отправлена на модерацию. Ожидайте подтверждения администратора.',
     submitForReview: 'Отправить на проверку',
+    update: 'Обновить',
   },
   en: {
     title: 'Create Article',
+    editTitle: 'Edit Article',
     back: 'Back',
     basicInfo: 'Basic Information',
     articleNumber: 'Article Number',
@@ -132,8 +144,10 @@ const translations = {
     saving: 'Saving...',
     error: 'An error occurred',
     success: 'Article created successfully',
+    successEdit: 'Article updated successfully',
     pendingModeration: 'Article submitted for moderation. Wait for admin approval.',
     submitForReview: 'Submit for Review',
+    update: 'Update',
   },
 };
 
@@ -150,6 +164,8 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
   // Get pre-filled values from URL params
   const urlChapterId = searchParams.get('chapter');
   const urlSectionId = searchParams.get('section');
+  const editId = searchParams.get('edit'); // ID of article to edit
+  const isEditMode = Boolean(editId);
   const fromStructure = urlChapterId && urlSectionId; // Came from structure page
 
   const [sections, setSections] = useState<any[]>([]);
@@ -157,6 +173,7 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [articleLoaded, setArticleLoaded] = useState(false);
 
   const [activeTab, setActiveTab] = useState<'uz' | 'ru' | 'en'>('uz');
   const [formData, setFormData] = useState({
@@ -187,14 +204,81 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
             chapterId: urlChapterId,
           }));
         }
+
+        // Load existing article if in edit mode
+        if (isEditMode && editId && !articleLoaded) {
+          const article = await adminGetArticle(parseInt(editId), locale as Locale);
+          if (article) {
+            // Extract translations
+            const translations = article.translations_data || {};
+            const uzTrans = translations.uz || {};
+            const ruTrans = translations.ru || {};
+            const enTrans = translations.en || {};
+
+            // Find section ID from chapter
+            let sectionId = '';
+            if (article.chapter?.section_id) {
+              sectionId = String(article.chapter.section_id);
+            } else if (article.chapter?.section?.id) {
+              sectionId = String(article.chapter.section.id);
+            } else {
+              // Find section by chapter from loaded sections
+              for (const section of data) {
+                const foundChapter = section.chapters?.find(
+                  (ch: any) => ch.id === article.chapter_id
+                );
+                if (foundChapter) {
+                  sectionId = String(section.id);
+                  break;
+                }
+              }
+            }
+
+            // Get comment data
+            const articleComment = article.article_comment || {};
+
+            setFormData({
+              articleNumber: article.article_number || '',
+              sectionId: sectionId,
+              chapterId: String(article.chapter_id || ''),
+              order: String(article.order_number || ''),
+              isActive: article.is_active ?? true,
+              uz: {
+                title: uzTrans.title || article.title?.uz || '',
+                content: uzTrans.content || article.content?.uz || '',
+                summary: uzTrans.summary || '',
+                keywords: Array.isArray(uzTrans.keywords) ? uzTrans.keywords.join(', ') : '',
+              },
+              ru: {
+                title: ruTrans.title || article.title?.ru || '',
+                content: ruTrans.content || article.content?.ru || '',
+                summary: ruTrans.summary || '',
+                keywords: Array.isArray(ruTrans.keywords) ? ruTrans.keywords.join(', ') : '',
+              },
+              en: {
+                title: enTrans.title || article.title?.en || '',
+                content: enTrans.content || article.content?.en || '',
+                summary: enTrans.summary || '',
+                keywords: Array.isArray(enTrans.keywords) ? enTrans.keywords.join(', ') : '',
+              },
+              comment: {
+                uz: articleComment.comment_uz || '',
+                ru: articleComment.comment_ru || '',
+                en: articleComment.comment_en || '',
+              },
+            });
+            setArticleLoaded(true);
+          }
+        }
       } catch (err) {
-        console.error('Error loading sections:', err);
+        console.error('Error loading data:', err);
+        setError(t.error);
       } finally {
         setLoading(false);
       }
     };
     loadData();
-  }, [locale, urlSectionId, urlChapterId]);
+  }, [locale, urlSectionId, urlChapterId, isEditMode, editId, articleLoaded, t.error]);
 
   // Get chapters for selected section
   const selectedSection = sections.find(s => s.id === parseInt(formData.sectionId));
@@ -270,33 +354,48 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
           }
         : undefined;
 
-      const result = await adminCreateArticle(
-        {
-          chapter_id: parseInt(formData.chapterId),
-          article_number: formData.articleNumber,
-          order_number: parseInt(formData.order) || 1,
-          is_active: action === 'publish',
-          translations,
-          comment,
-        },
-        locale as Locale
-      );
+      let result;
+
+      if (isEditMode && editId) {
+        // Update existing article
+        result = await adminUpdateArticle(
+          parseInt(editId),
+          {
+            chapter_id: parseInt(formData.chapterId),
+            article_number: formData.articleNumber,
+            order_number: parseInt(formData.order) || 1,
+            is_active: action === 'publish',
+            translations,
+            comment,
+          },
+          locale as Locale
+        );
+      } else {
+        // Create new article
+        result = await adminCreateArticle(
+          {
+            chapter_id: parseInt(formData.chapterId),
+            article_number: formData.articleNumber,
+            order_number: parseInt(formData.order) || 1,
+            is_active: action === 'publish',
+            translations,
+            comment,
+          },
+          locale as Locale
+        );
+      }
 
       if (result.success) {
         // Show success message
-        if (!canPublishDirectly) {
-          setSuccessMessage(t.pendingModeration);
-          // Wait a bit before redirecting so user sees the message
-          setTimeout(() => {
-            router.push(
-              fromStructure ? `/${locale}/dashboard/structure` : `/${locale}/dashboard/articles`
-            );
-          }, 2000);
-        } else {
+        setSuccessMessage(
+          isEditMode ? t.successEdit : !canPublishDirectly ? t.pendingModeration : t.success
+        );
+        // Wait a bit before redirecting so user sees the message
+        setTimeout(() => {
           router.push(
             fromStructure ? `/${locale}/dashboard/structure` : `/${locale}/dashboard/articles`
           );
-        }
+        }, 1500);
       } else {
         setError(result.error || t.error);
       }
@@ -340,7 +439,9 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
-            <h1 className="text-2xl font-bold text-gray-900">{t.title}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {isEditMode ? t.editTitle : t.title}
+            </h1>
           </div>
         </div>
 
@@ -623,7 +724,7 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
                 ) : (
                   <Send className="h-4 w-4" />
                 )}
-                {saving ? t.saving : t.publish}
+                {saving ? t.saving : isEditMode ? t.update : t.publish}
               </button>
             </>
           ) : (

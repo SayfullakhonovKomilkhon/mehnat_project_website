@@ -1032,11 +1032,20 @@ export async function adminCreateArticle(
 export async function adminUpdateArticle(
   id: number,
   data: {
+    chapter_id?: number;
     article_number?: string;
-    title?: string;
-    content?: string;
-    summary?: string;
+    order_number?: number;
     is_active?: boolean;
+    translations?: {
+      uz: { title: string; content: string; summary?: string; keywords?: string[] };
+      ru?: { title: string; content: string; summary?: string; keywords?: string[] };
+      en?: { title: string; content: string; summary?: string; keywords?: string[] };
+    };
+    comment?: {
+      uz?: string;
+      ru?: string;
+      en?: string;
+    };
   },
   locale: Locale = 'uz'
 ): Promise<{ success: boolean; data?: any; error?: string }> {
