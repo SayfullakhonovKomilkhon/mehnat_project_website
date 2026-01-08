@@ -1008,6 +1008,11 @@ export async function adminCreateArticle(
       ru?: { title: string; content: string; summary?: string; keywords?: string[] };
       en?: { title: string; content: string; summary?: string; keywords?: string[] };
     };
+    comment?: {
+      uz?: string;
+      ru?: string;
+      en?: string;
+    };
   },
   locale: Locale = 'uz'
 ): Promise<{ success: boolean; data?: any; error?: string }> {
@@ -1796,9 +1801,7 @@ export async function updateAuthorComment(
 }
 
 /** Get author comment stats */
-export async function getAuthorCommentStats(
-  locale: Locale = 'uz'
-): Promise<{
+export async function getAuthorCommentStats(locale: Locale = 'uz'): Promise<{
   needs_comment: number;
   in_progress: number;
   completed: number;

@@ -14,6 +14,7 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
+  MessageSquare,
 } from 'lucide-react';
 import { adminGetSections, adminCreateArticle } from '@/lib/api';
 import type { Locale } from '@/types';
@@ -46,6 +47,9 @@ const translations = {
     summaryPlaceholder: 'Qisqacha mazmunini kiriting...',
     keywords: "Kalit so'zlar",
     keywordsPlaceholder: "Kalit so'zlarni vergul bilan ajrating...",
+    comment: 'Sharh',
+    commentPlaceholder: 'Moddaga sharh kiriting (ixtiyoriy)...',
+    commentSection: 'Sharh',
     save: 'Saqlash',
     saveDraft: 'Qoralama sifatida saqlash',
     publish: 'Chop etish',
@@ -80,6 +84,9 @@ const translations = {
     summaryPlaceholder: 'Введите краткое содержание...',
     keywords: 'Ключевые слова',
     keywordsPlaceholder: 'Разделите ключевые слова запятыми...',
+    comment: 'Комментарий',
+    commentPlaceholder: 'Введите комментарий к статье (необязательно)...',
+    commentSection: 'Комментарий',
     save: 'Сохранить',
     saveDraft: 'Сохранить как черновик',
     publish: 'Опубликовать',
@@ -114,6 +121,9 @@ const translations = {
     summaryPlaceholder: 'Enter brief summary...',
     keywords: 'Keywords',
     keywordsPlaceholder: 'Separate keywords with commas...',
+    comment: 'Comment',
+    commentPlaceholder: 'Enter comment for this article (optional)...',
+    commentSection: 'Commentary',
     save: 'Save',
     saveDraft: 'Save as Draft',
     publish: 'Publish',
@@ -158,6 +168,7 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
     uz: { title: '', content: '', summary: '', keywords: '' },
     ru: { title: '', content: '', summary: '', keywords: '' },
     en: { title: '', content: '', summary: '', keywords: '' },
+    comment: { uz: '', ru: '', en: '' },
   });
 
   // Load sections and chapters from API
@@ -249,6 +260,16 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
         };
       }
 
+      // Build comment object if any language has content
+      const hasComment = formData.comment.uz || formData.comment.ru || formData.comment.en;
+      const comment = hasComment
+        ? {
+            uz: formData.comment.uz || undefined,
+            ru: formData.comment.ru || undefined,
+            en: formData.comment.en || undefined,
+          }
+        : undefined;
+
       const result = await adminCreateArticle(
         {
           chapter_id: parseInt(formData.chapterId),
@@ -256,6 +277,7 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
           order_number: parseInt(formData.order) || 1,
           is_active: action === 'publish',
           translations,
+          comment,
         },
         locale as Locale
       );
@@ -514,6 +536,55 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
                 disabled={saving}
               />
             </div>
+          </div>
+        </div>
+
+        {/* Comment Section */}
+        <div className="rounded-xl bg-white p-6 shadow-sm">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
+            <MessageSquare className="h-5 w-5 text-primary-600" />
+            {t.commentSection}
+          </h2>
+
+          {/* Comment Tabs */}
+          <div className="mb-4 flex border-b border-gray-200">
+            {tabs.map(tab => (
+              <button
+                key={`comment-${tab.key}`}
+                onClick={() => setActiveTab(tab.key as any)}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors ${
+                  activeTab === tab.key
+                    ? 'border-b-2 border-primary-600 text-primary-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+                disabled={saving}
+              >
+                <span>{tab.icon}</span>
+                {tab.label
+                  .replace('Kontent', t.comment)
+                  .replace('Контент', t.comment)
+                  .replace('Content', t.comment)}
+              </button>
+            ))}
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              {t.comment} ({activeTab.toUpperCase()})
+            </label>
+            <textarea
+              rows={6}
+              value={formData.comment[activeTab]}
+              onChange={e =>
+                setFormData({
+                  ...formData,
+                  comment: { ...formData.comment, [activeTab]: e.target.value },
+                })
+              }
+              placeholder={t.commentPlaceholder}
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              disabled={saving}
+            />
           </div>
         </div>
 
