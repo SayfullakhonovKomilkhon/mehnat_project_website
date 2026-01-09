@@ -56,7 +56,7 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
             number: article.chapter.number,
             title: getLocalizedText(article.chapter.title, locale),
           },
-          hasAuthorComment: article.hasAuthorComment || article.has_comment || !!commentData,
+          hasComment: article.has_comment || !!commentData,
         }}
         locale={locale}
         url={`${BASE_URL}/${locale}/articles/${article.id}`}
@@ -94,7 +94,7 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
               <ArticleCommentary
                 locale={locale}
                 articleId={article.id}
-                hasComment={article.hasAuthorComment || article.has_comment || !!commentData}
+                hasComment={article.has_comment || !!commentData}
                 commentData={commentData}
               />
             </div>
