@@ -161,6 +161,11 @@ export default function LogsPage({ params: { locale } }: LogsPageProps) {
       return descriptionTranslations[desc];
     }
 
+    // If description contains article info (e.g., "1-modda: Title"), show it as is
+    if (desc.match(/^\d+-modda:/)) {
+      return desc;
+    }
+
     // If description contains API path, replace with action description
     if (
       desc.includes('API:') ||
