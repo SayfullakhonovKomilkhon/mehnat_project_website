@@ -21,13 +21,7 @@ import {
   Lightbulb,
 } from 'lucide-react';
 import Link from 'next/link';
-import {
-  adminGetDashboardAnalytics,
-  adminGetActivityLogs,
-  adminGetUsers,
-  getSections,
-  getArticles,
-} from '@/lib/api';
+import { adminGetDashboardAnalytics, adminGetUsers, getSections, getArticles } from '@/lib/api';
 import type { Locale } from '@/types';
 
 interface DashboardPageProps {
@@ -287,7 +281,6 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
     needsExpertise: 0,
     myExpertReviews: 0,
   });
-  const [recentUpdates, setRecentUpdates] = useState<any[]>([]);
 
   const isAdmin = checkRole(['admin']);
   const isMuallif = false; // Role removed
@@ -323,12 +316,11 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
       };
 
       // Fetch data in parallel
-      const [sectionsData, articlesData, analyticsData, logsData, usersData, suggestionsCount] =
+      const [sectionsData, articlesData, analyticsData, usersData, suggestionsCount] =
         await Promise.all([
           getSections(locale as Locale),
           getArticles({ limit: 100 }, locale as Locale),
           isAdmin ? adminGetDashboardAnalytics(locale as Locale) : null,
-          isAdmin ? adminGetActivityLogs(locale as Locale, 5) : [],
           isAdmin ? adminGetUsers(locale as Locale) : [],
           isAdmin ? fetchSuggestionsCount() : 0,
         ]);
@@ -351,111 +343,6 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
         needsExpertise: 0,
         myExpertReviews: 0,
       });
-
-      // Action name mapping
-      const actionLabels: Record<string, string> = {
-        login: t.login,
-        logout: t.logout,
-        create: t.created,
-        update: t.updated,
-        delete: t.articleDeleted,
-        translation_submitted: t.translationSubmitted,
-        translation_approved: t.translationApproved,
-        translation_rejected: t.translationRejected,
-        article_created: t.articleCreated,
-        article_updated: t.articleUpdated,
-        article_deleted: t.articleDeleted,
-        section_created: t.sectionCreated,
-        chapter_created: t.chapterCreated,
-        approve_comment: t.commentApproved,
-        reject_comment: t.commentRejected,
-        change_role: t.roleChanged,
-        activate_user: t.userActivated,
-        deactivate_user: t.userDeactivated,
-      };
-
-      // Helper function to format description with translations
-      const formatDescription = (log: any): string => {
-        const desc = log.description || '';
-
-        // Translation map for common English descriptions
-        const descriptionTranslations: Record<string, Record<string, string>> = {
-          'User logged in': {
-            uz: 'Foydalanuvchi tizimga kirdi',
-            ru: 'Пользователь вошёл в систему',
-          },
-          'User logged out': {
-            uz: 'Foydalanuvchi tizimdan chiqdi',
-            ru: 'Пользователь вышел из системы',
-          },
-          'Article created': { uz: 'Modda yaratildi', ru: 'Статья создана' },
-          'Article updated': { uz: 'Modda yangilandi', ru: 'Статья обновлена' },
-          'Article deleted': { uz: "Modda o'chirildi", ru: 'Статья удалена' },
-          'Section created': { uz: "Bo'lim yaratildi", ru: 'Раздел создан' },
-          'Chapter created': { uz: 'Bob yaratildi', ru: 'Глава создана' },
-          'Comment approved': { uz: 'Sharh tasdiqlandi', ru: 'Комментарий одобрен' },
-          'Comment rejected': { uz: 'Sharh rad etildi', ru: 'Комментарий отклонён' },
-        };
-
-        // Check if description has a translation
-        if (descriptionTranslations[desc]) {
-          return descriptionTranslations[desc][locale as 'uz' | 'ru'] || desc;
-        }
-
-        // If description contains API path, extract meaningful info
-        if (desc.includes('API:') || desc.includes('api/')) {
-          // Extract model type and ID from API path
-          const match = desc.match(/\/(articles|sections|chapters|users|comments)\/(\d+)/);
-          if (match) {
-            const modelType = match[1];
-            const modelId = match[2];
-            const modelNames: Record<string, Record<string, string>> = {
-              articles: { uz: 'Modda', ru: 'Статья' },
-              sections: { uz: "Bo'lim", ru: 'Раздел' },
-              chapters: { uz: 'Bob', ru: 'Глава' },
-              users: { uz: 'Foydalanuvchi', ru: 'Пользователь' },
-              comments: { uz: 'Sharh', ru: 'Комментарий' },
-            };
-            const localeName = modelNames[modelType]?.[locale as 'uz' | 'ru'] || modelType;
-            return `${localeName} #${modelId}`;
-          }
-          return log.model_id ? `ID: ${log.model_id}` : '-';
-        }
-
-        // If already a good description, return it
-        if (desc && !desc.startsWith('API:')) {
-          return desc;
-        }
-
-        return log.model_id ? `ID: ${log.model_id}` : '-';
-      };
-
-      // Format activity logs for display
-      if (logsData && logsData.length > 0) {
-        const formattedLogs = logsData.map((log: any) => {
-          // Get user name with role
-          const userName = log.user?.name || 'System';
-          const userRole = log.user?.role_display || log.user?.role || '';
-          const userDisplay = userRole ? `${userName} (${userRole})` : userName;
-
-          return {
-            id: log.id,
-            user: userDisplay,
-            action: actionLabels[log.action] || log.action || t.updated,
-            article: formatDescription(log),
-            status:
-              log.action?.includes('approved') || log.action === 'login' || log.action === 'create'
-                ? 'approved'
-                : log.action?.includes('rejected') || log.action === 'delete'
-                  ? 'rejected'
-                  : log.action?.includes('pending') || log.action?.includes('submitted')
-                    ? 'pending'
-                    : 'approved',
-            date: new Date(log.created_at).toLocaleString(locale === 'ru' ? 'ru-RU' : 'uz-UZ'),
-          };
-        });
-        setRecentUpdates(formattedLogs);
-      }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     } finally {
@@ -603,99 +490,6 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
           )}
         </div>
       </div>
-
-      {/* Recent Updates - Admin Only */}
-      {isAdmin && (
-        <div className="overflow-hidden rounded-xl bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-            <h2 className="text-lg font-semibold text-gray-900">{t.recentUpdates}</h2>
-            <Link
-              href={`/${locale}/dashboard/logs`}
-              className="text-sm font-medium text-primary-600 hover:text-primary-700"
-            >
-              {t.viewAll} →
-            </Link>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    {t.date}
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    {t.user}
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    {t.action}
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    {t.article}
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    {t.status}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {recentUpdates.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                      No recent updates found
-                    </td>
-                  </tr>
-                ) : (
-                  recentUpdates.map(update => (
-                    <tr key={update.id} className="hover:bg-gray-50">
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                        {update.date}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                        {update.user}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <span
-                          className={`inline-flex items-center gap-1 text-sm ${
-                            update.action === 'created' || update.action === 'create'
-                              ? 'text-green-600'
-                              : 'text-blue-600'
-                          }`}
-                        >
-                          {update.action === 'created' || update.action === 'create' ? (
-                            <Plus className="h-4 w-4" />
-                          ) : (
-                            <Edit className="h-4 w-4" />
-                          )}
-                          {t[update.action as keyof typeof t] || update.action}
-                        </span>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                        {update.article}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <span
-                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                            update.status === 'approved'
-                              ? 'bg-green-100 text-green-800'
-                              : update.status === 'pending'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {update.status === 'approved' && <CheckCircle className="h-3 w-3" />}
-                          {update.status === 'pending' && <Clock className="h-3 w-3" />}
-                          {update.status === 'rejected' && <XCircle className="h-3 w-3" />}
-                          {t[update.status as keyof typeof t] || update.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
