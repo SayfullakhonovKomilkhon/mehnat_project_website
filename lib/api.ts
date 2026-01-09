@@ -195,6 +195,7 @@ function transformArticle(data: any): Article {
     has_comment: Boolean(data.has_comment),
     article_comment: data.article_comment || null,
     expertise: data.expertise || null,
+    images: data.images || [],
     translations: ['uz', 'ru', 'en'] as Locale[],
     viewCount: data.views_count || 0,
     lastUpdated: data.updated_at || new Date().toISOString(),
