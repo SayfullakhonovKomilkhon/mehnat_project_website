@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   FileText,
   Users,
-  Settings,
   LogOut,
   Menu,
   ChevronDown,
@@ -63,22 +62,15 @@ const getMenuItems = (locale: string): MenuItem[] => [
     href: `/${locale}/dashboard/suggestions`,
     roles: ['admin'],
   },
-  {
-    key: 'settings',
-    icon: <Settings className="h-5 w-5" />,
-    href: `/${locale}/dashboard/settings`,
-    roles: ['admin'],
-  },
 ];
 
-// Menu labels in 3 languages
+// Menu labels in 2 languages
 const menuLabels: Record<string, Record<string, string>> = {
-  dashboard: { uz: 'Bosh sahifa', ru: 'Главная', en: 'Dashboard' },
-  articles: { uz: 'Moddalar', ru: 'Статьи', en: 'Articles' },
-  structure: { uz: "Bo'limlar", ru: 'Разделы', en: 'Sections' },
-  users: { uz: 'Foydalanuvchilar', ru: 'Пользователи', en: 'Users' },
-  suggestions: { uz: 'Takliflar', ru: 'Предложения', en: 'Suggestions' },
-  settings: { uz: 'Sozlamalar', ru: 'Настройки', en: 'Settings' },
+  dashboard: { uz: 'Bosh sahifa', ru: 'Главная' },
+  articles: { uz: 'Moddalar', ru: 'Статьи' },
+  structure: { uz: "Bo'limlar", ru: 'Разделы' },
+  users: { uz: 'Foydalanuvchilar', ru: 'Пользователи' },
+  suggestions: { uz: 'Takliflar', ru: 'Предложения' },
 };
 
 // Role display names (simplified)
