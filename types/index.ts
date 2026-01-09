@@ -182,6 +182,12 @@ export interface Article {
     created_at?: string;
     updated_at?: string;
   } | null;
+  images?: Array<{
+    id: number;
+    url: string;
+    original_name: string;
+    order: number;
+  }>;
   translations: Locale[];
   viewCount: number;
   lastUpdated: string;

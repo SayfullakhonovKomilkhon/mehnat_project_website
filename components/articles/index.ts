@@ -9,6 +9,7 @@ export { SearchFilters } from './SearchFilters';
 export { ArticleHeader } from './ArticleHeader';
 export { ArticleContent } from './ArticleContent';
 export { ArticleCommentary } from './ArticleCommentary';
+export { ArticleImages } from './ArticleImages';
 export { ArticleSidebar } from './ArticleSidebar';
 export { RelatedArticles } from './RelatedArticles';
 export { ArticleMobileNav } from './ArticleMobileNav';

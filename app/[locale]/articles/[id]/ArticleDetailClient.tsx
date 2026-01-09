@@ -5,6 +5,7 @@ import {
   ArticleHeader,
   ArticleContent,
   ArticleCommentary,
+  ArticleImages,
   ArticleSidebar,
   RelatedArticles,
   ArticleMobileNav,
@@ -94,6 +95,11 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
               hasComment={article.hasAuthorComment || article.has_comment || !!commentData}
               commentData={commentData}
             />
+
+            {/* Images Section */}
+            {article.images && article.images.length > 0 && (
+              <ArticleImages images={article.images} locale={locale} />
+            )}
 
             {/* User Suggestions Section */}
             <SuggestionSection
