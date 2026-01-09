@@ -81,6 +81,7 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
           <div className="min-w-0 flex-1 space-y-6">
             {/* Article Text */}
             <motion.section
+              id="content"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
@@ -89,17 +90,21 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
             </motion.section>
 
             {/* Commentary Section */}
-            <ArticleCommentary
-              locale={locale}
-              articleId={article.id}
-              hasComment={article.hasAuthorComment || article.has_comment || !!commentData}
-              commentData={commentData}
-            />
+            <div id="comment">
+              <ArticleCommentary
+                locale={locale}
+                articleId={article.id}
+                hasComment={article.hasAuthorComment || article.has_comment || !!commentData}
+                commentData={commentData}
+              />
+            </div>
 
             {/* Images Section */}
-            {article.images && article.images.length > 0 && (
-              <ArticleImages images={article.images} locale={locale} />
-            )}
+            <div id="images">
+              {article.images && article.images.length > 0 && (
+                <ArticleImages images={article.images} locale={locale} />
+              )}
+            </div>
 
             {/* User Suggestions Section */}
             <SuggestionSection
@@ -110,6 +115,7 @@ export default function ArticleDetailClient({ article, locale }: ArticleDetailCl
 
             {/* Related Articles */}
             <motion.section
+              id="related"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}

@@ -43,8 +43,8 @@
   },
   "article": {
     "content": "Содержание статьи",
-    "authorComment": "Комментарий автора",
-    "expertComment": "Комментарий эксперта",
+    "comment": "Комментарий",
+    "images": "Изображения",
     "relatedArticles": "Связанные статьи",
     "articleNumber": "Статья",
     "section": "Раздел",

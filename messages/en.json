@@ -43,8 +43,8 @@
   },
   "article": {
     "content": "Article Content",
-    "authorComment": "Author Commentary",
-    "expertComment": "Expert Commentary",
+    "comment": "Commentary",
+    "images": "Images",
     "relatedArticles": "Related Articles",
     "articleNumber": "Article",
     "section": "Section",

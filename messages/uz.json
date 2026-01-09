@@ -43,8 +43,8 @@
   },
   "article": {
     "content": "Modda mazmuni",
-    "authorComment": "Muallif sharhi",
-    "expertComment": "Ekspert sharhi",
+    "comment": "Sharh",
+    "images": "Rasmlar",
     "relatedArticles": "Bog'liq moddalar",
     "articleNumber": "Modda",
     "section": "Bo'lim",

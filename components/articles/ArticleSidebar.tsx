@@ -4,7 +4,15 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { FileText, User, Scale, Link2, MessageCircle, ChevronRight, Loader2 } from 'lucide-react';
+import {
+  FileText,
+  MessageSquare,
+  Image,
+  Link2,
+  MessageCircle,
+  ChevronRight,
+  Loader2,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button, Badge } from '@/components/ui';
 import { getQuickLinkArticles, getLocalizedText } from '@/lib/api';
@@ -17,8 +25,8 @@ interface ArticleSidebarProps {
 
 const navItemKeys = [
   { id: 'content', labelKey: 'content', icon: FileText },
-  { id: 'author', labelKey: 'authorComment', icon: User },
-  { id: 'expert', labelKey: 'expertComment', icon: Scale },
+  { id: 'comment', labelKey: 'comment', icon: MessageSquare },
+  { id: 'images', labelKey: 'images', icon: Image },
   { id: 'related', labelKey: 'relatedArticles', icon: Link2 },
 ];
 
