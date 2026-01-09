@@ -18,6 +18,7 @@ import {
   Plus,
   Loader2,
   RefreshCw,
+  Lightbulb,
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -39,8 +40,8 @@ const translations = {
     welcome: 'Xush kelibsiz',
     dashboard: 'Bosh sahifa',
     totalArticles: 'Jami moddalar',
-    pendingApproval: 'Tasdiqlashni kutmoqda',
-    totalComments: 'Jami sharhlar',
+    totalSuggestions: 'Takliflar',
+    totalSections: "Bo'limlar soni",
     totalUsers: 'Foydalanuvchilar',
     recentUpdates: "So'nggi yangilanishlar",
     viewAll: "Barchasini ko'rish",
@@ -92,8 +93,8 @@ const translations = {
     welcome: 'Добро пожаловать',
     dashboard: 'Главная',
     totalArticles: 'Всего статей',
-    pendingApproval: 'Ожидают одобрения',
-    totalComments: 'Всего комментариев',
+    totalSuggestions: 'Предложений',
+    totalSections: 'Разделов',
     totalUsers: 'Пользователей',
     recentUpdates: 'Последние обновления',
     viewAll: 'Смотреть все',
@@ -145,8 +146,8 @@ const translations = {
     welcome: 'Welcome',
     dashboard: 'Dashboard',
     totalArticles: 'Total Articles',
-    pendingApproval: 'Pending Approval',
-    totalComments: 'Total Comments',
+    totalSuggestions: 'Suggestions',
+    totalSections: 'Sections',
     totalUsers: 'Users',
     recentUpdates: 'Recent Updates',
     viewAll: 'View All',
@@ -273,8 +274,8 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalArticles: 0,
-    pendingApproval: 0,
-    totalComments: 0,
+    totalSuggestions: 0,
+    totalSections: 0,
     totalUsers: 0,
     myArticles: 0,
     myComments: 0,
@@ -298,22 +299,47 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
   const loadDashboardData = useCallback(async () => {
     setLoading(true);
     try {
+      // Fetch suggestions count
+      const fetchSuggestionsCount = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api'}/v1/admin/suggestions`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Accept-Language': locale,
+              },
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data.data?.items?.length || 0;
+          }
+          return 0;
+        } catch {
+          return 0;
+        }
+      };
+
       // Fetch data in parallel
-      const [sectionsData, articlesData, analyticsData, logsData, usersData] = await Promise.all([
-        getSections(locale as Locale),
-        getArticles({ limit: 100 }, locale as Locale),
-        isAdmin ? adminGetDashboardAnalytics(locale as Locale) : null,
-        isAdmin ? adminGetActivityLogs(locale as Locale, 5) : [],
-        isAdmin ? adminGetUsers(locale as Locale) : [],
-      ]);
+      const [sectionsData, articlesData, analyticsData, logsData, usersData, suggestionsCount] =
+        await Promise.all([
+          getSections(locale as Locale),
+          getArticles({ limit: 100 }, locale as Locale),
+          isAdmin ? adminGetDashboardAnalytics(locale as Locale) : null,
+          isAdmin ? adminGetActivityLogs(locale as Locale, 5) : [],
+          isAdmin ? adminGetUsers(locale as Locale) : [],
+          isAdmin ? fetchSuggestionsCount() : 0,
+        ]);
 
       // Calculate stats
       const totalChapters = sectionsData.reduce((acc, s) => acc + (s.chaptersCount || 0), 0);
 
       setStats({
         totalArticles: articlesData.pagination.total || articlesData.data.length,
-        pendingApproval: analyticsData?.pending_comments || 0,
-        totalComments: analyticsData?.total_comments || 0,
+        totalSuggestions: suggestionsCount,
+        totalSections: sectionsData.length,
         totalUsers: usersData.length || 0,
         myArticles: 0,
         myComments: 0,
@@ -482,57 +508,23 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
             trend="+12 this month"
           />
           <StatCard
-            title={t.pendingApproval}
-            value={stats.pendingApproval}
-            icon={Clock}
+            title={t.totalSuggestions}
+            value={stats.totalSuggestions}
+            icon={Lightbulb}
             color="yellow"
           />
           <StatCard
-            title={t.totalComments}
-            value={stats.totalComments}
-            icon={MessageSquare}
+            title={t.totalSections}
+            value={stats.totalSections}
+            icon={FolderTree}
             color="green"
-            trend="+47 this week"
           />
           <StatCard title={t.totalUsers} value={stats.totalUsers} icon={Users} color="purple" />
         </div>
       )}
 
-      {/* Muallif Stats */}
-      {isMuallif && !isAdmin && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <StatCard title={t.myArticles} value={stats.myArticles} icon={FileText} color="blue" />
-          <StatCard
-            title={t.myComments}
-            value={stats.myComments}
-            icon={MessageSquare}
-            color="green"
-          />
-          <StatCard title={t.pendingApproval} value={5} icon={Clock} color="yellow" />
-        </div>
-      )}
-
-      {/* Tarjimon Stats */}
-      {isTarjimon && !isAdmin && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <StatCard
-            title={t.needsTranslation}
-            value={stats.needsTranslation}
-            icon={Globe}
-            color="red"
-          />
-          <StatCard
-            title={t.myTranslations}
-            value={stats.myTranslations}
-            icon={CheckCircle}
-            color="green"
-          />
-          <StatCard title={t.pendingApproval} value={3} icon={Clock} color="yellow" />
-        </div>
-      )}
-
-      {/* Ishchi Guruh Stats */}
-      {isIshchiGuruh && !isAdmin && (
+      {/* Ishchi Guruh Stats - disabled, roles removed */}
+      {false && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <StatCard title={t.sectionsCount} value={stats.sections} icon={FolderTree} color="blue" />
           <StatCard
