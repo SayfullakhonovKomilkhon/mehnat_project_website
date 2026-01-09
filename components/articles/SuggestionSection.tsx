@@ -102,7 +102,7 @@ export function SuggestionSection({ articleId, articleNumber, locale }: Suggesti
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api'}/v1/suggestions`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api/v1'}/suggestions`,
         {
           method: 'POST',
           headers: {
