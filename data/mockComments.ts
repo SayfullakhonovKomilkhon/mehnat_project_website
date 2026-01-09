@@ -5,9 +5,9 @@ export const mockAuthors: Author[] = [
   {
     id: 1,
     name: 'Aziz Tojiboyev',
-    role: 'muallif',
+    role: 'admin',
     avatar: '/images/avatars/author-1.jpg',
-    credentials: "Yuridik fanlar doktori, professor",
+    credentials: 'Yuridik fanlar doktori, professor',
     organization: "O'zbekiston Milliy universiteti",
     bio: {
       uz: "Mehnat huquqi bo'yicha 25 yillik tajribaga ega mutaxassis",
@@ -18,12 +18,12 @@ export const mockAuthors: Author[] = [
   {
     id: 2,
     name: 'Dilfuza Rahimova',
-    role: 'muallif',
+    role: 'admin',
     avatar: '/images/avatars/author-2.jpg',
-    credentials: "Yuridik fanlar nomzodi",
-    organization: "Toshkent davlat yuridik universiteti",
+    credentials: 'Yuridik fanlar nomzodi',
+    organization: 'Toshkent davlat yuridik universiteti',
     bio: {
-      uz: "Mehnat huquqi kafedrasi dotsenti",
+      uz: 'Mehnat huquqi kafedrasi dotsenti',
       ru: 'Доцент кафедры трудового права',
       en: 'Associate professor of labor law department',
     },
@@ -31,10 +31,10 @@ export const mockAuthors: Author[] = [
   {
     id: 3,
     name: 'Botir Karimov',
-    role: 'ekspert',
+    role: 'admin',
     avatar: '/images/avatars/expert-1.jpg',
-    credentials: "Oliy toifali advokat",
-    organization: "Huquqiy yordam markazi",
+    credentials: 'Oliy toifali advokat',
+    organization: 'Huquqiy yordam markazi',
     bio: {
       uz: "20 yillik advokatlık tajribasi, mehnat nizolari bo'yicha mutaxassis",
       ru: 'Адвокат с 20-летним стажем, специалист по трудовым спорам',
@@ -44,12 +44,12 @@ export const mockAuthors: Author[] = [
   {
     id: 4,
     name: 'Nilufar Saidova',
-    role: 'ekspert',
+    role: 'admin',
     avatar: '/images/avatars/expert-2.jpg',
-    credentials: "Mehnat inspeksiyasi bosh inspektori",
-    organization: "Bandlik va mehnat vazirligi",
+    credentials: 'Mehnat inspeksiyasi bosh inspektori',
+    organization: 'Bandlik va mehnat vazirligi',
     bio: {
-      uz: "Davlat mehnat inspeksiyasida 15 yillik ish tajribasi",
+      uz: 'Davlat mehnat inspeksiyasida 15 yillik ish tajribasi',
       ru: '15 лет опыта работы в государственной инспекции труда',
       en: '15 years of experience in state labor inspection',
     },
@@ -57,10 +57,10 @@ export const mockAuthors: Author[] = [
   {
     id: 5,
     name: 'Jamshid Alimov',
-    role: 'ekspert',
+    role: 'admin',
     avatar: '/images/avatars/expert-3.jpg',
-    credentials: "HR direktor",
-    organization: "Xalqaro kompaniya",
+    credentials: 'HR direktor',
+    organization: 'Xalqaro kompaniya',
     bio: {
       uz: "Xalqaro korporatsiyalarda kadrlar boshqaruvi bo'yicha tajriba",
       ru: 'Опыт управления персоналом в международных корпорациях',
@@ -114,7 +114,7 @@ The main purpose of the Code is to protect the labor rights of citizens. These r
     },
     author: mockAuthors[0],
     status: 'published',
-    references: ['O\'zbekiston Respublikasi Konstitutsiyasi, 37-modda', 'Mehnat kodeksi, 2-modda'],
+    references: ["O'zbekiston Respublikasi Konstitutsiyasi, 37-modda", 'Mehnat kodeksi, 2-modda'],
     createdAt: '2024-06-15T10:00:00Z',
     updatedAt: '2024-10-15T10:30:00Z',
   },
@@ -123,7 +123,7 @@ The main purpose of the Code is to protect the labor rights of citizens. These r
     articleId: 1,
     type: 'expert',
     title: {
-      uz: 'Amaliyotdan ko\'rinish',
+      uz: "Amaliyotdan ko'rinish",
       ru: 'Взгляд из практики',
       en: 'View from Practice',
     },
@@ -165,7 +165,10 @@ The main purpose of the Code is to protect the labor rights of citizens. These r
     author: mockAuthors[2],
     status: 'published',
     basedOn: 'Sud amaliyoti va huquqiy maslahatlar tajribasiga asoslanadi',
-    references: ['Oliy sud Plenumi qarori, 2022-yil', 'Mehnat nizolari bo\'yicha sud amaliyoti sharhi'],
+    references: [
+      'Oliy sud Plenumi qarori, 2022-yil',
+      "Mehnat nizolari bo'yicha sud amaliyoti sharhi",
+    ],
     createdAt: '2024-07-20T14:30:00Z',
     updatedAt: '2024-10-15T10:30:00Z',
   },
@@ -348,7 +351,7 @@ Some contracts do not specify wages or working hours.
     },
     author: mockAuthors[0],
     status: 'published',
-    references: ['Mehnat kodeksi, 73-82 moddalar', 'Sog\'liqni saqlash vazirligi me\'yorlari'],
+    references: ['Mehnat kodeksi, 73-82 moddalar', "Sog'liqni saqlash vazirligi me'yorlari"],
     createdAt: '2024-04-20T08:00:00Z',
     updatedAt: '2024-10-10T16:45:00Z',
   },
@@ -414,7 +417,7 @@ These changes are expected to be reflected in legislation as well.`,
     },
     author: mockAuthors[4],
     status: 'published',
-    basedOn: 'Xalqaro HR amaliyoti va O\'zbekiston bozori tajribasiga asoslanadi',
+    basedOn: "Xalqaro HR amaliyoti va O'zbekiston bozori tajribasiga asoslanadi",
     createdAt: '2024-09-01T14:00:00Z',
     updatedAt: '2024-10-10T16:45:00Z',
   },
@@ -536,15 +539,10 @@ Cash payment without official documents is illegal.
     },
     author: mockAuthors[2],
     status: 'published',
-    basedOn: 'Mehnat nizolari bo\'yicha sud amaliyotiga asoslanadi',
+    basedOn: "Mehnat nizolari bo'yicha sud amaliyotiga asoslanadi",
     createdAt: '2024-06-01T16:00:00Z',
     updatedAt: '2024-11-05T10:00:00Z',
   },
 ];
 
 export default mockCommentaries;
-
-
-
-
-
