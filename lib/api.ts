@@ -999,17 +999,15 @@ export async function adminCreateArticle(
   data: {
     chapter_id: number;
     article_number: string;
-    order_number: number;
+    order_number?: number;
     is_active?: boolean;
     translations: {
       uz: { title: string; content: string; summary?: string; keywords?: string[] };
       ru?: { title: string; content: string; summary?: string; keywords?: string[] };
-      en?: { title: string; content: string; summary?: string; keywords?: string[] };
     };
     comment?: {
       uz?: string;
       ru?: string;
-      en?: string;
     };
   },
   locale: Locale = 'uz'
@@ -1035,12 +1033,10 @@ export async function adminUpdateArticle(
     translations?: {
       uz: { title: string; content: string; summary?: string; keywords?: string[] };
       ru?: { title: string; content: string; summary?: string; keywords?: string[] };
-      en?: { title: string; content: string; summary?: string; keywords?: string[] };
     };
     comment?: {
       uz?: string;
       ru?: string;
-      en?: string;
     };
   },
   locale: Locale = 'uz'
