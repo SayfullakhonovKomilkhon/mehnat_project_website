@@ -26,8 +26,7 @@ export interface MockArticle {
   title: { uz: string; ru: string; en: string };
   content: { uz: string; ru: string; en: string };
   excerpt: { uz: string; ru: string; en: string };
-  hasAuthorComment: boolean;
-  hasExpertComment: boolean;
+  hasComment: boolean;
   translations: ('uz' | 'ru')[];
   status: 'published' | 'draft';
   createdAt: string;
@@ -158,8 +157,7 @@ export const articles: MockArticle[] = [
       ru: 'Трудовое законодательство Республики Узбекистан обеспечивает право граждан на труд, регулирует трудовые отношения.',
       en: 'The labor legislation of the Republic of Uzbekistan ensures the right of citizens to work and regulates labor relations.',
     },
-    hasAuthorComment: true,
-    hasExpertComment: true,
+    hasComment: true,
     translations: ['uz', 'ru'],
     status: 'published',
     createdAt: '2024-01-15',
@@ -185,8 +183,7 @@ export const articles: MockArticle[] = [
       ru: 'Настоящий Кодекс применяется ко всем работникам и их работодателям, работающим на основании трудового договора.',
       en: 'This Code applies to all employees and their employers working under an employment contract.',
     },
-    hasAuthorComment: true,
-    hasExpertComment: false,
+    hasComment: true,
     translations: ['uz', 'ru'],
     status: 'published',
     createdAt: '2024-01-15',
@@ -212,8 +209,7 @@ export const articles: MockArticle[] = [
       ru: 'Законодательные акты о труде состоят из настоящего Кодекса и других законодательных актов.',
       en: 'Legislative acts on labor consist of this Code and other legislative acts.',
     },
-    hasAuthorComment: false,
-    hasExpertComment: true,
+    hasComment: true,
     translations: ['uz', 'ru'],
     status: 'published',
     createdAt: '2024-01-14',
@@ -239,8 +235,7 @@ export const articles: MockArticle[] = [
       ru: 'Трудовые отношения - отношения между работником и работодателем, возникающие на основании трудового договора.',
       en: 'Labor relations are relationships between an employee and an employer arising on the basis of an employment contract.',
     },
-    hasAuthorComment: true,
-    hasExpertComment: true,
+    hasComment: true,
     translations: ['uz', 'ru'],
     status: 'published',
     createdAt: '2024-01-13',
@@ -266,8 +261,7 @@ export const articles: MockArticle[] = [
       ru: 'Сторонами трудовых отношений являются работник и работодатель. Работник - физическое лицо.',
       en: 'The parties to labor relations are the employee and the employer. An employee is a natural person.',
     },
-    hasAuthorComment: false,
-    hasExpertComment: false,
+    hasComment: false,
     translations: ['uz', 'ru'],
     status: 'published',
     createdAt: '2024-01-12',
@@ -303,8 +297,7 @@ for (let i = 6; i <= 50; i++) {
       ru: `Краткое содержание статьи ${i}. Одно из важных положений Трудового кодекса.`,
       en: `Brief content of article ${i}. One of the important provisions of the Labor Code.`,
     },
-    hasAuthorComment: Math.random() > 0.5,
-    hasExpertComment: Math.random() > 0.6,
+    hasComment: Math.random() > 0.5,
     translations: Math.random() > 0.3 ? ['uz', 'ru'] : Math.random() > 0.5 ? ['uz', 'ru'] : ['uz'],
     status: 'published',
     createdAt: '2024-01-10',
@@ -319,8 +312,7 @@ export function filterArticles(
     search?: string;
     sectionId?: number;
     chapterId?: number;
-    hasAuthorComment?: boolean;
-    hasExpertComment?: boolean;
+    hasComment?: boolean;
     translation?: string;
   }
 ): MockArticle[] {
@@ -342,17 +334,8 @@ export function filterArticles(
     // Chapter filter
     if (filters.chapterId && article.chapter.id !== filters.chapterId) return false;
 
-    // Comment filters
-    if (
-      filters.hasAuthorComment !== undefined &&
-      article.hasAuthorComment !== filters.hasAuthorComment
-    )
-      return false;
-    if (
-      filters.hasExpertComment !== undefined &&
-      article.hasExpertComment !== filters.hasExpertComment
-    )
-      return false;
+    // Comment filter
+    if (filters.hasComment !== undefined && article.hasComment !== filters.hasComment) return false;
 
     // Translation filter
     if (filters.translation && !article.translations.includes(filters.translation as 'uz' | 'ru'))

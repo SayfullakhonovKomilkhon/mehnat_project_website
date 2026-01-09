@@ -4,16 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import {
-  FileText,
-  User,
-  Scale,
-  Link2,
-  ChevronLeft,
-  ChevronRight,
-  ArrowUp,
-  Menu,
-} from 'lucide-react';
+import { FileText, MessageSquare, Image, ChevronLeft, ChevronRight, ArrowUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Article, articles as allArticles } from '@/lib/mock-data';
 
@@ -24,9 +15,8 @@ interface ArticleMobileNavProps {
 
 const tabKeys = [
   { id: 'content', labelKey: 'content', icon: FileText },
-  { id: 'author', labelKey: 'authorComment', icon: User },
-  { id: 'expert', labelKey: 'expertComment', icon: Scale },
-  { id: 'related', labelKey: 'relatedArticles', icon: Link2 },
+  { id: 'comment', labelKey: 'comment', icon: MessageSquare },
+  { id: 'images', labelKey: 'images', icon: Image },
 ];
 
 export function ArticleMobileNav({ article, locale }: ArticleMobileNavProps) {

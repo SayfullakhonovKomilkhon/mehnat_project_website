@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, MessageSquare, User, ChevronRight } from 'lucide-react';
+import { ArrowRight, MessageSquare, ChevronRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui';
@@ -22,70 +22,64 @@ export function ArticleListCard({ article, locale, view, index }: ArticleListCar
 
   if (view === 'list') {
     return (
-      <div
-        className="animate-fadeIn"
-        style={{ animationDelay: `${index * 0.03}s` }}
-      >
+      <div className="animate-fadeIn" style={{ animationDelay: `${index * 0.03}s` }}>
         <Link href={`/${locale}/articles/${article.id}`}>
           <article
             className={cn(
-              'group bg-gov-surface rounded-lg sm:rounded-xl border border-gov-border',
-              'p-3 sm:p-4 md:p-6 hover:border-primary-300 hover:shadow-card-hover',
+              'group rounded-lg border border-gov-border bg-gov-surface sm:rounded-xl',
+              'p-3 hover:border-primary-300 hover:shadow-card-hover sm:p-4 md:p-6',
               'transition-all duration-200'
             )}
           >
             <div className="flex items-start gap-3 sm:gap-4">
               {/* Article Number */}
               <div className="flex-shrink-0">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl bg-primary-50 flex items-center justify-center">
-                  <span className="text-lg sm:text-xl font-heading font-bold text-primary-700">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-50 sm:h-16 sm:w-16 sm:rounded-xl">
+                  <span className="font-heading text-lg font-bold text-primary-700 sm:text-xl">
                     {article.number}
                   </span>
                 </div>
               </div>
 
               {/* Content */}
-              <div className="flex-1 min-w-0">
+              <div className="min-w-0 flex-1">
                 {/* Breadcrumb */}
-                <div className="flex items-center gap-1 text-[10px] sm:text-xs text-text-muted mb-1 sm:mb-2">
-                  <span>{article.section.number}-{t('breadcrumb.section')}</span>
-                  <ChevronRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                  <span>{article.chapter.number}-{t('breadcrumb.chapter')}</span>
+                <div className="mb-1 flex items-center gap-1 text-[10px] text-text-muted sm:mb-2 sm:text-xs">
+                  <span>
+                    {article.section.number}-{t('breadcrumb.section')}
+                  </span>
+                  <ChevronRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                  <span>
+                    {article.chapter.number}-{t('breadcrumb.chapter')}
+                  </span>
                 </div>
 
                 {/* Title */}
-                <h3 className="font-heading text-sm sm:text-base md:text-lg font-semibold text-text-primary mb-1 sm:mb-2 group-hover:text-primary-700 transition-colors line-clamp-2">
+                <h3 className="mb-1 line-clamp-2 font-heading text-sm font-semibold text-text-primary transition-colors group-hover:text-primary-700 sm:mb-2 sm:text-base md:text-lg">
                   {title}
                 </h3>
 
                 {/* Excerpt - Hidden on very small mobile */}
-                <p className="hidden sm:block text-text-secondary text-sm leading-relaxed line-clamp-2 mb-2 sm:mb-3">
+                <p className="mb-2 line-clamp-2 hidden text-sm leading-relaxed text-text-secondary sm:mb-3 sm:block">
                   {excerpt}
                 </p>
 
                 {/* Tags */}
                 <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                  {article.hasAuthorComment && (
+                  {article.hasComment && (
                     <Badge variant="primary" size="sm" className="text-[10px] sm:text-xs">
-                      <User className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
-                      <span className="hidden sm:inline">{t('article.authorComment')}</span>
+                      <MessageSquare className="mr-0.5 h-2.5 w-2.5 sm:mr-1 sm:h-3 sm:w-3" />
+                      <span className="hidden sm:inline">{t('article.comment')}</span>
                       <span className="sm:hidden">Sharh</span>
-                    </Badge>
-                  )}
-                  {article.hasExpertComment && (
-                    <Badge variant="gold" size="sm" className="text-[10px] sm:text-xs">
-                      <MessageSquare className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
-                      <span className="hidden sm:inline">{t('article.expertComment')}</span>
-                      <span className="sm:hidden">Ekspert</span>
                     </Badge>
                   )}
                 </div>
               </div>
 
               {/* Arrow - Hidden on mobile */}
-              <div className="hidden md:flex items-center">
-                <div className="w-10 h-10 rounded-full bg-gov-light group-hover:bg-primary-50 flex items-center justify-center transition-colors">
-                  <ArrowRight className="w-5 h-5 text-text-muted group-hover:text-primary-600 transition-colors" />
+              <div className="hidden items-center md:flex">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gov-light transition-colors group-hover:bg-primary-50">
+                  <ArrowRight className="h-5 w-5 text-text-muted transition-colors group-hover:text-primary-600" />
                 </div>
               </div>
             </div>
@@ -97,59 +91,56 @@ export function ArticleListCard({ article, locale, view, index }: ArticleListCar
 
   // Grid View
   return (
-    <div
-      className="animate-fadeIn"
-      style={{ animationDelay: `${index * 0.03}s` }}
-    >
+    <div className="animate-fadeIn" style={{ animationDelay: `${index * 0.03}s` }}>
       <Link href={`/${locale}/articles/${article.id}`}>
         <article
           className={cn(
-            'group bg-gov-surface rounded-lg sm:rounded-xl border border-gov-border h-full',
-            'p-3 sm:p-4 md:p-5 hover:border-primary-300 hover:shadow-card-hover',
-            'transition-all duration-200 flex flex-col'
+            'group h-full rounded-lg border border-gov-border bg-gov-surface sm:rounded-xl',
+            'p-3 hover:border-primary-300 hover:shadow-card-hover sm:p-4 md:p-5',
+            'flex flex-col transition-all duration-200'
           )}
         >
           {/* Header */}
-          <div className="flex items-start justify-between mb-2 sm:mb-3">
+          <div className="mb-2 flex items-start justify-between sm:mb-3">
             <Badge variant="primary" size="md" className="font-heading text-xs sm:text-sm">
               {article.number}-{t('badges.article')}
             </Badge>
           </div>
 
           {/* Breadcrumb */}
-          <div className="flex items-center gap-1 text-[10px] sm:text-xs text-text-muted mb-1.5 sm:mb-2">
+          <div className="mb-1.5 flex items-center gap-1 text-[10px] text-text-muted sm:mb-2 sm:text-xs">
             <span>{article.section.number}</span>
-            <ChevronRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-            <span>{article.chapter.number}-{t('breadcrumb.chapter')}</span>
+            <ChevronRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+            <span>
+              {article.chapter.number}-{t('breadcrumb.chapter')}
+            </span>
           </div>
 
           {/* Title */}
-          <h3 className="font-heading text-sm sm:text-base font-semibold text-text-primary mb-1.5 sm:mb-2 group-hover:text-primary-700 transition-colors line-clamp-2 flex-grow">
+          <h3 className="mb-1.5 line-clamp-2 flex-grow font-heading text-sm font-semibold text-text-primary transition-colors group-hover:text-primary-700 sm:mb-2 sm:text-base">
             {title}
           </h3>
 
           {/* Excerpt - Hidden on very small mobile */}
-          <p className="hidden sm:block text-text-secondary text-xs sm:text-sm leading-relaxed line-clamp-2 sm:line-clamp-3 mb-3 sm:mb-4">
+          <p className="mb-3 line-clamp-2 hidden text-xs leading-relaxed text-text-secondary sm:mb-4 sm:line-clamp-3 sm:block sm:text-sm">
             {excerpt}
           </p>
 
           {/* Footer */}
-          <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-gov-border mt-auto">
+          <div className="mt-auto flex items-center justify-between border-t border-gov-border pt-2 sm:pt-3">
             <div className="flex items-center gap-1">
-              {article.hasAuthorComment && (
-                <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary-50 flex items-center justify-center" title={t('article.authorComment')}>
-                  <User className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-primary-600" />
-                </span>
-              )}
-              {article.hasExpertComment && (
-                <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-accent-gold/10 flex items-center justify-center" title={t('article.expertComment')}>
-                  <MessageSquare className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-accent-amber" />
+              {article.hasComment && (
+                <span
+                  className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-50 sm:h-6 sm:w-6"
+                  title={t('article.comment')}
+                >
+                  <MessageSquare className="h-2.5 w-2.5 text-primary-600 sm:h-3 sm:w-3" />
                 </span>
               )}
             </div>
-            <span className="text-xs sm:text-sm font-medium text-primary-600 group-hover:text-primary-700 flex items-center gap-0.5 sm:gap-1">
+            <span className="flex items-center gap-0.5 text-xs font-medium text-primary-600 group-hover:text-primary-700 sm:gap-1 sm:text-sm">
               {t('badges.readMore')}
-              <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
+              <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
             </span>
           </div>
         </article>

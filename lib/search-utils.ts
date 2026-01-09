@@ -2,7 +2,7 @@ import { articles, sections, chapters, getLocalizedText, type MockArticle } from
 
 // Types
 export interface SearchFilters {
-  type: 'all' | 'article' | 'authorComment' | 'expertComment';
+  type: 'all' | 'article' | 'comment';
   section?: number;
   chapter?: number;
   language?: 'uz' | 'ru';
@@ -15,7 +15,7 @@ export interface SearchResult {
   excerpt: string;
   breadcrumb: string;
   url: string;
-  matchedIn: ('title' | 'content' | 'authorComment' | 'expertComment')[];
+  matchedIn: ('title' | 'content' | 'comment')[];
   relevanceScore: number;
   article?: MockArticle;
 }
@@ -118,8 +118,7 @@ function calculateRelevance(article: MockArticle, query: string, locale: string)
   });
 
   // Bonus for having comments
-  if (article.hasAuthorComment) score += 2;
-  if (article.hasExpertComment) score += 2;
+  if (article.hasComment) score += 2;
 
   return score;
 }
@@ -201,13 +200,11 @@ export function searchArticles(
 
     // Filter by type
     if (filters.type === 'article' && matchedIn.length === 0) return;
-    if (filters.type === 'authorComment' && !article.hasAuthorComment) return;
-    if (filters.type === 'expertComment' && !article.hasExpertComment) return;
+    if (filters.type === 'comment' && !article.hasComment) return;
 
     if (!hasMatch && filters.type === 'all') {
-      // For 'all', also include if author/expert comment might match
-      if (article.hasAuthorComment) matchedIn.push('authorComment');
-      if (article.hasExpertComment) matchedIn.push('expertComment');
+      // For 'all', also include if comment might match
+      if (article.hasComment) matchedIn.push('comment');
       if (matchedIn.length === 0) return;
     }
 

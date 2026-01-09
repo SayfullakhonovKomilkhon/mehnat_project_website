@@ -172,7 +172,7 @@ export function ArticleSidebar({ article, locale }: ArticleSidebarProps) {
           </div>
         ) : (
           <p className="py-2 text-sm text-text-muted">
-            {t('noRelatedArticles') || "Bog'liq moddalar topilmadi"}
+            {locale === 'ru' ? 'Связанные статьи не найдены' : "Bog'liq moddalar topilmadi"}
           </p>
         )}
       </motion.div>

@@ -154,9 +154,7 @@ export interface Article {
   content: LocalizedString;
   excerpt?: LocalizedString;
   status: ContentStatus;
-  hasAuthorComment: boolean;
-  hasExpertComment: boolean;
-  has_comment?: boolean;
+  hasComment: boolean;
   article_comment?: {
     id: number;
     comment: string;
@@ -197,8 +195,7 @@ export interface Article {
 
 /** Article with full commentary data */
 export interface ArticleWithComments extends Article {
-  authorCommentary?: Commentary;
-  expertCommentary?: Commentary;
+  commentary?: Commentary;
   relatedArticles: Article[];
 }
 
@@ -304,7 +301,7 @@ export interface SearchResult {
 
 /** Search filters */
 export interface SearchFilters {
-  type?: 'all' | 'article' | 'authorComment' | 'expertComment';
+  type?: 'all' | 'article' | 'comment';
   sectionId?: number;
   chapterId?: number;
   language?: Locale;
@@ -353,8 +350,7 @@ export interface ArticleFilters extends PaginationParams {
   sectionId?: number;
   chapterId?: number;
   status?: ContentStatus;
-  hasAuthorComment?: boolean;
-  hasExpertComment?: boolean;
+  hasComment?: boolean;
   language?: Locale;
   search?: string;
 }

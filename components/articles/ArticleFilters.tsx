@@ -19,8 +19,7 @@ interface FilterState {
   search: string;
   sectionId: string;
   chapterId: string;
-  hasAuthorComment: string;
-  hasExpertComment: string;
+  hasComment: string;
   translation: string;
 }
 
@@ -29,8 +28,7 @@ const initialFilters: FilterState = {
   search: '',
   sectionId: '',
   chapterId: '',
-  hasAuthorComment: '',
-  hasExpertComment: '',
+  hasComment: '',
   translation: '',
 };
 
@@ -49,8 +47,7 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
       search: searchParams.get('search') || '',
       sectionId: searchParams.get('section') || '',
       chapterId: searchParams.get('chapter') || '',
-      hasAuthorComment: searchParams.get('authorComment') || '',
-      hasExpertComment: searchParams.get('expertComment') || '',
+      hasComment: searchParams.get('comment') || '',
       translation: searchParams.get('translation') || '',
     });
     setIsHydrated(true);
@@ -70,8 +67,7 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
     if (filters.search) params.set('search', filters.search);
     if (filters.sectionId) params.set('section', filters.sectionId);
     if (filters.chapterId) params.set('chapter', filters.chapterId);
-    if (filters.hasAuthorComment) params.set('authorComment', filters.hasAuthorComment);
-    if (filters.hasExpertComment) params.set('expertComment', filters.hasExpertComment);
+    if (filters.hasComment) params.set('comment', filters.hasComment);
     if (filters.translation) params.set('translation', filters.translation);
     params.set('page', '1');
 
@@ -84,8 +80,7 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
       search: '',
       sectionId: '',
       chapterId: '',
-      hasAuthorComment: '',
-      hasExpertComment: '',
+      hasComment: '',
       translation: '',
     });
     router.push(`/${locale}/articles`);
@@ -273,21 +268,14 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
                 </select>
               </div>
 
-              {/* Comment Type Filter */}
+              {/* Comment Filter */}
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-text-primary">
                   {t('article.commentType')}
                 </label>
                 <select
-                  value={filters.hasAuthorComment || filters.hasExpertComment}
-                  onChange={e => {
-                    const value = e.target.value;
-                    setFilters({
-                      ...filters,
-                      hasAuthorComment: value === 'author' ? 'true' : '',
-                      hasExpertComment: value === 'expert' ? 'true' : '',
-                    });
-                  }}
+                  value={filters.hasComment}
+                  onChange={e => setFilters({ ...filters, hasComment: e.target.value })}
                   className={cn(
                     'h-10 w-full rounded-lg px-3',
                     'border border-gov-border bg-gov-light',
@@ -296,8 +284,7 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
                   )}
                 >
                   <option value="">{t('article.allArticles')}</option>
-                  <option value="author">{t('article.hasAuthorComment')}</option>
-                  <option value="expert">{t('article.hasExpertComment')}</option>
+                  <option value="true">{t('article.hasComment')}</option>
                 </select>
               </div>
 
@@ -356,16 +343,10 @@ export function ArticleFilters({ locale, totalResults, view, onViewChange }: Art
                 onRemove={() => removeFilter('chapterId')}
               />
             )}
-            {filters.hasAuthorComment && (
+            {filters.hasComment && (
               <FilterChip
-                label={t('article.authorComment')}
-                onRemove={() => removeFilter('hasAuthorComment')}
-              />
-            )}
-            {filters.hasExpertComment && (
-              <FilterChip
-                label={t('article.expertComment')}
-                onRemove={() => removeFilter('hasExpertComment')}
+                label={t('article.hasComment')}
+                onRemove={() => removeFilter('hasComment')}
               />
             )}
             {filters.translation && (

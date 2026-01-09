@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { ArrowRight, MessageSquare, User, ChevronRight } from 'lucide-react';
+import { ArrowRight, MessageSquare, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui';
 import type { Article as ArticleType, LocalizedString } from '@/lib/mock-data';
@@ -30,8 +30,8 @@ export function ArticleCard({ article, locale, variant = 'default' }: ArticleCar
       <Link href={`/${locale}/articles/${article.id}`}>
         <article
           className={cn(
-            'group p-4 rounded-lg border border-gov-border bg-gov-surface',
-            'hover:border-primary-300 hover:shadow-sm transition-all duration-200'
+            'group rounded-lg border border-gov-border bg-gov-surface p-4',
+            'transition-all duration-200 hover:border-primary-300 hover:shadow-sm'
           )}
         >
           <div className="flex items-start gap-3">
@@ -39,18 +39,13 @@ export function ArticleCard({ article, locale, variant = 'default' }: ArticleCar
               {article.number}
             </Badge>
             <div className="min-w-0 flex-1">
-              <h4 className="font-medium text-sm text-text-primary group-hover:text-primary-700 line-clamp-2 transition-colors">
+              <h4 className="line-clamp-2 text-sm font-medium text-text-primary transition-colors group-hover:text-primary-700">
                 {title}
               </h4>
-              <div className="flex items-center gap-1 mt-1.5 text-xs text-text-muted">
-                {article.hasAuthorComment && (
+              <div className="mt-1.5 flex items-center gap-1 text-xs text-text-muted">
+                {article.hasComment && (
                   <span className="flex items-center gap-0.5">
-                    <User className="w-3 h-3" />
-                  </span>
-                )}
-                {article.hasExpertComment && (
-                  <span className="flex items-center gap-0.5">
-                    <MessageSquare className="w-3 h-3" />
+                    <MessageSquare className="h-3 w-3" />
                   </span>
                 )}
               </div>
@@ -66,49 +61,45 @@ export function ArticleCard({ article, locale, variant = 'default' }: ArticleCar
       <Link href={`/${locale}/articles/${article.id}`}>
         <article
           className={cn(
-            'group bg-gov-surface rounded-xl border border-gov-border',
+            'group rounded-xl border border-gov-border bg-gov-surface',
             'p-6 hover:border-primary-300 hover:shadow-card-hover',
             'transition-all duration-200'
           )}
         >
-          <div className="flex items-start justify-between gap-4 mb-4">
+          <div className="mb-4 flex items-start justify-between gap-4">
             <Badge variant="primary" size="lg" className="font-heading">
               {article.number}-{t('articleNumber').toLowerCase()}
             </Badge>
           </div>
-          
-          <div className="flex items-center gap-1.5 text-xs text-text-muted mb-3">
-            <span>{article.section.number}-{t('section').toLowerCase()}</span>
-            <ChevronRight className="w-3 h-3" />
-            <span>{article.chapter.number}-{t('chapter').toLowerCase()}</span>
+
+          <div className="mb-3 flex items-center gap-1.5 text-xs text-text-muted">
+            <span>
+              {article.section.number}-{t('section').toLowerCase()}
+            </span>
+            <ChevronRight className="h-3 w-3" />
+            <span>
+              {article.chapter.number}-{t('chapter').toLowerCase()}
+            </span>
           </div>
 
-          <h3 className="font-heading text-xl font-semibold text-text-primary mb-3 group-hover:text-primary-700 transition-colors">
+          <h3 className="mb-3 font-heading text-xl font-semibold text-text-primary transition-colors group-hover:text-primary-700">
             {title}
           </h3>
 
-          <p className="text-text-secondary leading-relaxed line-clamp-3 mb-4">
-            {excerpt}
-          </p>
+          <p className="mb-4 line-clamp-3 leading-relaxed text-text-secondary">{excerpt}</p>
 
-          <div className="flex items-center justify-between pt-4 border-t border-gov-border">
+          <div className="flex items-center justify-between border-t border-gov-border pt-4">
             <div className="flex items-center gap-2">
-              {article.hasAuthorComment && (
+              {article.hasComment && (
                 <Badge variant="primary" size="sm">
-                  <User className="w-3 h-3 mr-1" />
-                  {t('authorComment')}
-                </Badge>
-              )}
-              {article.hasExpertComment && (
-                <Badge variant="gold" size="sm">
-                  <MessageSquare className="w-3 h-3 mr-1" />
-                  {t('expertComment')}
+                  <MessageSquare className="mr-1 h-3 w-3" />
+                  {t('comment')}
                 </Badge>
               )}
             </div>
-            <span className="text-sm font-medium text-primary-600 group-hover:text-primary-700 flex items-center gap-1">
+            <span className="flex items-center gap-1 text-sm font-medium text-primary-600 group-hover:text-primary-700">
               {t('readMore')}
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="h-4 w-4" />
             </span>
           </div>
         </article>
@@ -121,52 +112,50 @@ export function ArticleCard({ article, locale, variant = 'default' }: ArticleCar
     <Link href={`/${locale}/articles/${article.id}`}>
       <article
         className={cn(
-          'group bg-gov-surface rounded-xl border border-gov-border h-full',
+          'group h-full rounded-xl border border-gov-border bg-gov-surface',
           'p-5 hover:border-primary-300 hover:shadow-card-hover',
-          'transition-all duration-200 flex flex-col'
+          'flex flex-col transition-all duration-200'
         )}
       >
         {/* Header */}
-        <div className="flex items-start justify-between mb-3">
+        <div className="mb-3 flex items-start justify-between">
           <Badge variant="primary" size="lg" className="font-heading">
             {article.number}-{t('articleNumber').toLowerCase()}
           </Badge>
         </div>
 
         {/* Breadcrumb */}
-        <div className="flex items-center gap-1 text-xs text-text-muted mb-2">
+        <div className="mb-2 flex items-center gap-1 text-xs text-text-muted">
           <span>{article.section.number}</span>
-          <ChevronRight className="w-3 h-3" />
-          <span>{article.chapter.number}-{t('chapter').toLowerCase()}</span>
+          <ChevronRight className="h-3 w-3" />
+          <span>
+            {article.chapter.number}-{t('chapter').toLowerCase()}
+          </span>
         </div>
 
         {/* Title */}
-        <h3 className="font-heading text-base font-semibold text-text-primary mb-2 group-hover:text-primary-700 transition-colors line-clamp-2 flex-grow">
+        <h3 className="mb-2 line-clamp-2 flex-grow font-heading text-base font-semibold text-text-primary transition-colors group-hover:text-primary-700">
           {title}
         </h3>
 
         {/* Excerpt */}
-        <p className="text-text-secondary text-sm leading-relaxed line-clamp-3 mb-4">
-          {excerpt}
-        </p>
+        <p className="mb-4 line-clamp-3 text-sm leading-relaxed text-text-secondary">{excerpt}</p>
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-gov-border mt-auto">
+        <div className="mt-auto flex items-center justify-between border-t border-gov-border pt-3">
           <div className="flex items-center gap-1.5">
-            {article.hasAuthorComment && (
-              <span className="w-6 h-6 rounded-full bg-primary-50 flex items-center justify-center" title={t('authorComment')}>
-                <User className="w-3 h-3 text-primary-600" />
-              </span>
-            )}
-            {article.hasExpertComment && (
-              <span className="w-6 h-6 rounded-full bg-accent-gold/10 flex items-center justify-center" title={t('expertComment')}>
-                <MessageSquare className="w-3 h-3 text-accent-amber" />
+            {article.hasComment && (
+              <span
+                className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-50"
+                title={t('comment')}
+              >
+                <MessageSquare className="h-3 w-3 text-primary-600" />
               </span>
             )}
           </div>
-          <span className="text-sm font-medium text-primary-600 group-hover:text-primary-700 flex items-center gap-1">
+          <span className="flex items-center gap-1 text-sm font-medium text-primary-600 group-hover:text-primary-700">
             {t('readMore')}
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="h-4 w-4" />
           </span>
         </div>
       </article>

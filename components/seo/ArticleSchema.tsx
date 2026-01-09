@@ -13,8 +13,7 @@ interface ArticleSchemaProps {
     lastUpdated?: string;
     section: { number: string; title: string };
     chapter: { number: string; title: string };
-    hasAuthorComment?: boolean;
-    hasExpertComment?: boolean;
+    hasComment?: boolean;
   };
   locale: string;
   url: string;
