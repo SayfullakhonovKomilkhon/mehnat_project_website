@@ -881,7 +881,7 @@ export default function StructurePage({ params: { locale } }: StructurePageProps
 
   if (loading) {
     return (
-      <RoleGuard allowedRoles={['admin', 'ishchi_guruh']}>
+      <RoleGuard allowedRoles={['admin']}>
         <div className="flex min-h-[400px] items-center justify-center">
           <div className="text-center">
             <Loader2 className="mx-auto mb-2 h-8 w-8 animate-spin text-primary-600" />
@@ -894,7 +894,7 @@ export default function StructurePage({ params: { locale } }: StructurePageProps
 
   if (error) {
     return (
-      <RoleGuard allowedRoles={['admin', 'ishchi_guruh']}>
+      <RoleGuard allowedRoles={['admin']}>
         <div className="flex min-h-[400px] items-center justify-center">
           <div className="text-center">
             <AlertCircle className="mx-auto mb-2 h-12 w-12 text-red-500" />
@@ -913,7 +913,7 @@ export default function StructurePage({ params: { locale } }: StructurePageProps
   }
 
   return (
-    <RoleGuard allowedRoles={['admin', 'ishchi_guruh']}>
+    <RoleGuard allowedRoles={['admin']}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

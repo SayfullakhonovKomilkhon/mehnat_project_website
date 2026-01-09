@@ -182,7 +182,7 @@ export default function CreateCommentPage({ params: { locale } }: CreateCommentP
 
   if (loading) {
     return (
-      <RoleGuard allowedRoles={['admin', 'muallif']}>
+      <RoleGuard allowedRoles={['admin']}>
         <div className="flex min-h-[400px] items-center justify-center">
           <div className="text-center">
             <Loader2 className="mx-auto mb-2 h-8 w-8 animate-spin text-primary-600" />
@@ -194,7 +194,7 @@ export default function CreateCommentPage({ params: { locale } }: CreateCommentP
   }
 
   return (
-    <RoleGuard allowedRoles={['admin', 'muallif']}>
+    <RoleGuard allowedRoles={['admin']}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">

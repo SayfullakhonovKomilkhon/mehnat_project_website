@@ -286,10 +286,10 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
   const [recentUpdates, setRecentUpdates] = useState<any[]>([]);
 
   const isAdmin = checkRole(['admin']);
-  const isMuallif = checkRole(['muallif']);
-  const isTarjimon = checkRole(['tarjimon']);
-  const isIshchiGuruh = checkRole(['ishchi_guruh']);
-  const isEkspert = checkRole(['ekspert']);
+  const isMuallif = false; // Role removed
+  const isTarjimon = false; // Role removed
+  const isIshchiGuruh = false; // Role removed
+  const isEkspert = false; // Role removed
 
   // Load dashboard data
   const loadDashboardData = useCallback(async () => {
@@ -375,6 +375,7 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale, isAdmin]);
 
   useEffect(() => {

@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { RoleGuard } from '@/components/dashboard/RoleGuard';
-import { 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
-  Edit, 
+import {
+  CheckCircle,
+  XCircle,
+  Clock,
+  Edit,
   MessageSquare,
   User,
   FileText,
@@ -119,8 +119,10 @@ interface Comment {
 
 export default function CommentsPage({ params: { locale } }: CommentsPageProps) {
   const t = translations[locale as keyof typeof translations] || translations.uz;
-  
-  const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
+
+  const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'approved' | 'rejected'>(
+    'pending'
+  );
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [selectedComment, setSelectedComment] = useState<number | null>(null);
   const [rejectReason, setRejectReason] = useState('');
@@ -129,7 +131,8 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api/v1';
+  const API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api/v1';
 
   // Load comments from API
   const loadComments = useCallback(async () => {
@@ -137,16 +140,16 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      
+
       // Fetch all comments (we'll filter on frontend)
       const response = await fetch(`${API_BASE_URL}/admin/comments`, {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Accept-Language': locale,
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         const items = data.data?.items || data.items || data.data || [];
@@ -170,8 +173,8 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
   }, [loadComments]);
 
   // Filter comments based on active tab
-  const filteredComments = comments.filter(comment => 
-    activeTab === 'all' || comment.status === activeTab
+  const filteredComments = comments.filter(
+    comment => activeTab === 'all' || comment.status === activeTab
   );
 
   const pendingCount = comments.filter(c => c.status === 'pending').length;
@@ -182,22 +185,20 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
     setActionLoading(id);
     try {
       const token = localStorage.getItem('token');
-      
+
       const response = await fetch(`${API_BASE_URL}/admin/comments/${id}/approve`, {
         method: 'POST',
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Accept-Language': locale,
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
-      
+
       if (response.ok) {
         // Update local state
-        setComments(prev => prev.map(c => 
-          c.id === id ? { ...c, status: 'approved' } : c
-        ));
+        setComments(prev => prev.map(c => (c.id === id ? { ...c, status: 'approved' } : c)));
         alert(t.approveSuccess);
       } else {
         const data = await response.json();
@@ -218,27 +219,27 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
 
   const submitReject = async () => {
     if (!selectedComment) return;
-    
+
     setActionLoading(selectedComment);
     try {
       const token = localStorage.getItem('token');
-      
+
       const response = await fetch(`${API_BASE_URL}/admin/comments/${selectedComment}/reject`, {
         method: 'POST',
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Accept-Language': locale,
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ reason: rejectReason }),
       });
-      
+
       if (response.ok) {
         // Update local state
-        setComments(prev => prev.map(c => 
-          c.id === selectedComment ? { ...c, status: 'rejected' } : c
-        ));
+        setComments(prev =>
+          prev.map(c => (c.id === selectedComment ? { ...c, status: 'rejected' } : c))
+        );
         alert(t.rejectSuccess);
       } else {
         const data = await response.json();
@@ -269,8 +270,10 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
     const Icon = icons[status] || Clock;
 
     return (
-      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[status] || styles.pending}`}>
-        <Icon className="w-3 h-3" />
+      <span
+        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${styles[status] || styles.pending}`}
+      >
+        <Icon className="h-3 w-3" />
         {t[status as keyof typeof t] || status}
       </span>
     );
@@ -279,19 +282,21 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
   // Get article title from translations
   const getArticleTitle = (comment: Comment) => {
     if (!comment.article) return 'Unknown';
-    
+
     const article = comment.article;
     const articleNumber = article.article_number || article.id;
-    
+
     let title = '';
     if (article.translations) {
-      title = article.translations[locale as 'uz' | 'ru' | 'en']?.title || 
-              article.translations.uz?.title || 
-              article.title || '';
+      title =
+        article.translations[locale as 'uz' | 'ru' | 'en']?.title ||
+        article.translations.uz?.title ||
+        article.title ||
+        '';
     } else {
       title = article.title || '';
     }
-    
+
     return `${articleNumber}-modda${title ? `: ${title}` : ''}`;
   };
 
@@ -300,9 +305,9 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
     try {
       return new Date(dateStr).toLocaleString(
         locale === 'uz' ? 'uz-UZ' : locale === 'ru' ? 'ru-RU' : 'en-US',
-        { 
-          year: 'numeric', 
-          month: '2-digit', 
+        {
+          year: 'numeric',
+          month: '2-digit',
           day: '2-digit',
           hour: '2-digit',
           minute: '2-digit',
@@ -315,9 +320,9 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
 
   if (loading) {
     return (
-      <RoleGuard allowedRoles={['admin', 'moderator']}>
+      <RoleGuard allowedRoles={['admin']}>
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
           <span className="ml-3 text-gray-600">{t.loading}</span>
         </div>
       </RoleGuard>
@@ -325,33 +330,33 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
   }
 
   return (
-    <RoleGuard allowedRoles={['admin', 'moderator']}>
+    <RoleGuard allowedRoles={['admin']}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{t.title}</h1>
-            <p className="text-gray-500 mt-1">{t.subtitle}</p>
+            <p className="mt-1 text-gray-500">{t.subtitle}</p>
           </div>
           <button
             onClick={loadComments}
             disabled={loading}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             {t.refresh}
           </button>
         </div>
 
         {/* Error message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">
             {error}
           </div>
         )}
 
         {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-sm p-1 inline-flex gap-1">
+        <div className="inline-flex gap-1 rounded-xl bg-white p-1 shadow-sm">
           {[
             { key: 'pending', count: pendingCount },
             { key: 'approved', count: approvedCount },
@@ -361,20 +366,22 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key as any)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 activeTab === tab.key
                   ? 'bg-primary-600 text-white'
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               {t[tab.key as keyof typeof t]}
-              <span className={`px-2 py-0.5 rounded-full text-xs ${
-                activeTab === tab.key
-                  ? 'bg-white/20 text-white'
-                  : tab.key === 'pending'
-                  ? 'bg-red-100 text-red-700'
-                  : 'bg-gray-100 text-gray-600'
-              }`}>
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs ${
+                  activeTab === tab.key
+                    ? 'bg-white/20 text-white'
+                    : tab.key === 'pending'
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-gray-100 text-gray-600'
+                }`}
+              >
                 {tab.count}
               </span>
             </button>
@@ -385,26 +392,28 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
         <div className="space-y-4">
           {filteredComments.length > 0 ? (
             filteredComments.map(comment => (
-              <div key={comment.id} className="bg-white rounded-xl shadow-sm p-6">
+              <div key={comment.id} className="rounded-xl bg-white p-6 shadow-sm">
                 {/* Header */}
-                <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+                <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <User className="w-5 h-5 text-primary-600" />
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary-100">
+                      <User className="h-5 w-5 text-primary-600" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-medium text-gray-900">{comment.author?.name || 'Unknown'}</span>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-medium text-gray-900">
+                          {comment.author?.name || 'Unknown'}
+                        </span>
                         {getStatusBadge(comment.status)}
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
+                      <div className="mt-1 flex items-center gap-3 text-sm text-gray-500">
                         <span className="flex items-center gap-1">
-                          <FileText className="w-4 h-4" />
+                          <FileText className="h-4 w-4" />
                           {getArticleTitle(comment)}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
-                        <Calendar className="w-4 h-4" />
+                      <div className="mt-1 flex items-center gap-1 text-sm text-gray-500">
+                        <Calendar className="h-4 w-4" />
                         {formatDate(comment.created_at)}
                       </div>
                     </div>
@@ -412,37 +421,35 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
                 </div>
 
                 {/* Comment Text */}
-                <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                  <p className="text-gray-700 whitespace-pre-wrap">{comment.content}</p>
+                <div className="mb-4 rounded-lg bg-gray-50 p-4">
+                  <p className="whitespace-pre-wrap text-gray-700">{comment.content}</p>
                 </div>
 
                 {/* Actions */}
                 {comment.status === 'pending' && (
-                  <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
+                  <div className="flex items-center gap-3 border-t border-gray-200 pt-4">
                     <button
                       onClick={() => handleApprove(comment.id)}
                       disabled={actionLoading === comment.id}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                      className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700 disabled:opacity-50"
                     >
                       {actionLoading === comment.id ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
-                        <CheckCircle className="w-4 h-4" />
+                        <CheckCircle className="h-4 w-4" />
                       )}
                       {t.approve}
                     </button>
                     <button
                       onClick={() => handleReject(comment.id)}
                       disabled={actionLoading === comment.id}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                      className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700 disabled:opacity-50"
                     >
-                      <XCircle className="w-4 h-4" />
+                      <XCircle className="h-4 w-4" />
                       {t.reject}
                     </button>
-                    <button
-                      className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      <Edit className="w-4 h-4" />
+                    <button className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 transition-colors hover:bg-gray-50">
+                      <Edit className="h-4 w-4" />
                       {t.edit}
                     </button>
                   </div>
@@ -450,8 +457,8 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
               </div>
             ))
           ) : (
-            <div className="bg-white rounded-xl shadow-sm p-12 text-center">
-              <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <div className="rounded-xl bg-white p-12 text-center shadow-sm">
+              <MessageSquare className="mx-auto mb-4 h-12 w-12 text-gray-300" />
               <p className="text-gray-500">{t.noComments}</p>
             </div>
           )}
@@ -464,39 +471,33 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
               className="absolute inset-0 bg-black/50"
               onClick={() => setRejectModalOpen(false)}
             />
-            <div className="relative bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-xl">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                {t.reject}
-              </h3>
+            <div className="relative mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+              <h3 className="mb-4 text-lg font-semibold text-gray-900">{t.reject}</h3>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="mb-1 block text-sm font-medium text-gray-700">
                   {t.rejectReason}
                 </label>
                 <textarea
                   value={rejectReason}
-                  onChange={(e) => setRejectReason(e.target.value)}
+                  onChange={e => setRejectReason(e.target.value)}
                   rows={4}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
                   required
                 />
               </div>
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setRejectModalOpen(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="rounded-lg border border-gray-300 px-4 py-2 transition-colors hover:bg-gray-50"
                 >
                   {t.cancel}
                 </button>
                 <button
                   onClick={submitReject}
                   disabled={actionLoading !== null}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                  className="rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700 disabled:opacity-50"
                 >
-                  {actionLoading !== null ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    t.submit
-                  )}
+                  {actionLoading !== null ? <Loader2 className="h-4 w-4 animate-spin" /> : t.submit}
                 </button>
               </div>
             </div>

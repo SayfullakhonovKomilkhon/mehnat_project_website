@@ -4,13 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { RoleGuard } from '@/components/dashboard/RoleGuard';
 import Link from 'next/link';
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  Edit, 
-  Trash2, 
-  Eye, 
+import {
+  Plus,
+  Search,
+  Filter,
+  Edit,
+  Trash2,
+  Eye,
   Download,
   ChevronLeft,
   ChevronRight,
@@ -32,13 +32,13 @@ interface ArticlesPageProps {
 // Translations
 const translations = {
   uz: {
-    title: 'Moddalar ro\'yxati',
+    title: "Moddalar ro'yxati",
     subtitle: 'Mehnat kodeksining barcha moddalari',
     addArticle: 'Yangi modda',
     search: 'Modda raqami yoki sarlavhasini kiriting...',
     filter: 'Filtr',
     export: 'Eksport',
-    allSections: 'Barcha bo\'limlar',
+    allSections: "Barcha bo'limlar",
     allStatuses: 'Barcha holatlar',
     published: 'Chop etilgan',
     draft: 'Qoralama',
@@ -47,17 +47,17 @@ const translations = {
     number: '№',
     articleNumber: 'Modda raqami',
     titleCol: 'Sarlavha',
-    section: 'Bo\'lim',
+    section: "Bo'lim",
     status: 'Holat',
     author: 'Muallif',
     date: 'Sana',
     actions: 'Amallar',
-    view: 'Ko\'rish',
+    view: "Ko'rish",
     edit: 'Tahrirlash',
-    delete: 'O\'chirish',
-    confirmDelete: 'Rostdan ham bu moddani o\'chirmoqchimisiz?',
+    delete: "O'chirish",
+    confirmDelete: "Rostdan ham bu moddani o'chirmoqchimisiz?",
     noResults: 'Natija topilmadi',
-    showing: 'Ko\'rsatilmoqda',
+    showing: "Ko'rsatilmoqda",
     of: 'dan',
     results: 'natija',
     loading: 'Yuklanmoqda...',
@@ -151,7 +151,7 @@ export default function ArticlesPage({ params: { locale } }: ArticlesPageProps) 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sectionFilter, setSectionFilter] = useState('all');
@@ -160,30 +160,33 @@ export default function ArticlesPage({ params: { locale } }: ArticlesPageProps) 
   const [totalItems, setTotalItems] = useState(0);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [articleToDelete, setArticleToDelete] = useState<number | null>(null);
-  
+
   const itemsPerPage = 10;
 
   // Load data
-  const loadData = useCallback(async (page: number = 1) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [articlesResult, sectionsData] = await Promise.all([
-        getArticles({ page, limit: itemsPerPage }, locale as Locale),
-        adminGetSections(locale as Locale),
-      ]);
-      
-      setArticles(articlesResult.data);
-      setTotalPages(articlesResult.pagination.totalPages);
-      setTotalItems(articlesResult.pagination.total);
-      setSections(sectionsData);
-    } catch (err) {
-      setError(t.error);
-      console.error('Error loading articles:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [locale, t.error]);
+  const loadData = useCallback(
+    async (page: number = 1) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const [articlesResult, sectionsData] = await Promise.all([
+          getArticles({ page, limit: itemsPerPage }, locale as Locale),
+          adminGetSections(locale as Locale),
+        ]);
+
+        setArticles(articlesResult.data);
+        setTotalPages(articlesResult.pagination.totalPages);
+        setTotalItems(articlesResult.pagination.total);
+        setSections(sectionsData);
+      } catch (err) {
+        setError(t.error);
+        console.error('Error loading articles:', err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [locale, t.error]
+  );
 
   useEffect(() => {
     loadData(currentPage);
@@ -192,8 +195,9 @@ export default function ArticlesPage({ params: { locale } }: ArticlesPageProps) 
   // Filter articles locally
   const filteredArticles = articles.filter(article => {
     const title = getLocalizedText(article.title, locale);
-    const matchesSearch = article.number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch =
+      article.number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || article.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -215,8 +219,10 @@ export default function ArticlesPage({ params: { locale } }: ArticlesPageProps) 
     const label = t[status as keyof typeof t] || status;
 
     return (
-      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[status] || 'bg-gray-100 text-gray-800'}`}>
-        <Icon className="w-3 h-3" />
+      <span
+        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${styles[status] || 'bg-gray-100 text-gray-800'}`}
+      >
+        <Icon className="h-3 w-3" />
         {label}
       </span>
     );
@@ -229,7 +235,7 @@ export default function ArticlesPage({ params: { locale } }: ArticlesPageProps) 
 
   const confirmDelete = async () => {
     if (!articleToDelete) return;
-    
+
     setSaving(true);
     try {
       const result = await adminDeleteArticle(articleToDelete, locale as Locale);
@@ -260,10 +266,10 @@ export default function ArticlesPage({ params: { locale } }: ArticlesPageProps) 
 
   if (loading) {
     return (
-      <RoleGuard allowedRoles={['admin', 'muallif']}>
-        <div className="flex items-center justify-center min-h-[400px]">
+      <RoleGuard allowedRoles={['admin']}>
+        <div className="flex min-h-[400px] items-center justify-center">
           <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin text-primary-600 mx-auto mb-2" />
+            <Loader2 className="mx-auto mb-2 h-8 w-8 animate-spin text-primary-600" />
             <p className="text-gray-500">{t.loading}</p>
           </div>
         </div>
@@ -273,16 +279,16 @@ export default function ArticlesPage({ params: { locale } }: ArticlesPageProps) 
 
   if (error) {
     return (
-      <RoleGuard allowedRoles={['admin', 'muallif']}>
-        <div className="flex items-center justify-center min-h-[400px]">
+      <RoleGuard allowedRoles={['admin']}>
+        <div className="flex min-h-[400px] items-center justify-center">
           <div className="text-center">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-2" />
-            <p className="text-gray-700 mb-4">{error}</p>
+            <AlertCircle className="mx-auto mb-2 h-12 w-12 text-red-500" />
+            <p className="mb-4 text-gray-700">{error}</p>
             <button
               onClick={() => loadData(currentPage)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-white hover:bg-primary-700"
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className="h-4 w-4" />
               {t.retry}
             </button>
           </div>
@@ -292,27 +298,27 @@ export default function ArticlesPage({ params: { locale } }: ArticlesPageProps) 
   }
 
   return (
-    <RoleGuard allowedRoles={['admin', 'muallif']}>
+    <RoleGuard allowedRoles={['admin']}>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{t.title}</h1>
-            <p className="text-gray-500 mt-1">{t.subtitle}</p>
+            <p className="mt-1 text-gray-500">{t.subtitle}</p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => loadData(currentPage)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 transition-colors hover:bg-gray-50"
             >
-              <RefreshCw className="w-5 h-5" />
+              <RefreshCw className="h-5 w-5" />
             </button>
             {isAdmin && (
               <Link
                 href={`/${locale}/dashboard/articles/create`}
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2.5 text-white transition-colors hover:bg-primary-700"
               >
-                <Plus className="w-5 h-5" />
+                <Plus className="h-5 w-5" />
                 {t.addArticle}
               </Link>
             )}
@@ -320,25 +326,25 @@ export default function ArticlesPage({ params: { locale } }: ArticlesPageProps) 
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-xl shadow-sm p-4">
-          <div className="flex flex-col lg:flex-row gap-4">
+        <div className="rounded-xl bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-4 lg:flex-row">
             {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 placeholder={t.search}
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
 
             {/* Status Filter */}
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+              onChange={e => setStatusFilter(e.target.value)}
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
               <option value="all">{t.allStatuses}</option>
               <option value="published">{t.published}</option>
@@ -350,24 +356,26 @@ export default function ArticlesPage({ params: { locale } }: ArticlesPageProps) 
             {/* Section Filter */}
             <select
               value={sectionFilter}
-              onChange={(e) => setSectionFilter(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+              onChange={e => setSectionFilter(e.target.value)}
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
               <option value="all">{t.allSections}</option>
-              {sections.map((section) => (
+              {sections.map(section => (
                 <option key={section.id} value={section.id}>
-                  {section.order_number}-{locale === 'uz' ? "bo'lim" : locale === 'ru' ? 'раздел' : 'section'}: {section.title}
+                  {section.order_number}-
+                  {locale === 'uz' ? "bo'lim" : locale === 'ru' ? 'раздел' : 'section'}:{' '}
+                  {section.title}
                 </option>
               ))}
             </select>
 
             {/* Export Button */}
             {isAdmin && (
-              <button 
+              <button
                 onClick={handleExport}
-                className="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 transition-colors hover:bg-gray-50"
               >
-                <Download className="w-5 h-5" />
+                <Download className="h-5 w-5" />
                 {t.export}
               </button>
             )}
@@ -375,27 +383,27 @@ export default function ArticlesPage({ params: { locale } }: ArticlesPageProps) 
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="overflow-hidden rounded-xl bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     {t.number}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     {t.articleNumber}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     {t.titleCol}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     {t.status}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     {t.date}
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                     {t.actions}
                   </th>
                 </tr>
@@ -404,49 +412,49 @@ export default function ArticlesPage({ params: { locale } }: ArticlesPageProps) 
                 {filteredArticles.length > 0 ? (
                   filteredArticles.map((article, index) => (
                     <tr key={article.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                         {(currentPage - 1) * itemsPerPage + index + 1}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded bg-primary-100 text-primary-800 text-sm font-medium">
+                      <td className="whitespace-nowrap px-6 py-4">
+                        <span className="inline-flex items-center rounded bg-primary-100 px-2.5 py-0.5 text-sm font-medium text-primary-800">
                           {article.number}-modda
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900 max-w-xs truncate">
+                        <div className="max-w-xs truncate text-sm font-medium text-gray-900">
                           {getLocalizedText(article.title, locale)}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="whitespace-nowrap px-6 py-4">
                         {getStatusBadge(article.status)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                         {new Date(article.updatedAt).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <td className="whitespace-nowrap px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Link
                             href={`/${locale}/articles/${article.id}`}
-                            className="p-2 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                            className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-primary-50 hover:text-primary-600"
                             title={t.view}
                           >
-                            <Eye className="w-4 h-4" />
+                            <Eye className="h-4 w-4" />
                           </Link>
                           <Link
                             href={`/${locale}/dashboard/articles/create?edit=${article.id}`}
-                            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-600"
                             title={t.edit}
                           >
-                            <Edit className="w-4 h-4" />
+                            <Edit className="h-4 w-4" />
                           </Link>
                           {isAdmin && (
                             <button
                               onClick={() => handleDelete(article.id)}
-                              className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600"
                               title={t.delete}
                               disabled={saving}
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="h-4 w-4" />
                             </button>
                           )}
                         </div>
@@ -466,19 +474,18 @@ export default function ArticlesPage({ params: { locale } }: ArticlesPageProps) 
 
           {/* Pagination */}
           {totalItems > 0 && (
-            <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+            <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4">
               <p className="text-sm text-gray-500">
                 {t.showing} {(currentPage - 1) * itemsPerPage + 1}-
-                {Math.min(currentPage * itemsPerPage, totalItems)} {t.of}{' '}
-                {totalItems} {t.results}
+                {Math.min(currentPage * itemsPerPage, totalItems)} {t.of} {totalItems} {t.results}
               </p>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="rounded-lg border border-gray-300 p-2 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  <ChevronLeft className="h-5 w-5" />
                 </button>
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                   let page;
@@ -495,7 +502,7 @@ export default function ArticlesPage({ params: { locale } }: ArticlesPageProps) 
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`px-3 py-2 rounded-lg text-sm font-medium ${
+                      className={`rounded-lg px-3 py-2 text-sm font-medium ${
                         currentPage === page
                           ? 'bg-primary-600 text-white'
                           : 'border border-gray-300 hover:bg-gray-50'
@@ -508,9 +515,9 @@ export default function ArticlesPage({ params: { locale } }: ArticlesPageProps) 
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="rounded-lg border border-gray-300 p-2 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="h-5 w-5" />
                 </button>
               </div>
             </div>
@@ -524,25 +531,23 @@ export default function ArticlesPage({ params: { locale } }: ArticlesPageProps) 
               className="absolute inset-0 bg-black/50"
               onClick={() => !saving && setDeleteModalOpen(false)}
             />
-            <div className="relative bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-xl">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {t.delete}
-              </h3>
-              <p className="text-gray-600 mb-6">{t.confirmDelete}</p>
+            <div className="relative mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+              <h3 className="mb-2 text-lg font-semibold text-gray-900">{t.delete}</h3>
+              <p className="mb-6 text-gray-600">{t.confirmDelete}</p>
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setDeleteModalOpen(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="rounded-lg border border-gray-300 px-4 py-2 transition-colors hover:bg-gray-50"
                   disabled={saving}
                 >
                   {t.cancel}
                 </button>
                 <button
                   onClick={confirmDelete}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+                  className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700 disabled:opacity-50"
                   disabled={saving}
                 >
-                  {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {saving && <Loader2 className="h-4 w-4 animate-spin" />}
                   {t.delete}
                 </button>
               </div>

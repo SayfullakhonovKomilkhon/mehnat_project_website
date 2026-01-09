@@ -205,7 +205,7 @@ export default function ArticleViewPage({ params: { locale, id } }: ArticleViewP
 
   if (loading) {
     return (
-      <RoleGuard allowedRoles={['admin', 'moderator', 'muallif', 'ishchi_guruh']}>
+      <RoleGuard allowedRoles={['admin']}>
         <div className="flex min-h-[400px] items-center justify-center">
           <div className="text-center">
             <Loader2 className="mx-auto mb-2 h-8 w-8 animate-spin text-primary-600" />
@@ -218,7 +218,7 @@ export default function ArticleViewPage({ params: { locale, id } }: ArticleViewP
 
   if (error && !article) {
     return (
-      <RoleGuard allowedRoles={['admin', 'moderator', 'muallif', 'ishchi_guruh']}>
+      <RoleGuard allowedRoles={['admin']}>
         <div className="space-y-6">
           <div className="flex items-center gap-4">
             <Link
@@ -241,7 +241,7 @@ export default function ArticleViewPage({ params: { locale, id } }: ArticleViewP
   const isPending = !article?.is_active && article?.translation_status === 'pending';
 
   return (
-    <RoleGuard allowedRoles={['admin', 'moderator', 'muallif', 'ishchi_guruh']}>
+    <RoleGuard allowedRoles={['admin']}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
