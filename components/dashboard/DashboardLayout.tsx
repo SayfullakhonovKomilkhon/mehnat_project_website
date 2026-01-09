@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   FileText,
   Users,
-  MessageSquare,
   Settings,
   LogOut,
   Menu,
@@ -53,12 +52,6 @@ const getMenuItems = (locale: string): MenuItem[] => [
     roles: ['admin'],
   },
   {
-    key: 'comments',
-    icon: <MessageSquare className="h-5 w-5" />,
-    href: `/${locale}/dashboard/comments`,
-    roles: ['admin'],
-  },
-  {
     key: 'users',
     icon: <Users className="h-5 w-5" />,
     href: `/${locale}/dashboard/users`,
@@ -83,7 +76,6 @@ const menuLabels: Record<string, Record<string, string>> = {
   dashboard: { uz: 'Bosh sahifa', ru: 'Главная', en: 'Dashboard' },
   articles: { uz: 'Moddalar', ru: 'Статьи', en: 'Articles' },
   structure: { uz: "Bo'limlar", ru: 'Разделы', en: 'Sections' },
-  comments: { uz: 'Sharhlar', ru: 'Комментарии', en: 'Comments' },
   users: { uz: 'Foydalanuvchilar', ru: 'Пользователи', en: 'Users' },
   suggestions: { uz: 'Takliflar', ru: 'Предложения', en: 'Suggestions' },
   settings: { uz: 'Sozlamalar', ru: 'Настройки', en: 'Settings' },
