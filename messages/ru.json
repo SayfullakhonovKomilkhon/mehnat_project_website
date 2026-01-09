@@ -126,8 +126,7 @@
     "professionalComments": "Профессиональные комментарии",
     "inTitle": "В заголовке",
     "inContent": "В тексте",
-    "inAuthorComment": "В комментарии автора",
-    "inExpertComment": "В комментарии эксперта",
+    "inComment": "В комментарии",
     "relevant": "Релевантно"
   },
   "chat": {

@@ -19,7 +19,7 @@ export function SearchFiltersPanel({
   filters,
   onFiltersChange,
   locale,
-  resultCount
+  resultCount,
 }: SearchFiltersProps) {
   const t = useTranslations();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -61,66 +61,66 @@ export function SearchFiltersPanel({
   };
 
   return (
-    <div className="bg-gov-surface rounded-lg sm:rounded-xl border border-gov-border">
+    <div className="rounded-lg border border-gov-border bg-gov-surface sm:rounded-xl">
       {/* Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-3 sm:p-4 text-left"
+        className="flex w-full items-center justify-between p-3 text-left sm:p-4"
       >
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600" />
-          <span className="font-medium text-sm sm:text-base text-text-primary">{t('article.filters')}</span>
+          <Filter className="h-4 w-4 text-primary-600 sm:h-5 sm:w-5" />
+          <span className="text-sm font-medium text-text-primary sm:text-base">
+            {t('article.filters')}
+          </span>
           {activeFilterCount > 0 && (
-            <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-primary-600 text-white text-[10px] sm:text-xs flex items-center justify-center">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary-600 text-[10px] text-white sm:h-5 sm:w-5 sm:text-xs">
               {activeFilterCount}
             </span>
           )}
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
-          <span className="text-xs sm:text-sm text-text-muted hidden sm:block">
+          <span className="hidden text-xs text-text-muted sm:block sm:text-sm">
             {t('article.resultsCount', { count: resultCount })}
           </span>
-          <ChevronDown className={cn(
-            'w-4 h-4 sm:w-5 sm:h-5 text-text-muted transition-transform',
-            isExpanded && 'rotate-180'
-          )} />
+          <ChevronDown
+            className={cn(
+              'h-4 w-4 text-text-muted transition-transform sm:h-5 sm:w-5',
+              isExpanded && 'rotate-180'
+            )}
+          />
         </div>
       </button>
 
       {/* Filters Content - CSS animation instead of Framer Motion */}
-      <div 
+      <div
         className={cn(
           'overflow-hidden transition-all duration-200 ease-out',
           isExpanded ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
         )}
       >
         {isExpanded && (
-          <div className="px-3 sm:px-4 pb-3 sm:pb-4 space-y-3 sm:space-y-4 border-t border-gov-border pt-3 sm:pt-4">
+          <div className="space-y-3 border-t border-gov-border px-3 pb-3 pt-3 sm:space-y-4 sm:px-4 sm:pb-4 sm:pt-4">
             {/* Content Type */}
             <div>
-              <label className="block text-xs sm:text-sm font-medium text-text-primary mb-1.5 sm:mb-2">
+              <label className="mb-1.5 block text-xs font-medium text-text-primary sm:mb-2 sm:text-sm">
                 {t('search.contentType')}
               </label>
               <div className="space-y-1.5 sm:space-y-2">
                 {[
                   { value: 'all', label: t('search.all') },
                   { value: 'article', label: t('search.articleText') },
-                  { value: 'authorComment', label: t('article.authorComment') },
-                  { value: 'expertComment', label: t('article.expertComment') },
-                ].map((option) => (
-                  <label
-                    key={option.value}
-                    className="flex items-center gap-2 cursor-pointer"
-                  >
+                  { value: 'comment', label: t('article.comment') },
+                ].map(option => (
+                  <label key={option.value} className="flex cursor-pointer items-center gap-2">
                     <input
                       type="radio"
                       name="type"
                       value={option.value}
                       checked={filters.type === option.value}
                       onChange={() => handleTypeChange(option.value as SearchFiltersType['type'])}
-                      className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600 border-gov-border focus:ring-primary-500"
+                      className="h-3.5 w-3.5 border-gov-border text-primary-600 focus:ring-primary-500 sm:h-4 sm:w-4"
                     />
-                    <span className="text-xs sm:text-sm text-text-secondary">{option.label}</span>
+                    <span className="text-xs text-text-secondary sm:text-sm">{option.label}</span>
                   </label>
                 ))}
               </div>
@@ -128,17 +128,17 @@ export function SearchFiltersPanel({
 
             {/* Section Filter */}
             <div>
-              <label className="block text-xs sm:text-sm font-medium text-text-primary mb-1.5 sm:mb-2">
+              <label className="mb-1.5 block text-xs font-medium text-text-primary sm:mb-2 sm:text-sm">
                 {t('article.section')}
               </label>
               <select
                 value={filters.section || ''}
-                onChange={(e) => handleSectionChange(e.target.value)}
+                onChange={e => handleSectionChange(e.target.value)}
                 className={cn(
-                  'w-full h-9 sm:h-10 px-2.5 sm:px-3 rounded-lg',
-                  'bg-gov-light border border-gov-border',
-                  'text-text-primary text-xs sm:text-sm',
-                  'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500'
+                  'h-9 w-full rounded-lg px-2.5 sm:h-10 sm:px-3',
+                  'border border-gov-border bg-gov-light',
+                  'text-xs text-text-primary sm:text-sm',
+                  'focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20'
                 )}
               >
                 <option value="">{t('article.allSections')}</option>
@@ -152,23 +152,24 @@ export function SearchFiltersPanel({
 
             {/* Chapter Filter */}
             <div>
-              <label className="block text-xs sm:text-sm font-medium text-text-primary mb-1.5 sm:mb-2">
+              <label className="mb-1.5 block text-xs font-medium text-text-primary sm:mb-2 sm:text-sm">
                 {t('article.chapter')}
               </label>
               <select
                 value={filters.chapter || ''}
-                onChange={(e) => handleChapterChange(e.target.value)}
+                onChange={e => handleChapterChange(e.target.value)}
                 className={cn(
-                  'w-full h-9 sm:h-10 px-2.5 sm:px-3 rounded-lg',
-                  'bg-gov-light border border-gov-border',
-                  'text-text-primary text-xs sm:text-sm',
-                  'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500'
+                  'h-9 w-full rounded-lg px-2.5 sm:h-10 sm:px-3',
+                  'border border-gov-border bg-gov-light',
+                  'text-xs text-text-primary sm:text-sm',
+                  'focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20'
                 )}
               >
                 <option value="">{t('article.allChapters')}</option>
                 {availableChapters.map(chapter => (
                   <option key={chapter.id} value={chapter.id}>
-                    {chapter.number}-{t('article.chapter').toLowerCase()}. {getLocalizedText(chapter.title, locale)}
+                    {chapter.number}-{t('article.chapter').toLowerCase()}.{' '}
+                    {getLocalizedText(chapter.title, locale)}
                   </option>
                 ))}
               </select>
@@ -176,17 +177,17 @@ export function SearchFiltersPanel({
 
             {/* Language Filter */}
             <div>
-              <label className="block text-xs sm:text-sm font-medium text-text-primary mb-1.5 sm:mb-2">
+              <label className="mb-1.5 block text-xs font-medium text-text-primary sm:mb-2 sm:text-sm">
                 {t('article.translation')}
               </label>
               <select
                 value={filters.language || ''}
-                onChange={(e) => handleLanguageChange(e.target.value)}
+                onChange={e => handleLanguageChange(e.target.value)}
                 className={cn(
-                  'w-full h-9 sm:h-10 px-2.5 sm:px-3 rounded-lg',
-                  'bg-gov-light border border-gov-border',
-                  'text-text-primary text-xs sm:text-sm',
-                  'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500'
+                  'h-9 w-full rounded-lg px-2.5 sm:h-10 sm:px-3',
+                  'border border-gov-border bg-gov-light',
+                  'text-xs text-text-primary sm:text-sm',
+                  'focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20'
                 )}
               >
                 <option value="">{t('article.allLanguages')}</option>
@@ -202,7 +203,7 @@ export function SearchFiltersPanel({
                 variant="outline"
                 size="sm"
                 onClick={handleClearFilters}
-                leftIcon={<X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                leftIcon={<X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                 className="w-full text-xs sm:text-sm"
               >
                 {t('article.clearFilters')}

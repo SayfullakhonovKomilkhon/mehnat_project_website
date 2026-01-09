@@ -163,19 +163,14 @@ export function RelatedArticles({ article, locale }: RelatedArticlesProps) {
                   {relArticle.chapter?.number || '1'}-{t('chapter').toLowerCase()}
                 </p>
 
-                {/* Comment Indicators */}
-                <div className="flex items-center gap-2">
-                  {relArticle.hasAuthorComment && (
+                {/* Comment Indicator */}
+                {relArticle.hasComment && (
+                  <div className="flex items-center gap-2">
                     <Badge variant="secondary" size="sm">
-                      {t('authorComment')}
+                      {t('comment')}
                     </Badge>
-                  )}
-                  {relArticle.hasExpertComment && (
-                    <Badge variant="gold" size="sm">
-                      {t('expertComment')}
-                    </Badge>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 {/* Read More */}
                 <div className="mt-4 border-t border-gov-border pt-3">

@@ -126,8 +126,7 @@
     "professionalComments": "Professional comments",
     "inTitle": "In title",
     "inContent": "In content",
-    "inAuthorComment": "In author comment",
-    "inExpertComment": "In expert comment",
+    "inComment": "In comment",
     "relevant": "Relevant"
   },
   "chat": {

@@ -126,8 +126,7 @@
     "professionalComments": "Professional sharhlar",
     "inTitle": "Sarlavhada",
     "inContent": "Matnda",
-    "inAuthorComment": "Muallif sharhida",
-    "inExpertComment": "Ekspert sharhida",
+    "inComment": "Sharhda",
     "relevant": "Mos keladi"
   },
   "chat": {
