@@ -61,6 +61,7 @@ const translations = {
     translationRejected: 'Tarjima rad etildi',
     articleCreated: 'Modda yaratildi',
     articleUpdated: 'Modda yangilandi',
+    articleDeleted: "Modda o'chirildi",
     sectionCreated: "Bo'lim yaratildi",
     chapterCreated: 'Bob yaratildi',
     commentApproved: 'Sharh tasdiqlandi',
@@ -113,6 +114,7 @@ const translations = {
     translationRejected: 'Перевод отклонён',
     articleCreated: 'Статья создана',
     articleUpdated: 'Статья обновлена',
+    articleDeleted: 'Статья удалена',
     sectionCreated: 'Раздел создан',
     chapterCreated: 'Глава создана',
     commentApproved: 'Комментарий одобрен',
@@ -165,6 +167,7 @@ const translations = {
     translationRejected: 'Translation rejected',
     articleCreated: 'Article created',
     articleUpdated: 'Article updated',
+    articleDeleted: 'Article deleted',
     sectionCreated: 'Section created',
     chapterCreated: 'Chapter created',
     commentApproved: 'Comment approved',
@@ -329,12 +332,13 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
         logout: t.logout,
         create: t.created,
         update: t.updated,
-        delete: t.rejected,
+        delete: t.articleDeleted,
         translation_submitted: t.translationSubmitted,
         translation_approved: t.translationApproved,
         translation_rejected: t.translationRejected,
         article_created: t.articleCreated,
         article_updated: t.articleUpdated,
+        article_deleted: t.articleDeleted,
         section_created: t.sectionCreated,
         chapter_created: t.chapterCreated,
         approve_comment: t.commentApproved,
@@ -342,6 +346,38 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
         change_role: t.roleChanged,
         activate_user: t.userActivated,
         deactivate_user: t.userDeactivated,
+      };
+
+      // Helper function to format description
+      const formatDescription = (log: any): string => {
+        const desc = log.description || '';
+
+        // If description contains API path, extract meaningful info
+        if (desc.includes('API:') || desc.includes('api/')) {
+          // Extract model type and ID from API path
+          const match = desc.match(/\/(articles|sections|chapters|users|comments)\/(\d+)/);
+          if (match) {
+            const modelType = match[1];
+            const modelId = match[2];
+            const modelNames: Record<string, Record<string, string>> = {
+              articles: { uz: 'Modda', ru: 'Статья' },
+              sections: { uz: "Bo'lim", ru: 'Раздел' },
+              chapters: { uz: 'Bob', ru: 'Глава' },
+              users: { uz: 'Foydalanuvchi', ru: 'Пользователь' },
+              comments: { uz: 'Sharh', ru: 'Комментарий' },
+            };
+            const localeName = modelNames[modelType]?.[locale as 'uz' | 'ru'] || modelType;
+            return `${localeName} #${modelId}`;
+          }
+          return log.model_id ? `ID: ${log.model_id}` : '-';
+        }
+
+        // If already a good description, return it
+        if (desc && !desc.startsWith('API:')) {
+          return desc;
+        }
+
+        return log.model_id ? `ID: ${log.model_id}` : '-';
       };
 
       // Format activity logs for display
@@ -356,7 +392,7 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
             id: log.id,
             user: userDisplay,
             action: actionLabels[log.action] || log.action || t.updated,
-            article: log.description || `ID: ${log.model_id || '-'}`,
+            article: formatDescription(log),
             status:
               log.action?.includes('approved') || log.action === 'login' || log.action === 'create'
                 ? 'approved'
@@ -365,7 +401,7 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
                   : log.action?.includes('pending') || log.action?.includes('submitted')
                     ? 'pending'
                     : 'approved',
-            date: new Date(log.created_at).toLocaleString('ru-RU'),
+            date: new Date(log.created_at).toLocaleString(locale === 'ru' ? 'ru-RU' : 'uz-UZ'),
           };
         });
         setRecentUpdates(formattedLogs);
