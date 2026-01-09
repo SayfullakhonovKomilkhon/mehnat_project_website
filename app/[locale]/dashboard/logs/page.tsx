@@ -155,18 +155,38 @@ export default function LogsPage({ params: { locale } }: LogsPageProps) {
     comments: locale === 'ru' ? 'Комментарий' : 'Sharh',
   };
 
-  const formatDescription = (desc: string): string => {
+  const formatDescription = (desc: string, log: any): string => {
     // Check for direct translation
     if (descriptionTranslations[desc]) {
       return descriptionTranslations[desc];
     }
 
-    // Parse API paths
-    if (desc.includes('API:') || desc.includes('api/')) {
-      const match = desc.match(/\/(articles|sections|chapters|users|comments)\/(\d+)/);
-      if (match) {
-        return `${modelNames[match[1]] || match[1]} #${match[2]}`;
+    // If description contains API path, replace with action description
+    if (
+      desc.includes('API:') ||
+      desc.includes('api/') ||
+      desc.includes('POST') ||
+      desc.includes('PUT') ||
+      desc.includes('DELETE')
+    ) {
+      // Try to determine action from the log
+      const action = log?.action || '';
+      if (action === 'create') {
+        return locale === 'ru' ? 'Создано' : 'Yaratildi';
       }
+      if (action === 'update') {
+        return locale === 'ru' ? 'Обновлено' : 'Yangilandi';
+      }
+      if (action === 'delete') {
+        return locale === 'ru' ? 'Удалено' : "O'chirildi";
+      }
+      // Default - return clean description without API path
+      return '-';
+    }
+
+    // Clean up "Modda #ID" format - don't show database IDs
+    if (desc.match(/^(Modda|Статья|Article)\s*#\d+$/)) {
+      return locale === 'ru' ? 'Статья' : 'Modda';
     }
 
     return desc || '-';
@@ -199,7 +219,7 @@ export default function LogsPage({ params: { locale } }: LogsPageProps) {
             id: log.id,
             user: userDisplay,
             action: actionLabels[log.action] || log.action || t.updated,
-            description: formatDescription(log.description || ''),
+            description: formatDescription(log.description || '', log),
             status:
               log.action?.includes('approved') || log.action === 'login' || log.action === 'create'
                 ? 'approved'
