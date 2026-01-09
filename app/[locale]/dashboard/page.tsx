@@ -304,7 +304,7 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
         try {
           const token = localStorage.getItem('token');
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api'}/v1/admin/suggestions`,
+            `${process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api/v1'}/admin/suggestions`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,

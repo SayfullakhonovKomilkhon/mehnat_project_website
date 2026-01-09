@@ -143,7 +143,7 @@ export default function SuggestionsPage({ params: { locale } }: SuggestionsPageP
         const token = localStorage.getItem('token');
         const statusParam = filter === 'all' ? '' : `?status=${filter}`;
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api'}/v1/admin/suggestions${statusParam}`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api/v1'}/admin/suggestions${statusParam}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -171,7 +171,7 @@ export default function SuggestionsPage({ params: { locale } }: SuggestionsPageP
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api'}/v1/admin/suggestions/${id}/status`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api/v1'}/admin/suggestions/${id}/status`,
         {
           method: 'PATCH',
           headers: {
