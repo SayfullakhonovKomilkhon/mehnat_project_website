@@ -136,35 +136,35 @@ export default function SuggestionsPage({ params: { locale } }: SuggestionsPageP
   const [selectedSuggestion, setSelectedSuggestion] = useState<Suggestion | null>(null);
   const [updating, setUpdating] = useState(false);
 
-  const fetchSuggestions = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      const statusParam = filter === 'all' ? '' : `?status=${filter}`;
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api'}/v1/admin/suggestions${statusParam}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Accept-Language': locale,
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setSuggestions(data.data?.items || []);
-      }
-    } catch (error) {
-      console.error('Failed to fetch suggestions:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchSuggestions = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        const statusParam = filter === 'all' ? '' : `?status=${filter}`;
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || 'https://mehnat-project.onrender.com/api'}/v1/admin/suggestions${statusParam}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Accept-Language': locale,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setSuggestions(data.data?.items || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch suggestions:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchSuggestions();
-  }, [filter]);
+  }, [filter, locale]);
 
   const updateStatus = async (id: number, status: string) => {
     setUpdating(true);

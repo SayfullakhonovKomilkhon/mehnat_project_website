@@ -120,7 +120,7 @@ export default function ArticleViewPage({ params: { locale, id } }: ArticleViewP
   const [activeTab, setActiveTab] = useState<'uz' | 'ru' | 'en'>('uz');
 
   const userRole = user?.role?.name;
-  const canModerate = userRole === 'admin' || userRole === 'moderator';
+  const canModerate = userRole === 'admin';
 
   useEffect(() => {
     const loadArticle = async () => {

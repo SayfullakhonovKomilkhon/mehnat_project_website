@@ -72,6 +72,7 @@ export function ArticleSidebar({ article, locale }: ArticleSidebarProps) {
     return () => {
       isMounted = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article.id, article.chapterId, locale]);
 
   const scrollToSection = (id: string) => {
