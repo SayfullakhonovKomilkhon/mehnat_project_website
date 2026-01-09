@@ -206,7 +206,6 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
     articleNumber: '',
     sectionId: urlSectionId || '',
     chapterId: urlChapterId || '',
-    order: '',
     isActive: true,
     uz: { title: '', content: '', summary: '', keywords: '' },
     ru: { title: '', content: '', summary: '', keywords: '' },
@@ -270,7 +269,6 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
               articleNumber: article.article_number || '',
               sectionId: sectionId,
               chapterId: String(article.chapter_id || ''),
-              order: String(article.order_number || ''),
               isActive: article.is_active ?? true,
               uz: {
                 title: uzTrans.title || article.title?.uz || '',
@@ -399,7 +397,6 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
           {
             chapter_id: parseInt(formData.chapterId),
             article_number: formData.articleNumber,
-            order_number: parseInt(formData.order) || 1,
             is_active: action === 'publish',
             translations,
             comment,
@@ -412,7 +409,6 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
           {
             chapter_id: parseInt(formData.chapterId),
             article_number: formData.articleNumber,
-            order_number: parseInt(formData.order) || 1,
             is_active: action === 'publish',
             translations,
             comment,
@@ -563,16 +559,6 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
                   </option>
                 ))}
               </select>
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">{t.order}</label>
-              <input
-                type="number"
-                value={formData.order}
-                onChange={e => setFormData({ ...formData, order: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                disabled={saving}
-              />
             </div>
           </div>
           <div className="mt-4">
