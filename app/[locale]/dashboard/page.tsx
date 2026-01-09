@@ -348,9 +348,33 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
         deactivate_user: t.userDeactivated,
       };
 
-      // Helper function to format description
+      // Helper function to format description with translations
       const formatDescription = (log: any): string => {
         const desc = log.description || '';
+
+        // Translation map for common English descriptions
+        const descriptionTranslations: Record<string, Record<string, string>> = {
+          'User logged in': {
+            uz: 'Foydalanuvchi tizimga kirdi',
+            ru: 'Пользователь вошёл в систему',
+          },
+          'User logged out': {
+            uz: 'Foydalanuvchi tizimdan chiqdi',
+            ru: 'Пользователь вышел из системы',
+          },
+          'Article created': { uz: 'Modda yaratildi', ru: 'Статья создана' },
+          'Article updated': { uz: 'Modda yangilandi', ru: 'Статья обновлена' },
+          'Article deleted': { uz: "Modda o'chirildi", ru: 'Статья удалена' },
+          'Section created': { uz: "Bo'lim yaratildi", ru: 'Раздел создан' },
+          'Chapter created': { uz: 'Bob yaratildi', ru: 'Глава создана' },
+          'Comment approved': { uz: 'Sharh tasdiqlandi', ru: 'Комментарий одобрен' },
+          'Comment rejected': { uz: 'Sharh rad etildi', ru: 'Комментарий отклонён' },
+        };
+
+        // Check if description has a translation
+        if (descriptionTranslations[desc]) {
+          return descriptionTranslations[desc][locale as 'uz' | 'ru'] || desc;
+        }
 
         // If description contains API path, extract meaningful info
         if (desc.includes('API:') || desc.includes('api/')) {
@@ -594,7 +618,7 @@ export default function DashboardPage({ params: { locale } }: DashboardPageProps
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <h2 className="text-lg font-semibold text-gray-900">{t.recentUpdates}</h2>
             <Link
-              href={`/${locale}/dashboard/articles`}
+              href={`/${locale}/dashboard/logs`}
               className="text-sm font-medium text-primary-600 hover:text-primary-700"
             >
               {t.viewAll} →
