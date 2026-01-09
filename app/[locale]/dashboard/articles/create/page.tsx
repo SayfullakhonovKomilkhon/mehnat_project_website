@@ -25,6 +25,7 @@ import {
   adminGetArticle,
   adminUpdateArticle,
   adminUploadArticleImages,
+  adminDeleteArticleImage,
 } from '@/lib/api';
 import type { Locale } from '@/types';
 
@@ -315,6 +316,24 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
   // Get chapters for selected section
   const selectedSection = sections.find(s => s.id === parseInt(formData.sectionId));
   const chapters = selectedSection?.chapters || [];
+
+  // Handle existing image deletion
+  const handleDeleteExistingImage = async (imageId: number) => {
+    if (saving) return;
+
+    try {
+      const result = await adminDeleteArticleImage(imageId, locale as Locale);
+      if (result.success !== false) {
+        // Remove from local state only after successful API deletion
+        setExistingImages(prev => prev.filter(img => img.id !== imageId));
+      } else {
+        setError(result.error || 'Failed to delete image');
+      }
+    } catch (err) {
+      console.error('Error deleting image:', err);
+      setError('Failed to delete image');
+    }
+  };
 
   const handleSubmit = async (action: 'draft' | 'publish') => {
     if (
@@ -795,7 +814,7 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
                   />
                   <button
                     type="button"
-                    onClick={() => setExistingImages(prev => prev.filter(i => i.id !== img.id))}
+                    onClick={() => handleDeleteExistingImage(img.id)}
                     className="absolute right-2 top-2 rounded-full bg-red-500 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100"
                     title={t.removeImage}
                     disabled={saving}
