@@ -188,7 +188,9 @@ export default function LogsPage({ params: { locale } }: LogsPageProps) {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Logs API response:', data);
         const logsData = data.data?.items || data.data || [];
+        console.log('Logs data:', logsData);
 
         const formattedLogs = logsData.map((log: any) => {
           const userName = log.user?.name || 'System';
