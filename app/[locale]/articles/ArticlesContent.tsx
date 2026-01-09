@@ -21,7 +21,7 @@ const INITIAL_ITEMS_PER_PAGE = 20;
 export default function ArticlesContent({ locale }: ArticlesContentProps) {
   const t = useTranslations();
   const searchParams = useSearchParams();
-  
+
   // State
   const [view, setView] = useState<'grid' | 'list'>('list');
   const [isHydrated, setIsHydrated] = useState(false);
@@ -29,16 +29,18 @@ export default function ArticlesContent({ locale }: ArticlesContentProps) {
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Parse URL params only after hydration for consistency
   const currentPage = isHydrated ? parseInt(searchParams.get('page') || '1') : INITIAL_PAGE;
-  const itemsPerPage = isHydrated ? parseInt(searchParams.get('limit') || '20') : INITIAL_ITEMS_PER_PAGE;
-  const searchQuery = isHydrated ? (searchParams.get('search') || '') : '';
-  const sectionId = isHydrated && searchParams.get('section') ? parseInt(searchParams.get('section')!) : undefined;
-  const chapterId = isHydrated && searchParams.get('chapter') ? parseInt(searchParams.get('chapter')!) : undefined;
-  const hasAuthorComment = isHydrated && searchParams.get('authorComment') === 'true' ? true : undefined;
-  const hasExpertComment = isHydrated && searchParams.get('expertComment') === 'true' ? true : undefined;
-  const translation = isHydrated ? (searchParams.get('translation') || undefined) : undefined;
+  const itemsPerPage = isHydrated
+    ? parseInt(searchParams.get('limit') || '20')
+    : INITIAL_ITEMS_PER_PAGE;
+  const searchQuery = isHydrated ? searchParams.get('search') || '' : '';
+  const sectionId =
+    isHydrated && searchParams.get('section') ? parseInt(searchParams.get('section')!) : undefined;
+  const chapterId =
+    isHydrated && searchParams.get('chapter') ? parseInt(searchParams.get('chapter')!) : undefined;
+  const translation = isHydrated ? searchParams.get('translation') || undefined : undefined;
 
   // Mark as hydrated on mount
   useEffect(() => {
@@ -56,20 +58,21 @@ export default function ArticlesContent({ locale }: ArticlesContentProps) {
   // Fetch articles from API
   const fetchArticles = useCallback(async () => {
     if (!isHydrated) return;
-    
+
     setIsLoading(true);
     try {
-      const result = await getArticles({
-        page: currentPage,
-        limit: itemsPerPage,
-        chapterId,
-        sectionId,
-        search: searchQuery,
-        hasAuthorComment,
-        hasExpertComment,
-        language: translation as Locale | undefined,
-      }, locale as Locale);
-      
+      const result = await getArticles(
+        {
+          page: currentPage,
+          limit: itemsPerPage,
+          chapterId,
+          sectionId,
+          search: searchQuery,
+          language: translation as Locale | undefined,
+        },
+        locale as Locale
+      );
+
       setArticles(result.data);
       setTotalItems(result.pagination.total);
       setTotalPages(result.pagination.totalPages);
@@ -81,7 +84,16 @@ export default function ArticlesContent({ locale }: ArticlesContentProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [isHydrated, currentPage, itemsPerPage, chapterId, sectionId, searchQuery, hasAuthorComment, hasExpertComment, translation, locale]);
+  }, [
+    isHydrated,
+    currentPage,
+    itemsPerPage,
+    chapterId,
+    sectionId,
+    searchQuery,
+    translation,
+    locale,
+  ]);
 
   useEffect(() => {
     fetchArticles();
@@ -91,33 +103,31 @@ export default function ArticlesContent({ locale }: ArticlesContentProps) {
   const paginatedArticles = articles;
 
   return (
-    <div className="py-8 md:py-12 bg-gov-light min-h-screen">
+    <div className="min-h-screen bg-gov-light py-8 md:py-12">
       <div className="section-container">
         {/* Breadcrumb */}
         <nav
-          className="flex items-center gap-2 text-sm text-text-secondary mb-6 animate-fadeIn"
+          className="animate-fadeIn mb-6 flex items-center gap-2 text-sm text-text-secondary"
           aria-label="Breadcrumb"
         >
-          <Link href={`/${locale}`} className="hover:text-primary-600 transition-colors">
+          <Link href={`/${locale}`} className="transition-colors hover:text-primary-600">
             {t('common.home')}
           </Link>
-          <ChevronRight className="w-4 h-4" />
-          <span className="text-text-primary font-medium">
-            {t('common.articles')}
-          </span>
+          <ChevronRight className="h-4 w-4" />
+          <span className="font-medium text-text-primary">{t('common.articles')}</span>
         </nav>
 
         {/* Page Header */}
-        <div className="mb-6 sm:mb-8 animate-fadeIn">
+        <div className="animate-fadeIn mb-6 sm:mb-8">
           <div className="flex items-start gap-3 sm:gap-4">
-            <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-primary-100 flex items-center justify-center flex-shrink-0">
-              <FileText className="w-5 h-5 sm:w-7 sm:h-7 text-primary-700" />
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary-100 sm:h-14 sm:w-14 sm:rounded-2xl">
+              <FileText className="h-5 w-5 text-primary-700 sm:h-7 sm:w-7" />
             </div>
             <div className="min-w-0">
-              <h1 className="font-heading text-xl sm:text-2xl md:text-3xl font-bold text-text-primary leading-tight">
+              <h1 className="font-heading text-xl font-bold leading-tight text-text-primary sm:text-2xl md:text-3xl">
                 {t('article.title')}
               </h1>
-              <p className="text-text-secondary text-xs sm:text-sm md:text-base mt-1">
+              <p className="mt-1 text-xs text-text-secondary sm:text-sm md:text-base">
                 {t('article.subtitle')}
               </p>
             </div>
@@ -137,7 +147,7 @@ export default function ArticlesContent({ locale }: ArticlesContentProps) {
         {/* Loading State */}
         {isLoading && (
           <div className="flex items-center justify-center py-16">
-            <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
           </div>
         )}
 
@@ -146,7 +156,7 @@ export default function ArticlesContent({ locale }: ArticlesContentProps) {
           <div
             className={cn(
               view === 'grid'
-                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6'
+                ? 'grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:gap-6 lg:grid-cols-3'
                 : 'space-y-3 sm:space-y-4'
             )}
           >
@@ -161,16 +171,14 @@ export default function ArticlesContent({ locale }: ArticlesContentProps) {
             ))}
           </div>
         ) : !isLoading ? (
-          <div className="text-center py-16 animate-fadeIn">
-            <div className="w-16 h-16 rounded-full bg-gov-border mx-auto mb-4 flex items-center justify-center">
-              <FileText className="w-8 h-8 text-text-muted" />
+          <div className="animate-fadeIn py-16 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gov-border">
+              <FileText className="h-8 w-8 text-text-muted" />
             </div>
-            <h3 className="font-heading text-lg font-semibold text-text-primary mb-2">
+            <h3 className="mb-2 font-heading text-lg font-semibold text-text-primary">
               {t('article.noResults')}
             </h3>
-            <p className="text-text-secondary">
-              {t('article.noResultsDescription')}
-            </p>
+            <p className="text-text-secondary">{t('article.noResultsDescription')}</p>
           </div>
         ) : null}
 
