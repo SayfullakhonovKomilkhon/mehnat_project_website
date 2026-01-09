@@ -161,7 +161,7 @@ export function DashboardLayout({ children, locale }: DashboardLayoutProps) {
           <div className="flex items-center gap-2 sm:gap-4">
             {/* Language Switcher */}
             <div className="flex items-center rounded-lg bg-gray-100 p-1">
-              {['uz', 'ru', 'en'].map(lang => (
+              {['uz', 'ru'].map(lang => (
                 <Link
                   key={lang}
                   href={pathname.replace(`/${locale}`, `/${lang}`)}

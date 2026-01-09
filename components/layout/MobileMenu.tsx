@@ -444,17 +444,6 @@ export function MobileMenu({ isOpen, onClose, locale, navItems }: MobileMenuProp
                   >
                     RU
                   </button>
-                  <button
-                    onClick={() => handleLanguageSwitch('en')}
-                    className={cn(
-                      'rounded-md px-3 py-1.5 text-xs font-medium transition-all sm:px-4 sm:py-2 sm:text-sm',
-                      locale === 'en'
-                        ? 'bg-white text-primary-800'
-                        : 'text-white/80 hover:text-white'
-                    )}
-                  >
-                    EN
-                  </button>
                 </div>
               </div>
 

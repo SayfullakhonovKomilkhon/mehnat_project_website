@@ -289,7 +289,7 @@ export default function CommentsPage({ params: { locale } }: CommentsPageProps) 
     let title = '';
     if (article.translations) {
       title =
-        article.translations[locale as 'uz' | 'ru' | 'en']?.title ||
+        article.translations[locale as 'uz' | 'ru']?.title ||
         article.translations.uz?.title ||
         article.title ||
         '';

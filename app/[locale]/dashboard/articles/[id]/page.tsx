@@ -117,7 +117,7 @@ export default function ArticleViewPage({ params: { locale, id } }: ArticleViewP
   const [error, setError] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'uz' | 'ru' | 'en'>('uz');
+  const [activeTab, setActiveTab] = useState<'uz' | 'ru'>('uz');
 
   const userRole = user?.role?.name;
   const canModerate = userRole === 'admin';
@@ -361,7 +361,7 @@ export default function ArticleViewPage({ params: { locale, id } }: ArticleViewP
         <div className="overflow-hidden rounded-xl bg-white shadow-sm">
           <div className="border-b border-gray-200">
             <div className="flex">
-              {(['uz', 'ru', 'en'] as const).map(lang => {
+              {(['uz', 'ru'] as const).map(lang => {
                 const translation = getTranslation(lang);
                 const hasContent = translation?.title || translation?.content;
                 return (

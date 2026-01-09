@@ -53,7 +53,7 @@ export default async function SectionDetailPage({
           </Link>
           <ChevronRight className="h-4 w-4" />
           <span className="font-medium text-text-primary">
-            {section.number}-{locale === 'ru' ? 'раздел' : locale === 'en' ? 'section' : "bo'lim"}
+            {section.number}-{locale === 'ru' ? 'раздел' : "bo'lim"}
           </span>
         </div>
 
@@ -67,8 +67,7 @@ export default async function SectionDetailPage({
             </div>
             <div>
               <Badge variant="primary" size="sm" className="mb-2">
-                {section.number}-
-                {locale === 'ru' ? 'раздел' : locale === 'en' ? 'section' : "bo'lim"}
+                {section.number}-{locale === 'ru' ? 'раздел' : "bo'lim"}
               </Badge>
               <h1 className="font-heading text-2xl font-bold text-text-primary md:text-3xl">
                 {sectionTitle}
@@ -101,8 +100,7 @@ export default async function SectionDetailPage({
                       </div>
                       <div>
                         <Badge variant="secondary" size="sm" className="mb-1">
-                          {chapter.number}-
-                          {locale === 'ru' ? 'глава' : locale === 'en' ? 'chapter' : 'bob'}
+                          {chapter.number}-{locale === 'ru' ? 'глава' : 'bob'}
                         </Badge>
                         <h2 className="font-heading font-semibold text-text-primary">
                           {chapterTitle}
@@ -110,8 +108,7 @@ export default async function SectionDetailPage({
                       </div>
                     </div>
                     <span className="text-sm text-text-muted">
-                      {chapter.articlesCount}{' '}
-                      {locale === 'ru' ? 'статей' : locale === 'en' ? 'articles' : 'modda'}
+                      {chapter.articlesCount} {locale === 'ru' ? 'статей' : 'modda'}
                     </span>
                   </div>
 
@@ -132,8 +129,7 @@ export default async function SectionDetailPage({
                             </div>
                             <div className="min-w-0 flex-1">
                               <span className="text-xs text-text-muted">
-                                {article.number}-
-                                {locale === 'ru' ? 'статья' : locale === 'en' ? 'article' : 'modda'}
+                                {article.number}-{locale === 'ru' ? 'статья' : 'modda'}
                               </span>
                               <p className="truncate text-sm text-text-primary group-hover:text-primary-700">
                                 {articleTitle}
@@ -150,11 +146,7 @@ export default async function SectionDetailPage({
                   <div className="border-t border-gov-border p-4">
                     <Link href={`/${locale}/articles?chapter=${chapter.id}`}>
                       <Button variant="ghost" size="sm" className="w-full">
-                        {locale === 'ru'
-                          ? 'Посмотреть все статьи'
-                          : locale === 'en'
-                            ? 'View all articles'
-                            : "Barcha moddalarni ko'rish"}
+                        {locale === 'ru' ? 'Посмотреть все статьи' : "Barcha moddalarni ko'rish"}
                         <ChevronRight className="ml-1 h-4 w-4" />
                       </Button>
                     </Link>
@@ -172,11 +164,7 @@ export default async function SectionDetailPage({
               <BookOpen className="h-8 w-8 text-text-muted" />
             </div>
             <h3 className="mb-2 font-heading text-lg font-semibold text-text-primary">
-              {locale === 'ru'
-                ? 'Главы не найдены'
-                : locale === 'en'
-                  ? 'No chapters found'
-                  : 'Boblar topilmadi'}
+              {locale === 'ru' ? 'Главы не найдены' : 'Boblar topilmadi'}
             </h3>
           </div>
         )}
@@ -185,11 +173,7 @@ export default async function SectionDetailPage({
         <div className="animate-fadeIn mt-8" style={{ animationDelay: '0.3s' }}>
           <Link href={`/${locale}/sections`}>
             <Button variant="outline" leftIcon={<ArrowLeft className="h-4 w-4" />}>
-              {locale === 'ru'
-                ? 'Назад к разделам'
-                : locale === 'en'
-                  ? 'Back to sections'
-                  : "Bo'limlarga qaytish"}
+              {locale === 'ru' ? 'Назад к разделам' : "Bo'limlarga qaytish"}
             </Button>
           </Link>
         </div>

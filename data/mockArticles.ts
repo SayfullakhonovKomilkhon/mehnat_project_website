@@ -9,8 +9,16 @@ export const mockArticles: Article[] = [
     number: '1',
     sectionId: 1,
     chapterId: 1,
-    section: { id: 1, number: 'I', title: { uz: 'Umumiy qoidalar', ru: 'Общие положения', en: 'General Provisions' } },
-    chapter: { id: 1, number: '1', title: { uz: 'Asosiy qoidalar', ru: 'Основные положения', en: 'Basic Provisions' } },
+    section: {
+      id: 1,
+      number: 'I',
+      title: { uz: 'Umumiy qoidalar', ru: 'Общие положения', en: 'General Provisions' },
+    },
+    chapter: {
+      id: 1,
+      number: '1',
+      title: { uz: 'Asosiy qoidalar', ru: 'Основные положения', en: 'Basic Provisions' },
+    },
     title: {
       uz: 'Mehnat kodeksining maqsadi',
       ru: 'Цель Трудового кодекса',
@@ -40,14 +48,14 @@ The Labor Code performs the following main tasks:
 4) ensuring timely and full payment of wages.`,
     },
     excerpt: {
-      uz: "Mehnat kodeksining maqsadi va asosiy vazifalari haqida",
+      uz: 'Mehnat kodeksining maqsadi va asosiy vazifalari haqida',
       ru: 'О цели и основных задачах Трудового кодекса',
       en: 'About the purpose and main tasks of the Labor Code',
     },
     status: 'published',
     hasAuthorComment: true,
     hasExpertComment: true,
-    translations: ['uz', 'ru', 'en'],
+    translations: ['uz', 'ru'],
     viewCount: 15420,
     lastUpdated: '2024-10-15T10:30:00Z',
     createdAt: '2024-01-01T00:00:00Z',
@@ -58,10 +66,18 @@ The Labor Code performs the following main tasks:
     number: '2',
     sectionId: 1,
     chapterId: 1,
-    section: { id: 1, number: 'I', title: { uz: 'Umumiy qoidalar', ru: 'Общие положения', en: 'General Provisions' } },
-    chapter: { id: 1, number: '1', title: { uz: 'Asosiy qoidalar', ru: 'Основные положения', en: 'Basic Provisions' } },
+    section: {
+      id: 1,
+      number: 'I',
+      title: { uz: 'Umumiy qoidalar', ru: 'Общие положения', en: 'General Provisions' },
+    },
+    chapter: {
+      id: 1,
+      number: '1',
+      title: { uz: 'Asosiy qoidalar', ru: 'Основные положения', en: 'Basic Provisions' },
+    },
     title: {
-      uz: 'Mehnat to\'g\'risidagi qonun hujjatlari',
+      uz: "Mehnat to'g'risidagi qonun hujjatlari",
       ru: 'Законодательство о труде',
       en: 'Labor Legislation',
     },
@@ -79,7 +95,7 @@ If an international treaty of the Republic of Uzbekistan establishes rules other
     status: 'published',
     hasAuthorComment: true,
     hasExpertComment: false,
-    translations: ['uz', 'ru', 'en'],
+    translations: ['uz', 'ru'],
     viewCount: 8932,
     lastUpdated: '2024-09-20T14:00:00Z',
     createdAt: '2024-01-01T00:00:00Z',
@@ -90,8 +106,16 @@ If an international treaty of the Republic of Uzbekistan establishes rules other
     number: '3',
     sectionId: 1,
     chapterId: 1,
-    section: { id: 1, number: 'I', title: { uz: 'Umumiy qoidalar', ru: 'Общие положения', en: 'General Provisions' } },
-    chapter: { id: 1, number: '1', title: { uz: 'Asosiy qoidalar', ru: 'Основные положения', en: 'Basic Provisions' } },
+    section: {
+      id: 1,
+      number: 'I',
+      title: { uz: 'Umumiy qoidalar', ru: 'Общие положения', en: 'General Provisions' },
+    },
+    chapter: {
+      id: 1,
+      number: '1',
+      title: { uz: 'Asosiy qoidalar', ru: 'Основные положения', en: 'Basic Provisions' },
+    },
     title: {
       uz: 'Mehnat munosabatlari',
       ru: 'Трудовые отношения',
@@ -120,7 +144,7 @@ Labor relations arise on the basis of:
     status: 'published',
     hasAuthorComment: true,
     hasExpertComment: true,
-    translations: ['uz', 'ru', 'en'],
+    translations: ['uz', 'ru'],
     viewCount: 12543,
     lastUpdated: '2024-10-01T09:15:00Z',
     createdAt: '2024-01-01T00:00:00Z',
@@ -135,8 +159,20 @@ Labor relations arise on the basis of:
     number: '21',
     sectionId: 2,
     chapterId: 7,
-    section: { id: 2, number: 'II', title: { uz: 'Mehnat shartnomasi', ru: 'Трудовой договор', en: 'Employment Contract' } },
-    chapter: { id: 7, number: '7', title: { uz: 'Mehnat shartnomasini tuzish', ru: 'Заключение трудового договора', en: 'Conclusion of Employment Contract' } },
+    section: {
+      id: 2,
+      number: 'II',
+      title: { uz: 'Mehnat shartnomasi', ru: 'Трудовой договор', en: 'Employment Contract' },
+    },
+    chapter: {
+      id: 7,
+      number: '7',
+      title: {
+        uz: 'Mehnat shartnomasini tuzish',
+        ru: 'Заключение трудового договора',
+        en: 'Conclusion of Employment Contract',
+      },
+    },
     title: {
       uz: 'Mehnat shartnomasi tushunchasi',
       ru: 'Понятие трудового договора',
@@ -156,7 +192,7 @@ The employment contract is concluded in writing and is executed in two copies. O
     status: 'published',
     hasAuthorComment: true,
     hasExpertComment: true,
-    translations: ['uz', 'ru', 'en'],
+    translations: ['uz', 'ru'],
     viewCount: 28934,
     lastUpdated: '2024-11-01T08:00:00Z',
     createdAt: '2024-01-01T00:00:00Z',
@@ -167,8 +203,20 @@ The employment contract is concluded in writing and is executed in two copies. O
     number: '22',
     sectionId: 2,
     chapterId: 7,
-    section: { id: 2, number: 'II', title: { uz: 'Mehnat shartnomasi', ru: 'Трудовой договор', en: 'Employment Contract' } },
-    chapter: { id: 7, number: '7', title: { uz: 'Mehnat shartnomasini tuzish', ru: 'Заключение трудового договора', en: 'Conclusion of Employment Contract' } },
+    section: {
+      id: 2,
+      number: 'II',
+      title: { uz: 'Mehnat shartnomasi', ru: 'Трудовой договор', en: 'Employment Contract' },
+    },
+    chapter: {
+      id: 7,
+      number: '7',
+      title: {
+        uz: 'Mehnat shartnomasini tuzish',
+        ru: 'Заключение трудового договора',
+        en: 'Conclusion of Employment Contract',
+      },
+    },
     title: {
       uz: 'Mehnat shartnomasi muddati',
       ru: 'Срок трудового договора',
@@ -209,7 +257,7 @@ If the term of the employment contract is not specified, it is considered conclu
     status: 'published',
     hasAuthorComment: true,
     hasExpertComment: false,
-    translations: ['uz', 'ru', 'en'],
+    translations: ['uz', 'ru'],
     viewCount: 19234,
     lastUpdated: '2024-10-25T11:30:00Z',
     createdAt: '2024-01-01T00:00:00Z',
@@ -224,8 +272,20 @@ If the term of the employment contract is not specified, it is considered conclu
     number: '73',
     sectionId: 3,
     chapterId: 12,
-    section: { id: 3, number: 'III', title: { uz: 'Ish vaqti va dam olish vaqti', ru: 'Рабочее время и время отдыха', en: 'Working Time and Rest Time' } },
-    chapter: { id: 12, number: '12', title: { uz: 'Ish vaqti', ru: 'Рабочее время', en: 'Working Time' } },
+    section: {
+      id: 3,
+      number: 'III',
+      title: {
+        uz: 'Ish vaqti va dam olish vaqti',
+        ru: 'Рабочее время и время отдыха',
+        en: 'Working Time and Rest Time',
+      },
+    },
+    chapter: {
+      id: 12,
+      number: '12',
+      title: { uz: 'Ish vaqti', ru: 'Рабочее время', en: 'Working Time' },
+    },
     title: {
       uz: 'Ish vaqtining normal davomiyligi',
       ru: 'Нормальная продолжительность рабочего времени',
@@ -251,7 +311,7 @@ With a six-day working week, the duration of daily work should not exceed 7 hour
     status: 'published',
     hasAuthorComment: true,
     hasExpertComment: true,
-    translations: ['uz', 'ru', 'en'],
+    translations: ['uz', 'ru'],
     viewCount: 34521,
     lastUpdated: '2024-10-10T16:45:00Z',
     createdAt: '2024-01-01T00:00:00Z',
@@ -266,8 +326,20 @@ With a six-day working week, the duration of daily work should not exceed 7 hour
     number: '140',
     sectionId: 4,
     chapterId: 16,
-    section: { id: 4, number: 'IV', title: { uz: 'Mehnat haqi', ru: 'Оплата труда', en: 'Remuneration' } },
-    chapter: { id: 16, number: '16', title: { uz: 'Mehnat haqini tashkil etish', ru: 'Организация оплаты труда', en: 'Organization of Remuneration' } },
+    section: {
+      id: 4,
+      number: 'IV',
+      title: { uz: 'Mehnat haqi', ru: 'Оплата труда', en: 'Remuneration' },
+    },
+    chapter: {
+      id: 16,
+      number: '16',
+      title: {
+        uz: 'Mehnat haqini tashkil etish',
+        ru: 'Организация оплаты труда',
+        en: 'Organization of Remuneration',
+      },
+    },
     title: {
       uz: 'Mehnat haqi tushunchasi',
       ru: 'Понятие заработной платы',
@@ -302,7 +374,7 @@ The employer must ensure equal pay for work of equal value for workers and emplo
     status: 'published',
     hasAuthorComment: true,
     hasExpertComment: true,
-    translations: ['uz', 'ru', 'en'],
+    translations: ['uz', 'ru'],
     viewCount: 45123,
     lastUpdated: '2024-11-05T10:00:00Z',
     createdAt: '2024-01-01T00:00:00Z',
@@ -313,8 +385,20 @@ The employer must ensure equal pay for work of equal value for workers and emplo
     number: '141',
     sectionId: 4,
     chapterId: 16,
-    section: { id: 4, number: 'IV', title: { uz: 'Mehnat haqi', ru: 'Оплата труда', en: 'Remuneration' } },
-    chapter: { id: 16, number: '16', title: { uz: 'Mehnat haqini tashkil etish', ru: 'Организация оплаты труда', en: 'Organization of Remuneration' } },
+    section: {
+      id: 4,
+      number: 'IV',
+      title: { uz: 'Mehnat haqi', ru: 'Оплата труда', en: 'Remuneration' },
+    },
+    chapter: {
+      id: 16,
+      number: '16',
+      title: {
+        uz: 'Mehnat haqini tashkil etish',
+        ru: 'Организация оплаты труда',
+        en: 'Organization of Remuneration',
+      },
+    },
     title: {
       uz: 'Minimal ish haqi',
       ru: 'Минимальная заработная плата',
@@ -340,7 +424,7 @@ The monthly wages of an employee cannot be lower than the established minimum wa
     status: 'published',
     hasAuthorComment: true,
     hasExpertComment: false,
-    translations: ['uz', 'ru', 'en'],
+    translations: ['uz', 'ru'],
     viewCount: 38765,
     lastUpdated: '2024-11-02T14:30:00Z',
     createdAt: '2024-01-01T00:00:00Z',
@@ -353,8 +437,20 @@ The monthly wages of an employee cannot be lower than the established minimum wa
     number: '45',
     sectionId: 2,
     chapterId: 9,
-    section: { id: 2, number: 'II', title: { uz: 'Mehnat shartnomasi', ru: 'Трудовой договор', en: 'Employment Contract' } },
-    chapter: { id: 9, number: '9', title: { uz: 'Mehnat shartnomasini bekor qilish', ru: 'Прекращение трудового договора', en: 'Termination of Employment Contract' } },
+    section: {
+      id: 2,
+      number: 'II',
+      title: { uz: 'Mehnat shartnomasi', ru: 'Трудовой договор', en: 'Employment Contract' },
+    },
+    chapter: {
+      id: 9,
+      number: '9',
+      title: {
+        uz: 'Mehnat shartnomasini bekor qilish',
+        ru: 'Прекращение трудового договора',
+        en: 'Termination of Employment Contract',
+      },
+    },
     title: {
       uz: 'Mehnat shartnomasini bekor qilish asoslari',
       ru: 'Основания прекращения трудового договора',
@@ -392,7 +488,7 @@ Upon termination of the employment contract, the employer issues an appropriate 
     status: 'published',
     hasAuthorComment: true,
     hasExpertComment: true,
-    translations: ['uz', 'ru', 'en'],
+    translations: ['uz', 'ru'],
     viewCount: 52341,
     lastUpdated: '2024-10-30T09:00:00Z',
     createdAt: '2024-01-01T00:00:00Z',
@@ -412,14 +508,35 @@ for (let sectionId = 1; sectionId <= 6; sectionId++) {
       number: `${articleIdCounter - 200 + sectionId * 10}`,
       sectionId,
       chapterId: sectionId * 4 - 3 + Math.floor(i / 3),
-      section: { 
-        id: sectionId, 
-        number: ['I', 'II', 'III', 'IV', 'V', 'VI'][sectionId - 1], 
+      section: {
+        id: sectionId,
+        number: ['I', 'II', 'III', 'IV', 'V', 'VI'][sectionId - 1],
         title: {
-          uz: ['Umumiy qoidalar', 'Mehnat shartnomasi', 'Ish vaqti va dam olish', 'Mehnat haqi', 'Mehnat intizomi', 'Mehnat muhofazasi'][sectionId - 1],
-          ru: ['Общие положения', 'Трудовой договор', 'Рабочее время и отдых', 'Оплата труда', 'Трудовая дисциплина', 'Охрана труда'][sectionId - 1],
-          en: ['General Provisions', 'Employment Contract', 'Working Time and Rest', 'Remuneration', 'Labor Discipline', 'Occupational Safety'][sectionId - 1],
-        }
+          uz: [
+            'Umumiy qoidalar',
+            'Mehnat shartnomasi',
+            'Ish vaqti va dam olish',
+            'Mehnat haqi',
+            'Mehnat intizomi',
+            'Mehnat muhofazasi',
+          ][sectionId - 1],
+          ru: [
+            'Общие положения',
+            'Трудовой договор',
+            'Рабочее время и отдых',
+            'Оплата труда',
+            'Трудовая дисциплина',
+            'Охрана труда',
+          ][sectionId - 1],
+          en: [
+            'General Provisions',
+            'Employment Contract',
+            'Working Time and Rest',
+            'Remuneration',
+            'Labor Discipline',
+            'Occupational Safety',
+          ][sectionId - 1],
+        },
       },
       chapter: {
         id: sectionId * 4 - 3 + Math.floor(i / 3),
@@ -428,7 +545,7 @@ for (let sectionId = 1; sectionId <= 6; sectionId++) {
           uz: `${sectionId}-bo'lim ${i}-bob`,
           ru: `Раздел ${sectionId} Глава ${i}`,
           en: `Section ${sectionId} Chapter ${i}`,
-        }
+        },
       },
       title: {
         uz: `Modda ${articleIdCounter - 200 + sectionId * 10} - Test modda`,
@@ -443,7 +560,7 @@ for (let sectionId = 1; sectionId <= 6; sectionId++) {
       status: 'published',
       hasAuthorComment: i % 2 === 0,
       hasExpertComment: i % 3 === 0,
-      translations: ['uz', 'ru', 'en'],
+      translations: ['uz', 'ru'],
       viewCount: Math.floor(Math.random() * 10000) + 1000,
       lastUpdated: new Date(2024, 10 - Math.floor(i / 2), 15 + i).toISOString(),
       createdAt: '2024-01-01T00:00:00Z',
@@ -453,8 +570,3 @@ for (let sectionId = 1; sectionId <= 6; sectionId++) {
 }
 
 export default [...mockArticles, ...additionalArticles];
-
-
-
-
-

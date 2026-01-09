@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { articles, sections, chapters } from '@/lib/mock-data';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://mehnat-kodeksi.uz';
-const locales = ['uz', 'ru', 'en'];
+const locales = ['uz', 'ru'];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const sitemap: MetadataRoute.Sitemap = [];
@@ -10,9 +10,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Static pages for each locale
   const staticPages = ['', '/articles', '/sections', '/search'];
-  
-  locales.forEach((locale) => {
-    staticPages.forEach((page) => {
+
+  locales.forEach(locale => {
+    staticPages.forEach(page => {
       sitemap.push({
         url: `${BASE_URL}/${locale}${page}`,
         lastModified: now,
@@ -30,8 +30,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   });
 
   // Section pages
-  sections.forEach((section) => {
-    locales.forEach((locale) => {
+  sections.forEach(section => {
+    locales.forEach(locale => {
       sitemap.push({
         url: `${BASE_URL}/${locale}/sections/${section.id}`,
         lastModified: now,
@@ -49,8 +49,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   });
 
   // Article pages
-  articles.forEach((article) => {
-    locales.forEach((locale) => {
+  articles.forEach(article => {
+    locales.forEach(locale => {
       sitemap.push({
         url: `${BASE_URL}/${locale}/articles/${article.id}`,
         lastModified: article.updatedAt ? new Date(article.updatedAt) : now,
@@ -69,6 +69,3 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return sitemap;
 }
-
-
-
