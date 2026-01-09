@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Images, X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
+import { Images, X, ChevronLeft, ChevronRight, ZoomIn, ChevronUp, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 
 interface ArticleImage {
@@ -46,6 +46,7 @@ const translations = {
 
 export function ArticleImages({ images, locale }: ArticleImagesProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const t = translations[locale as keyof typeof translations] || translations.uz;
@@ -79,40 +80,54 @@ export function ArticleImages({ images, locale }: ArticleImagesProps) {
         transition={{ delay: 0.3 }}
         className="mb-8"
       >
-        {/* Section Header */}
-        <div className="flex items-center gap-3 rounded-t-xl bg-primary-800 p-4 text-white">
-          <Images className="h-5 w-5" />
-          <h2 className="font-heading text-lg font-semibold">{t.title}</h2>
-          <span className="ml-auto rounded-full bg-white/20 px-2 py-0.5 text-sm">
-            {images.length}
-          </span>
-        </div>
+        {/* Section Header with toggle */}
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex w-full items-center justify-between rounded-t-xl bg-primary-800 p-4 text-white"
+        >
+          <div className="flex items-center gap-3">
+            <Images className="h-5 w-5" />
+            <h2 className="font-heading text-lg font-semibold">{t.title}</h2>
+            <span className="rounded-full bg-white/20 px-2 py-0.5 text-sm">{images.length}</span>
+          </div>
+          {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+        </button>
 
         {/* Images Grid */}
-        <div className="rounded-b-xl border border-t-0 border-gov-border bg-gov-surface p-4">
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-            {images.map((image, index) => (
-              <motion.button
-                key={image.id}
-                onClick={() => openModal(index)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="group relative aspect-square overflow-hidden rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-              >
-                <Image
-                  src={image.url}
-                  alt={image.original_name || `Image ${index + 1}`}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-110"
-                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/30">
-                  <ZoomIn className="h-8 w-8 text-white opacity-0 transition-opacity group-hover:opacity-100" />
-                </div>
-              </motion.button>
-            ))}
+        <motion.div
+          initial={false}
+          animate={{
+            height: isExpanded ? 'auto' : 0,
+            opacity: isExpanded ? 1 : 0,
+          }}
+          transition={{ duration: 0.3 }}
+          className="overflow-hidden"
+        >
+          <div className="rounded-b-xl border border-t-0 border-gov-border bg-gov-surface p-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+              {images.map((image, index) => (
+                <motion.button
+                  key={image.id}
+                  onClick={() => openModal(index)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="group relative aspect-square overflow-hidden rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                >
+                  <Image
+                    src={image.url}
+                    alt={image.original_name || `Image ${index + 1}`}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-110"
+                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/30">
+                    <ZoomIn className="h-8 w-8 text-white opacity-0 transition-opacity group-hover:opacity-100" />
+                  </div>
+                </motion.button>
+              ))}
+            </div>
           </div>
-        </div>
+        </motion.div>
       </motion.section>
 
       {/* Lightbox Modal */}

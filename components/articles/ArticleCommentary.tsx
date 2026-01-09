@@ -78,48 +78,62 @@ export function ArticleCommentary({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
+      className="mb-8"
     >
-      {/* Commentary Card */}
-      <div className="border-gov-primary/20 overflow-hidden rounded-xl border bg-white shadow-sm">
-        {/* Header */}
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="bg-gov-primary/5 hover:bg-gov-primary/10 flex w-full items-center justify-between px-6 py-4 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="bg-gov-primary/10 rounded-full p-2">
-              <User className="text-gov-primary h-5 w-5" />
-            </div>
-            <div className="text-left">
-              <h3 className="text-gov-dark font-semibold">{t.comment}</h3>
-              {commentData.author_name && (
-                <p className="text-sm text-gray-500">
-                  {commentData.author_name}
-                  {commentData.author_title && ` • ${commentData.author_title}`}
-                </p>
-              )}
-            </div>
-          </div>
-          {expanded ? (
-            <ChevronUp className="text-gov-primary h-5 w-5" />
-          ) : (
-            <ChevronDown className="text-gov-primary h-5 w-5" />
-          )}
-        </button>
+      {/* Header - styled like ArticleContent */}
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="flex w-full items-center justify-between rounded-t-xl bg-primary-800 p-4 text-white"
+      >
+        <div className="flex items-center gap-3">
+          <User className="h-5 w-5" />
+          <h2 className="font-heading text-lg font-semibold">{t.comment}</h2>
+        </div>
+        {expanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+      </button>
 
-        {/* Content */}
-        {expanded && (
-          <div className="px-6 py-4">
-            {commentData.organization && (
-              <p className="mb-3 text-sm text-gray-500">{commentData.organization}</p>
-            )}
-            <div
-              className="prose prose-sm max-w-none text-gray-700"
-              dangerouslySetInnerHTML={{ __html: commentText.replace(/\n/g, '<br/>') }}
-            />
-          </div>
-        )}
-      </div>
+      {/* Content */}
+      <motion.div
+        initial={false}
+        animate={{
+          height: expanded ? 'auto' : 0,
+          opacity: expanded ? 1 : 0,
+        }}
+        transition={{ duration: 0.3 }}
+        className="overflow-hidden"
+      >
+        <div className="rounded-b-xl border border-t-0 border-gov-border bg-gov-surface p-6">
+          {/* Author info */}
+          {(commentData.author_name || commentData.organization) && (
+            <div className="mb-4 flex items-center gap-3 border-b border-gray-100 pb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100">
+                <User className="h-5 w-5 text-primary-600" />
+              </div>
+              <div>
+                {commentData.author_name && (
+                  <p className="font-medium text-gray-900">
+                    {commentData.author_name}
+                    {commentData.author_title && (
+                      <span className="ml-2 text-sm font-normal text-gray-500">
+                        {commentData.author_title}
+                      </span>
+                    )}
+                  </p>
+                )}
+                {commentData.organization && (
+                  <p className="text-sm text-gray-500">{commentData.organization}</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Comment text */}
+          <div
+            className="prose prose-sm max-w-none text-gray-700"
+            dangerouslySetInnerHTML={{ __html: commentText.replace(/\n/g, '<br/>') }}
+          />
+        </div>
+      </motion.div>
     </motion.section>
   );
 }
