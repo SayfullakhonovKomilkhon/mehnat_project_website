@@ -153,7 +153,8 @@ export default function UsersPage({ params: { locale } }: UsersPageProps) {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          role: 'admin',
+          password_confirmation: formData.password,
+          role_id: 1, // Admin role
         },
         locale as Locale
       );
