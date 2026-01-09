@@ -8,10 +8,10 @@ import {
   FileText,
   MessageSquare,
   Image,
-  Link2,
   MessageCircle,
   ChevronRight,
   Loader2,
+  Link2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button, Badge } from '@/components/ui';
@@ -27,7 +27,6 @@ const navItemKeys = [
   { id: 'content', labelKey: 'content', icon: FileText },
   { id: 'comment', labelKey: 'comment', icon: MessageSquare },
   { id: 'images', labelKey: 'images', icon: Image },
-  { id: 'related', labelKey: 'relatedArticles', icon: Link2 },
 ];
 
 export function ArticleSidebar({ article, locale }: ArticleSidebarProps) {
