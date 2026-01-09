@@ -15,22 +15,20 @@ interface LanguageSwitcherProps {
 const localeFlags: Record<Locale, string> = {
   uz: '🇺🇿',
   ru: '🇷🇺',
-  en: '🇬🇧',
 };
 
 const localeShort: Record<Locale, string> = {
   uz: 'UZ',
   ru: 'RU',
-  en: 'EN',
 };
 
 // Create seamless transition overlay for language switch
 function createTransitionOverlay() {
   if (typeof document === 'undefined') return;
-  
+
   // Check if overlay already exists
   let overlay = document.getElementById('language-transition-overlay');
-  
+
   if (!overlay) {
     overlay = document.createElement('div');
     overlay.id = 'language-transition-overlay';
@@ -46,7 +44,7 @@ function createTransitionOverlay() {
     `;
     document.body.appendChild(overlay);
   }
-  
+
   // Trigger instant fade in
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -54,14 +52,14 @@ function createTransitionOverlay() {
       overlay!.style.pointerEvents = 'auto';
     });
   });
-  
+
   return overlay;
 }
 
 // Remove transition overlay with fade
 function removeTransitionOverlay() {
   if (typeof document === 'undefined') return;
-  
+
   const overlay = document.getElementById('language-transition-overlay');
   if (overlay) {
     // Small delay to ensure content is rendered
@@ -102,36 +100,39 @@ export function LanguageSwitcher({ locale, variant = 'default' }: LanguageSwitch
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const switchLocale = useCallback((newLocale: Locale) => {
-    if (newLocale === currentLocale || isTransitioning) return;
-    
-    setIsTransitioning(true);
-    
-    // Store preference in localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('preferred-locale', newLocale);
-    }
-    
-    // Create seamless transition overlay
-    createTransitionOverlay();
-    
-    // Wait for overlay to fully appear, then navigate
-    setTimeout(() => {
-      const newPath = pathname.replace(`/${locale}`, `/${newLocale}`);
-      // Use window.location for full page reload to ensure all translations are updated
-      window.location.href = newPath;
-      setIsOpen(false);
-    }, 200);
-  }, [currentLocale, isTransitioning, pathname, locale]);
+  const switchLocale = useCallback(
+    (newLocale: Locale) => {
+      if (newLocale === currentLocale || isTransitioning) return;
 
-  // Buttons variant - horizontal UZ RU EN buttons (like screenshot)
+      setIsTransitioning(true);
+
+      // Store preference in localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('preferred-locale', newLocale);
+      }
+
+      // Create seamless transition overlay
+      createTransitionOverlay();
+
+      // Wait for overlay to fully appear, then navigate
+      setTimeout(() => {
+        const newPath = pathname.replace(`/${locale}`, `/${newLocale}`);
+        // Use window.location for full page reload to ensure all translations are updated
+        window.location.href = newPath;
+        setIsOpen(false);
+      }, 200);
+    },
+    [currentLocale, isTransitioning, pathname, locale]
+  );
+
+  // Buttons variant - horizontal UZ RU buttons
   if (variant === 'buttons') {
     return (
-      <div className="inline-flex items-center bg-gray-100 rounded-lg p-0.5">
+      <div className="inline-flex items-center rounded-lg bg-gray-100 p-0.5">
         <button
           onClick={() => switchLocale('uz')}
           className={cn(
-            'px-3 py-1.5 text-sm font-medium rounded-md transition-all',
+            'rounded-md px-3 py-1.5 text-sm font-medium transition-all',
             currentLocale === 'uz'
               ? 'bg-primary-700 text-white shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
@@ -142,24 +143,13 @@ export function LanguageSwitcher({ locale, variant = 'default' }: LanguageSwitch
         <button
           onClick={() => switchLocale('ru')}
           className={cn(
-            'px-3 py-1.5 text-sm font-medium rounded-md transition-all',
+            'rounded-md px-3 py-1.5 text-sm font-medium transition-all',
             currentLocale === 'ru'
               ? 'bg-primary-700 text-white shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           )}
         >
           RU
-        </button>
-        <button
-          onClick={() => switchLocale('en')}
-          className={cn(
-            'px-3 py-1.5 text-sm font-medium rounded-md transition-all',
-            currentLocale === 'en'
-              ? 'bg-primary-700 text-white shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
-          )}
-        >
-          EN
         </button>
       </div>
     );
@@ -169,12 +159,12 @@ export function LanguageSwitcher({ locale, variant = 'default' }: LanguageSwitch
   if (variant === 'full') {
     return (
       <div className="flex gap-2">
-        {locales.map((loc) => (
+        {locales.map(loc => (
           <button
             key={loc}
             onClick={() => switchLocale(loc)}
             className={cn(
-              'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+              'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
               loc === currentLocale
                 ? 'bg-primary-800 text-white'
                 : 'bg-primary-50 text-primary-800 hover:bg-primary-100'
@@ -191,11 +181,11 @@ export function LanguageSwitcher({ locale, variant = 'default' }: LanguageSwitch
   // Minimal variant - same as buttons but for header (white background)
   if (variant === 'minimal') {
     return (
-      <div className="inline-flex items-center bg-gray-100 rounded-lg p-0.5">
+      <div className="inline-flex items-center rounded-lg bg-gray-100 p-0.5">
         <button
           onClick={() => switchLocale('uz')}
           className={cn(
-            'px-2.5 py-1 text-xs font-medium rounded-md transition-all',
+            'rounded-md px-2.5 py-1 text-xs font-medium transition-all',
             currentLocale === 'uz'
               ? 'bg-primary-700 text-white shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
@@ -206,24 +196,13 @@ export function LanguageSwitcher({ locale, variant = 'default' }: LanguageSwitch
         <button
           onClick={() => switchLocale('ru')}
           className={cn(
-            'px-2.5 py-1 text-xs font-medium rounded-md transition-all',
+            'rounded-md px-2.5 py-1 text-xs font-medium transition-all',
             currentLocale === 'ru'
               ? 'bg-primary-700 text-white shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           )}
         >
           RU
-        </button>
-        <button
-          onClick={() => switchLocale('en')}
-          className={cn(
-            'px-2.5 py-1 text-xs font-medium rounded-md transition-all',
-            currentLocale === 'en'
-              ? 'bg-primary-700 text-white shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
-          )}
-        >
-          EN
         </button>
       </div>
     );
@@ -235,16 +214,16 @@ export function LanguageSwitcher({ locale, variant = 'default' }: LanguageSwitch
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'flex items-center gap-2 px-3 py-2 rounded-lg',
+          'flex items-center gap-2 rounded-lg px-3 py-2',
           'text-sm font-medium text-text-secondary',
           'hover:bg-primary-50 hover:text-primary-800',
-          'transition-colors duration-200 border border-gov-border',
-          isOpen && 'bg-primary-50 text-primary-800 border-primary-300'
+          'border border-gov-border transition-colors duration-200',
+          isOpen && 'border-primary-300 bg-primary-50 text-primary-800'
         )}
       >
         <span className="text-base">{localeFlags[currentLocale]}</span>
         <span className="hidden sm:inline">{localeShort[currentLocale]}</span>
-        <ChevronDown className={cn('w-4 h-4 transition-transform', isOpen && 'rotate-180')} />
+        <ChevronDown className={cn('h-4 w-4 transition-transform', isOpen && 'rotate-180')} />
       </button>
 
       <AnimatePresence>
@@ -256,25 +235,25 @@ export function LanguageSwitcher({ locale, variant = 'default' }: LanguageSwitch
             transition={{ duration: 0.15 }}
             className={cn(
               'absolute right-0 mt-2 w-44 py-1',
-              'bg-gov-surface rounded-xl shadow-lg',
+              'rounded-xl bg-gov-surface shadow-lg',
               'border border-gov-border',
               'z-50 overflow-hidden'
             )}
           >
-            <div className="px-3 py-2 border-b border-gov-border">
-              <p className="text-xs font-medium text-text-muted uppercase tracking-wider">
+            <div className="border-b border-gov-border px-3 py-2">
+              <p className="text-xs font-medium uppercase tracking-wider text-text-muted">
                 Select Language
               </p>
             </div>
-            {locales.map((loc) => (
+            {locales.map(loc => (
               <button
                 key={loc}
                 onClick={() => switchLocale(loc)}
                 className={cn(
-                  'w-full flex items-center gap-3 px-3 py-2.5',
-                  'text-sm text-left transition-colors',
+                  'flex w-full items-center gap-3 px-3 py-2.5',
+                  'text-left text-sm transition-colors',
                   loc === currentLocale
-                    ? 'bg-primary-50 text-primary-800 font-medium'
+                    ? 'bg-primary-50 font-medium text-primary-800'
                     : 'text-text-secondary hover:bg-gov-light hover:text-text-primary'
                 )}
               >
@@ -283,9 +262,7 @@ export function LanguageSwitcher({ locale, variant = 'default' }: LanguageSwitch
                   <span className="block">{localeNames[loc]}</span>
                   <span className="text-xs text-text-muted">{localeShort[loc]}</span>
                 </div>
-                {loc === currentLocale && (
-                  <Check className="w-4 h-4 text-primary-600" />
-                )}
+                {loc === currentLocale && <Check className="h-4 w-4 text-primary-600" />}
               </button>
             ))}
           </motion.div>

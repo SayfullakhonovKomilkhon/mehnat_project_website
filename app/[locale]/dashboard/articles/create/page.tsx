@@ -200,7 +200,7 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [articleLoaded, setArticleLoaded] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'uz' | 'ru' | 'en'>('uz');
+  const [activeTab, setActiveTab] = useState<'uz' | 'ru'>('uz');
   const [formData, setFormData] = useState({
     articleNumber: '',
     sectionId: urlSectionId || '',
@@ -209,8 +209,7 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
     isActive: true,
     uz: { title: '', content: '', summary: '', keywords: '' },
     ru: { title: '', content: '', summary: '', keywords: '' },
-    en: { title: '', content: '', summary: '', keywords: '' },
-    comment: { uz: '', ru: '', en: '' },
+    comment: { uz: '', ru: '' },
   });
 
   // Images state
@@ -243,7 +242,6 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
             const translations = article.translations_data || {};
             const uzTrans = translations.uz || {};
             const ruTrans = translations.ru || {};
-            const enTrans = translations.en || {};
 
             // Find section ID from chapter
             let sectionId = '';
@@ -285,16 +283,9 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
                 summary: ruTrans.summary || '',
                 keywords: Array.isArray(ruTrans.keywords) ? ruTrans.keywords.join(', ') : '',
               },
-              en: {
-                title: enTrans.title || article.title?.en || '',
-                content: enTrans.content || article.content?.en || '',
-                summary: enTrans.summary || '',
-                keywords: Array.isArray(enTrans.keywords) ? enTrans.keywords.join(', ') : '',
-              },
               comment: {
                 uz: articleComment.comment_uz || '',
                 ru: articleComment.comment_ru || '',
-                en: articleComment.comment_en || '',
               },
             });
 
@@ -371,27 +362,12 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
       }
 
       // Add English translation if provided
-      if (formData.en.title && formData.en.content) {
-        translations.en = {
-          title: formData.en.title,
-          content: formData.en.content,
-          summary: formData.en.summary || undefined,
-          keywords: formData.en.keywords
-            ? formData.en.keywords
-                .split(',')
-                .map(k => k.trim())
-                .filter(Boolean)
-            : undefined,
-        };
-      }
-
       // Build comment object if any language has content
-      const hasComment = formData.comment.uz || formData.comment.ru || formData.comment.en;
+      const hasComment = formData.comment.uz || formData.comment.ru;
       const comment = hasComment
         ? {
             uz: formData.comment.uz || undefined,
             ru: formData.comment.ru || undefined,
-            en: formData.comment.en || undefined,
           }
         : undefined;
 
@@ -456,7 +432,6 @@ export default function CreateArticlePage({ params: { locale } }: CreateArticleP
   const tabs = [
     { key: 'uz', label: t.contentUz, icon: '🇺🇿' },
     { key: 'ru', label: t.contentRu, icon: '🇷🇺' },
-    { key: 'en', label: t.contentEn, icon: '🇬🇧' },
   ];
 
   if (loading) {

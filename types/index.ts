@@ -10,7 +10,7 @@ export interface LocalizedString {
 }
 
 /** Supported locales */
-export type Locale = 'uz' | 'ru' | 'en';
+export type Locale = 'uz' | 'ru';
 
 /** Get localized text helper type */
 export type GetLocalizedText = (content: LocalizedString, locale: string) => string;
