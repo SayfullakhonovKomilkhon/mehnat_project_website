@@ -41,7 +41,7 @@ export function ArticleListCard({ article, locale, view, index }: ArticleListCar
                 </div>
               </div>
 
-              {/* Content */}
+              {/* Content - Fixed height structure */}
               <div className="min-w-0 flex-1">
                 {/* Breadcrumb */}
                 <div className="mb-1 flex items-center gap-1 text-[10px] text-text-muted sm:mb-2 sm:text-xs">
@@ -54,30 +54,19 @@ export function ArticleListCard({ article, locale, view, index }: ArticleListCar
                   </span>
                 </div>
 
-                {/* Title */}
-                <h3 className="mb-1 line-clamp-2 font-heading text-sm font-semibold text-text-primary transition-colors group-hover:text-primary-700 sm:mb-2 sm:text-base md:text-lg">
+                {/* Title - Fixed to 1 line */}
+                <h3 className="mb-1 line-clamp-1 font-heading text-sm font-semibold text-text-primary transition-colors group-hover:text-primary-700 sm:mb-2 sm:text-base md:text-lg">
                   {title}
                 </h3>
 
-                {/* Excerpt - Hidden on very small mobile */}
-                <p className="mb-2 line-clamp-2 hidden text-sm leading-relaxed text-text-secondary sm:mb-3 sm:block">
+                {/* Excerpt - Fixed to 2 lines */}
+                <p className="line-clamp-2 text-sm leading-relaxed text-text-secondary">
                   {excerpt}
                 </p>
-
-                {/* Tags */}
-                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                  {article.hasComment && (
-                    <Badge variant="primary" size="sm" className="text-[10px] sm:text-xs">
-                      <MessageSquare className="mr-0.5 h-2.5 w-2.5 sm:mr-1 sm:h-3 sm:w-3" />
-                      <span className="hidden sm:inline">{t('article.comment')}</span>
-                      <span className="sm:hidden">Sharh</span>
-                    </Badge>
-                  )}
-                </div>
               </div>
 
               {/* Arrow - Hidden on mobile */}
-              <div className="hidden items-center md:flex">
+              <div className="hidden items-center self-center md:flex">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gov-light transition-colors group-hover:bg-primary-50">
                   <ArrowRight className="h-5 w-5 text-text-muted transition-colors group-hover:text-primary-600" />
                 </div>

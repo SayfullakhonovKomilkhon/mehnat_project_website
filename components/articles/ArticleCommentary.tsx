@@ -139,11 +139,20 @@ export function ArticleCommentary({
               ? commentText.slice(0, MAX_PREVIEW_LENGTH) + '...'
               : commentText;
 
+            // Format text with proper paragraphs
+            const formatCommentText = (text: string) => {
+              return text
+                .split(/\n/)
+                .filter(p => p.trim())
+                .map(p => `<p class="mb-4 leading-[2] indent-4">${p}</p>`)
+                .join('');
+            };
+
             return (
               <>
                 <div
-                  className="prose prose-base max-w-none font-serif text-[1rem] leading-[1.8] tracking-[0.01em] text-gray-700"
-                  dangerouslySetInnerHTML={{ __html: displayText.replace(/\n/g, '<br/>') }}
+                  className="prose prose-base max-w-none font-serif text-[1.05rem] tracking-wide text-gray-800"
+                  dangerouslySetInnerHTML={{ __html: formatCommentText(displayText) }}
                 />
 
                 {isLongComment && (
@@ -185,16 +194,16 @@ export function ArticleCommentary({
             </div>
           </ModalTitle>
         </ModalHeader>
-        <ModalBody className="max-h-[70vh] overflow-y-auto">
+        <ModalBody className="max-h-[70vh] overflow-y-auto bg-amber-50/30">
           {/* Author info in modal */}
           {(commentData.author_name || commentData.organization) && (
-            <div className="mb-4 flex items-center gap-3 border-b border-gray-100 pb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100">
-                <User className="h-5 w-5 text-primary-600" />
+            <div className="mb-6 flex items-center gap-3 rounded-lg border-l-4 border-primary-500 bg-white p-4 shadow-sm">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-100">
+                <User className="h-6 w-6 text-primary-600" />
               </div>
               <div>
                 {commentData.author_name && (
-                  <p className="font-medium text-gray-900">
+                  <p className="font-semibold text-gray-900">
                     {commentData.author_name}
                     {commentData.author_title && (
                       <span className="ml-2 text-sm font-normal text-gray-500">
@@ -210,10 +219,22 @@ export function ArticleCommentary({
             </div>
           )}
 
-          <div
-            className="prose prose-lg max-w-none font-serif text-[1.0625rem] leading-[1.85] tracking-[0.01em] text-gray-700"
-            dangerouslySetInnerHTML={{ __html: commentText.replace(/\n/g, '<br/>') }}
-          />
+          {/* Comment content with improved typography */}
+          <div className="rounded-xl bg-white p-6 shadow-sm md:p-8">
+            <div
+              className="prose prose-lg max-w-none font-serif text-[1.05rem] leading-[2] tracking-wide text-gray-800"
+              dangerouslySetInnerHTML={{
+                __html: commentText
+                  .split(/\n/)
+                  .filter(p => p.trim())
+                  .map(
+                    (p, i) =>
+                      `<p class="mb-5 ${i === 0 ? 'first-letter:float-left first-letter:mr-3 first-letter:text-4xl first-letter:font-bold first-letter:text-primary-600' : 'indent-6'}">${p}</p>`
+                  )
+                  .join(''),
+              }}
+            />
+          </div>
         </ModalBody>
         <div className="border-t border-gov-border bg-gray-50 px-6 py-4">
           <button

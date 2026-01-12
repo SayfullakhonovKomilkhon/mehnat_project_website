@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { ChevronRight, Calendar, Printer, Share2, BookOpen } from 'lucide-react';
+import { ChevronRight, Calendar, Share2, BookOpen, Check, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge, GovVerifiedBadge } from '@/components/ui';
 import { Article, getLocalizedText } from '@/lib/mock-data';
@@ -22,6 +22,7 @@ export function ArticleHeader({ article, locale }: ArticleHeaderProps) {
 
   // State for client-side date formatting to avoid hydration mismatch
   const [formattedDate, setFormattedDate] = useState<string>('');
+  const [copied, setCopied] = useState(false);
 
   // Format date only on client side for consistent rendering
   useEffect(() => {
@@ -30,26 +31,32 @@ export function ArticleHeader({ article, locale }: ArticleHeaderProps) {
     }
   }, [article.updatedAt]);
 
-  const handlePrint = () => {
-    if (typeof window !== 'undefined') {
-      window.print();
-    }
-  };
-
   const handleShare = async () => {
+    const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+    const shareTitle = `${article.number}-modda: ${title}`;
+
+    // Try native share API first (mobile)
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
         await navigator.share({
-          title: `${article.number}-modda: ${title}`,
-          url: window.location.href,
+          title: shareTitle,
+          url: shareUrl,
         });
+        return;
       } catch (err) {
-        // User cancelled or share failed
+        // User cancelled or share failed - fall through to clipboard
       }
-    } else {
-      // Fallback: copy to clipboard
-      if (typeof navigator !== 'undefined') {
-        navigator.clipboard.writeText(window.location.href);
+    }
+
+    // Fallback: copy to clipboard
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        // Clipboard failed
+        console.error('Failed to copy:', err);
       }
     }
   };
@@ -141,30 +148,30 @@ export function ArticleHeader({ article, locale }: ArticleHeaderProps) {
           {/* Actions */}
           <div className="flex gap-3 lg:flex-col">
             <button
-              onClick={handlePrint}
-              className={cn(
-                'flex items-center gap-2 rounded-lg px-4 py-2.5',
-                'border border-gov-border bg-gov-light',
-                'text-text-secondary hover:border-primary-300 hover:text-primary-600',
-                'transition-all duration-200'
-              )}
-              aria-label="Print article"
-            >
-              <Printer className="h-5 w-5" />
-              <span className="hidden sm:inline">{t('print')}</span>
-            </button>
-            <button
               onClick={handleShare}
               className={cn(
                 'flex items-center gap-2 rounded-lg px-4 py-2.5',
-                'border border-gov-border bg-gov-light',
-                'text-text-secondary hover:border-primary-300 hover:text-primary-600',
+                'border border-gov-border',
+                copied
+                  ? 'border-green-300 bg-green-50 text-green-600'
+                  : 'bg-gov-light text-text-secondary hover:border-primary-300 hover:text-primary-600',
                 'transition-all duration-200'
               )}
               aria-label="Share article"
             >
-              <Share2 className="h-5 w-5" />
-              <span className="hidden sm:inline">{t('share')}</span>
+              {copied ? (
+                <>
+                  <Check className="h-5 w-5" />
+                  <span className="hidden sm:inline">
+                    {locale === 'uz' ? 'Nusxalandi!' : locale === 'ru' ? 'Скопировано!' : 'Copied!'}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Share2 className="h-5 w-5" />
+                  <span className="hidden sm:inline">{t('share')}</span>
+                </>
+              )}
             </button>
           </div>
         </div>

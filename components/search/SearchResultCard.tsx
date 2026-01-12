@@ -77,7 +77,7 @@ export function SearchResultCard({ result, query, index }: SearchResultCardProps
               {getTypeIcon()}
             </div>
 
-            {/* Content */}
+            {/* Content - Fixed height structure */}
             <div className="min-w-0 flex-1">
               {/* Header */}
               <div className="mb-1.5 flex items-start justify-between gap-2 sm:mb-2 sm:gap-3">
@@ -94,17 +94,17 @@ export function SearchResultCard({ result, query, index }: SearchResultCardProps
                 )}
               </div>
 
-              {/* Title with highlighting */}
+              {/* Title with highlighting - Fixed to 1 line */}
               <h3
-                className="mb-1.5 line-clamp-2 font-heading text-sm font-semibold text-text-primary transition-colors group-hover:text-primary-700 sm:mb-2 sm:text-base md:text-lg"
+                className="mb-1.5 line-clamp-1 font-heading text-sm font-semibold text-text-primary transition-colors group-hover:text-primary-700 sm:mb-2 sm:text-base md:text-lg"
                 dangerouslySetInnerHTML={{
                   __html: highlightMatches(result.title, query),
                 }}
               />
 
-              {/* Excerpt with highlighting - Hidden on very small screens */}
+              {/* Excerpt with highlighting - Fixed to 2 lines */}
               <p
-                className="mb-2 line-clamp-2 hidden text-xs leading-relaxed text-text-secondary sm:mb-3 sm:block sm:text-sm"
+                className="mb-2 line-clamp-2 text-xs leading-relaxed text-text-secondary sm:mb-3 sm:text-sm"
                 dangerouslySetInnerHTML={{
                   __html: highlightMatches(result.excerpt, query),
                 }}
@@ -123,16 +123,6 @@ export function SearchResultCard({ result, query, index }: SearchResultCardProps
                   <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </span>
               </div>
-
-              {/* Comment indicator - Hidden on very small screens */}
-              {result.article && result.article.hasComment && (
-                <div className="mt-2 hidden items-center gap-2 border-t border-gov-border pt-2 sm:mt-3 sm:flex sm:pt-3">
-                  <span className="flex items-center gap-1 text-[10px] text-text-muted sm:text-xs">
-                    <MessageSquare className="h-3 w-3 text-primary-500 sm:h-3.5 sm:w-3.5" />
-                    <span className="hidden sm:inline">{tArticle('comment')}</span>
-                  </span>
-                </div>
-              )}
             </div>
           </div>
         </article>

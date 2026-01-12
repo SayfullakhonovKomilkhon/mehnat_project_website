@@ -11,21 +11,18 @@ import {
   Mail,
   ExternalLink,
   Shield,
-  ChevronDown,
-  ChevronRight,
   Search,
   Home,
   Layers,
   FileText,
   Info,
-  HelpCircle,
+  MessageSquare,
   Send,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button, GovVerifiedBadge } from '@/components/ui';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { GovEmblem } from './GovEmblem';
-import { sections, getLocalizedText } from '@/lib/mock-data';
 
 interface NavItem {
   href: string;
@@ -63,7 +60,6 @@ const InstagramIcon = () => (
 export function MobileMenu({ isOpen, onClose, locale, navItems }: MobileMenuProps) {
   const t = useTranslations();
   const pathname = usePathname();
-  const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -71,21 +67,13 @@ export function MobileMenu({ isOpen, onClose, locale, navItems }: MobileMenuProp
   const x = useMotionValue(0);
   const opacity = useTransform(x, [-200, 0], [0, 1]);
 
-  // Build nav items with sections submenu
+  // Build nav items - same as desktop Header
   const enhancedNavItems: NavItem[] = [
-    { href: `/${locale}`, label: t('nav.home'), icon: Home },
-    {
-      href: `/${locale}/sections`,
-      label: t('sections.title'),
-      icon: Layers,
-      children: sections.map(section => ({
-        href: `/${locale}/sections/${section.id}`,
-        label: `${section.number}. ${getLocalizedText(section.title, locale)}`,
-      })),
-    },
-    { href: `/${locale}/articles`, label: t('nav.articles'), icon: FileText },
-    { href: `/${locale}/about`, label: t('nav.about'), icon: Info },
-    { href: `/${locale}/faq`, label: t('nav.faq'), icon: HelpCircle },
+    { href: `/${locale}`, label: t('common.home'), icon: Home },
+    { href: `/${locale}/sections`, label: t('sections.title'), icon: Layers },
+    { href: `/${locale}/articles`, label: t('common.articles'), icon: FileText },
+    { href: `/${locale}/about`, label: t('common.about'), icon: Info },
+    { href: `/${locale}/contact`, label: t('common.contact'), icon: MessageSquare },
   ];
 
   // Handle escape key
@@ -102,13 +90,6 @@ export function MobileMenu({ isOpen, onClose, locale, navItems }: MobileMenuProp
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose]);
-
-  // Toggle submenu
-  const toggleSubmenu = (href: string) => {
-    setExpandedItems(prev =>
-      prev.includes(href) ? prev.filter(item => item !== href) : [...prev, href]
-    );
-  };
 
   // Handle language switch with seamless transition
   const handleLanguageSwitch = (newLocale: string) => {
@@ -261,8 +242,6 @@ export function MobileMenu({ isOpen, onClose, locale, navItems }: MobileMenuProp
             <nav className="flex-1 overflow-y-auto py-1.5 sm:py-2" role="navigation">
               <ul className="space-y-0.5 px-2 sm:px-3">
                 {enhancedNavItems.map((item, index) => {
-                  const hasChildren = item.children && item.children.length > 0;
-                  const isExpanded = expandedItems.includes(item.href);
                   const isCurrent = isCurrentPage(item.href);
 
                   return (
@@ -272,125 +251,38 @@ export function MobileMenu({ isOpen, onClose, locale, navItems }: MobileMenuProp
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
                     >
-                      {hasChildren ? (
-                        // Item with submenu
-                        <div>
-                          <button
-                            onClick={() => toggleSubmenu(item.href)}
-                            className={cn(
-                              'flex w-full items-center gap-3 rounded-xl px-4 py-3',
-                              'transition-colors duration-200',
-                              isCurrent
-                                ? 'bg-primary-100 font-bold text-primary-800'
-                                : 'text-text-primary hover:bg-primary-50 hover:text-primary-800',
-                              isExpanded && !isCurrent && 'bg-primary-50 text-primary-800'
-                            )}
-                          >
-                            <span
-                              className={cn(
-                                'flex h-10 w-10 items-center justify-center rounded-xl transition-colors',
-                                isCurrent
-                                  ? 'bg-primary-200'
-                                  : isExpanded
-                                    ? 'bg-primary-100'
-                                    : 'bg-gov-light'
-                              )}
-                            >
-                              <item.icon
-                                className={cn(
-                                  'h-5 w-5',
-                                  isCurrent ? 'text-primary-700' : 'text-primary-600'
-                                )}
-                              />
-                            </span>
-                            <span
-                              className={cn(
-                                'flex-1 text-left',
-                                isCurrent ? 'font-bold' : 'font-medium'
-                              )}
-                            >
-                              {item.label}
-                            </span>
-                            {isCurrent && (
-                              <span className="mr-2 h-2 w-2 animate-pulse rounded-full bg-primary-600" />
-                            )}
-                            <ChevronDown
-                              className={cn(
-                                'h-5 w-5 text-text-muted transition-transform duration-200',
-                                isExpanded && 'rotate-180'
-                              )}
-                            />
-                          </button>
-
-                          {/* Submenu */}
-                          <AnimatePresence>
-                            {isExpanded && (
-                              <motion.ul
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className="ml-6 overflow-hidden border-l-2 border-primary-100 pl-6"
-                              >
-                                {item.children?.map((child, childIndex) => (
-                                  <motion.li
-                                    key={child.href}
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: childIndex * 0.03 }}
-                                  >
-                                    <Link
-                                      href={child.href}
-                                      onClick={onClose}
-                                      className={cn(
-                                        'block rounded-lg px-3 py-2.5 text-sm',
-                                        'text-text-secondary hover:bg-primary-50 hover:text-primary-700',
-                                        'transition-colors duration-200'
-                                      )}
-                                    >
-                                      {child.label}
-                                    </Link>
-                                  </motion.li>
-                                ))}
-                              </motion.ul>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      ) : (
-                        // Regular nav item
-                        <Link
-                          href={item.href}
-                          onClick={onClose}
+                      <Link
+                        href={item.href}
+                        onClick={onClose}
+                        className={cn(
+                          'flex items-center gap-3 rounded-xl px-4 py-3',
+                          'transition-colors duration-200',
+                          isCurrent
+                            ? 'bg-primary-100 font-bold text-primary-800'
+                            : 'text-text-primary hover:bg-primary-50 hover:text-primary-800'
+                        )}
+                        aria-current={isCurrent ? 'page' : undefined}
+                      >
+                        <span
                           className={cn(
-                            'flex items-center gap-3 rounded-xl px-4 py-3',
-                            'transition-colors duration-200',
-                            isCurrent
-                              ? 'bg-primary-100 font-bold text-primary-800'
-                              : 'text-text-primary hover:bg-primary-50 hover:text-primary-800'
+                            'flex h-10 w-10 items-center justify-center rounded-xl transition-colors',
+                            isCurrent ? 'bg-primary-200' : 'bg-gov-light'
                           )}
-                          aria-current={isCurrent ? 'page' : undefined}
                         >
-                          <span
+                          <item.icon
                             className={cn(
-                              'flex h-10 w-10 items-center justify-center rounded-xl transition-colors',
-                              isCurrent ? 'bg-primary-200' : 'bg-gov-light'
+                              'h-5 w-5',
+                              isCurrent ? 'text-primary-700' : 'text-primary-600'
                             )}
-                          >
-                            <item.icon
-                              className={cn(
-                                'h-5 w-5',
-                                isCurrent ? 'text-primary-700' : 'text-primary-600'
-                              )}
-                            />
-                          </span>
-                          <span className={cn('flex-1', isCurrent ? 'font-bold' : 'font-medium')}>
-                            {item.label}
-                          </span>
-                          {isCurrent && (
-                            <span className="h-2 w-2 animate-pulse rounded-full bg-primary-600" />
-                          )}
-                        </Link>
-                      )}
+                          />
+                        </span>
+                        <span className={cn('flex-1', isCurrent ? 'font-bold' : 'font-medium')}>
+                          {item.label}
+                        </span>
+                        {isCurrent && (
+                          <span className="h-2 w-2 animate-pulse rounded-full bg-primary-600" />
+                        )}
+                      </Link>
                     </motion.li>
                   );
                 })}

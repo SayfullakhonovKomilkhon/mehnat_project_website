@@ -1,11 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useTranslations } from 'next-intl';
-import { FileText, MessageSquare, Image, ChevronLeft, ChevronRight, ArrowUp } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Article, articles as allArticles } from '@/lib/mock-data';
 
 interface ArticleMobileNavProps {
@@ -13,85 +9,14 @@ interface ArticleMobileNavProps {
   locale: string;
 }
 
-const tabKeys = [
-  { id: 'content', labelKey: 'content', icon: FileText },
-  { id: 'comment', labelKey: 'comment', icon: MessageSquare },
-  { id: 'images', labelKey: 'images', icon: Image },
-];
-
 export function ArticleMobileNav({ article, locale }: ArticleMobileNavProps) {
-  const t = useTranslations('article');
-  const [activeTab, setActiveTab] = useState('content');
-  const [showBackToTop, setShowBackToTop] = useState(false);
-
   // Get prev/next articles
   const currentIndex = allArticles.findIndex(a => a.id === article.id);
   const prevArticle = currentIndex > 0 ? allArticles[currentIndex - 1] : null;
   const nextArticle = currentIndex < allArticles.length - 1 ? allArticles[currentIndex + 1] : null;
 
-  // Track scroll for back to top button - properly using useEffect
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowBackToTop(window.scrollY > 500);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    // Initial check
-    handleScroll();
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scrollToSection = (id: string) => {
-    setActiveTab(id);
-    const element = document.getElementById(id);
-    if (element) {
-      const offset = 140;
-      const bodyRect = document.body.getBoundingClientRect().top;
-      const elementRect = element.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth',
-      });
-    }
-  };
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   return (
     <>
-      {/* Top Tabs - Mobile Only - Using CSS variable for header height */}
-      <div className="sticky top-[64px] z-30 -mx-4 border-b border-gov-border bg-gov-surface px-2 shadow-sm sm:top-[72px] sm:px-4 lg:hidden">
-        <div className="scrollbar-hide -mx-2 flex gap-0.5 overflow-x-auto px-2 py-1.5 sm:-mx-4 sm:gap-1 sm:px-4 sm:py-2">
-          {tabKeys.map(tab => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-
-            return (
-              <button
-                key={tab.id}
-                onClick={() => scrollToSection(tab.id)}
-                className={cn(
-                  'flex flex-shrink-0 items-center gap-1 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs transition-colors sm:gap-1.5 sm:px-3 sm:py-2 sm:text-sm',
-                  isActive
-                    ? 'bg-primary-100 font-medium text-primary-700'
-                    : 'text-text-secondary hover:bg-gov-light'
-                )}
-              >
-                <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <span className="xs:inline hidden">{t(tab.labelKey)}</span>
-                <span className="xs:hidden">{t(tab.labelKey).slice(0, 6)}...</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
       {/* Bottom Navigation - Mobile Only */}
       <div
         className="fixed bottom-0 left-0 right-0 z-40 border-t border-gov-border bg-gov-surface shadow-lg lg:hidden"
@@ -136,28 +61,6 @@ export function ArticleMobileNav({ article, locale }: ArticleMobileNavProps) {
           )}
         </div>
       </div>
-
-      {/* Floating Back to Top Button */}
-      <AnimatePresence>
-        {showBackToTop && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            onClick={scrollToTop}
-            className={cn(
-              'fixed bottom-20 right-4 z-40 lg:bottom-8',
-              'h-12 w-12 rounded-full shadow-lg',
-              'bg-primary-600 text-white',
-              'flex items-center justify-center',
-              'transition-colors hover:bg-primary-700'
-            )}
-            aria-label="Back to top"
-          >
-            <ArrowUp className="h-5 w-5" />
-          </motion.button>
-        )}
-      </AnimatePresence>
     </>
   );
 }
