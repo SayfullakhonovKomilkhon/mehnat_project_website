@@ -15,7 +15,9 @@ import {
   Hash,
   FolderOpen,
   BookOpen,
+  Maximize2,
 } from 'lucide-react';
+import { TruncatedText } from '@/components/ui';
 import {
   adminGetArticle,
   adminApproveArticle,
@@ -404,31 +406,56 @@ export default function ArticleViewPage({ params: { locale, id } }: ArticleViewP
                   </p>
                 );
               }
+              const contentText =
+                typeof content === 'string' ? content : getLocalizedText(content, activeTab) || '';
+              const summaryText =
+                typeof summary === 'string' ? summary : getLocalizedText(summary, activeTab) || '';
+              const titleText =
+                typeof title === 'string' ? title : getLocalizedText(title, activeTab);
+
               return (
                 <div className="space-y-4">
                   <div>
-                    <h3 className="mb-2 text-lg font-semibold text-gray-900">
-                      {typeof title === 'string' ? title : getLocalizedText(title, activeTab)}
-                    </h3>
+                    <h3 className="mb-2 text-lg font-semibold text-gray-900">{titleText}</h3>
                   </div>
-                  {summary && (
-                    <div className="rounded-lg bg-gray-50 p-4">
-                      <p className="text-sm italic text-gray-600">
-                        {typeof summary === 'string'
-                          ? summary
-                          : getLocalizedText(summary, activeTab)}
+                  {summaryText && (
+                    <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
+                      <p className="mb-2 text-xs font-medium uppercase tracking-wide text-blue-600">
+                        {locale === 'uz'
+                          ? 'Qisqacha mazmuni'
+                          : locale === 'ru'
+                            ? 'Краткое содержание'
+                            : 'Summary'}
                       </p>
+                      <TruncatedText
+                        text={summaryText}
+                        maxLength={300}
+                        title={
+                          locale === 'uz'
+                            ? 'Qisqacha mazmuni'
+                            : locale === 'ru'
+                              ? 'Краткое содержание'
+                              : 'Summary'
+                        }
+                        locale={locale}
+                        className="text-sm italic text-blue-700"
+                      />
                     </div>
                   )}
-                  <div className="prose max-w-none">
-                    <div
-                      className="whitespace-pre-wrap text-gray-700"
-                      dangerouslySetInnerHTML={{
-                        __html:
-                          typeof content === 'string'
-                            ? content
-                            : getLocalizedText(content, activeTab) || '',
-                      }}
+                  <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                    <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500">
+                      {locale === 'uz'
+                        ? 'Asosiy matn'
+                        : locale === 'ru'
+                          ? 'Основной текст'
+                          : 'Content'}
+                    </p>
+                    <TruncatedText
+                      text={contentText}
+                      maxLength={400}
+                      title={titleText}
+                      locale={locale}
+                      className="prose max-w-none"
                     />
                   </div>
                 </div>

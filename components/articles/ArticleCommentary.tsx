@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { User, ChevronDown, ChevronUp } from 'lucide-react';
+import { User, ChevronDown, ChevronUp, Maximize2, X, FileText } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Modal, ModalHeader, ModalTitle, ModalBody } from '@/components/ui';
 
 interface ArticleCommentaryProps {
   locale: string;
@@ -42,7 +44,10 @@ export function ArticleCommentary({
   commentData,
 }: ArticleCommentaryProps) {
   const [expanded, setExpanded] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const t = labels[locale as keyof typeof labels] || labels.uz;
+
+  const MAX_PREVIEW_LENGTH = 1000;
 
   // Get comment text based on locale
   const getCommentText = () => {
@@ -128,12 +133,103 @@ export function ArticleCommentary({
           )}
 
           {/* Comment text */}
-          <div
-            className="prose prose-sm max-w-none text-gray-700"
-            dangerouslySetInnerHTML={{ __html: commentText.replace(/\n/g, '<br/>') }}
-          />
+          {(() => {
+            const isLongComment = commentText.length > MAX_PREVIEW_LENGTH;
+            const displayText = isLongComment
+              ? commentText.slice(0, MAX_PREVIEW_LENGTH) + '...'
+              : commentText;
+
+            return (
+              <>
+                <div
+                  className="prose prose-base max-w-none font-serif text-[1rem] leading-[1.8] tracking-[0.01em] text-gray-700"
+                  dangerouslySetInnerHTML={{ __html: displayText.replace(/\n/g, '<br/>') }}
+                />
+
+                {isLongComment && (
+                  <div className="mt-4 flex justify-center">
+                    <button
+                      onClick={() => setIsModalOpen(true)}
+                      className={cn(
+                        'inline-flex items-center gap-2 rounded-lg px-5 py-2.5',
+                        'bg-primary-600 text-white hover:bg-primary-700',
+                        'text-sm font-medium transition-all duration-200',
+                        'shadow-md hover:shadow-lg',
+                        'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
+                      )}
+                    >
+                      <Maximize2 className="h-4 w-4" />
+                      {locale === 'uz'
+                        ? "To'liq sharhni ko'rish"
+                        : locale === 'ru'
+                          ? 'Просмотреть полный комментарий'
+                          : 'View full commentary'}
+                    </button>
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
       </motion.div>
+
+      {/* Full Comment Modal */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} size="xl" title={t.comment}>
+        <ModalHeader className="bg-primary-800 text-white">
+          <ModalTitle>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20">
+                <User className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-white">{t.comment}</span>
+            </div>
+          </ModalTitle>
+        </ModalHeader>
+        <ModalBody className="max-h-[70vh] overflow-y-auto">
+          {/* Author info in modal */}
+          {(commentData.author_name || commentData.organization) && (
+            <div className="mb-4 flex items-center gap-3 border-b border-gray-100 pb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100">
+                <User className="h-5 w-5 text-primary-600" />
+              </div>
+              <div>
+                {commentData.author_name && (
+                  <p className="font-medium text-gray-900">
+                    {commentData.author_name}
+                    {commentData.author_title && (
+                      <span className="ml-2 text-sm font-normal text-gray-500">
+                        {commentData.author_title}
+                      </span>
+                    )}
+                  </p>
+                )}
+                {commentData.organization && (
+                  <p className="text-sm text-gray-500">{commentData.organization}</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div
+            className="prose prose-lg max-w-none font-serif text-[1.0625rem] leading-[1.85] tracking-[0.01em] text-gray-700"
+            dangerouslySetInnerHTML={{ __html: commentText.replace(/\n/g, '<br/>') }}
+          />
+        </ModalBody>
+        <div className="border-t border-gov-border bg-gray-50 px-6 py-4">
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className={cn(
+              'flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3',
+              'bg-primary-700 text-white hover:bg-primary-800',
+              'font-medium transition-colors duration-200',
+              'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
+            )}
+          >
+            <X className="h-4 w-4" />
+            {locale === 'uz' ? 'Yopish' : locale === 'ru' ? 'Закрыть' : 'Close'}
+          </button>
+        </div>
+      </Modal>
     </motion.section>
   );
 }

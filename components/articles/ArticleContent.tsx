@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { ChevronDown, ChevronUp, FileText } from 'lucide-react';
+import { ChevronDown, ChevronUp, FileText, Maximize2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getLocalizedText } from '@/lib/api';
+import { Modal, ModalHeader, ModalTitle, ModalBody } from '@/components/ui';
 import type { Article } from '@/types';
 
 interface ArticleContentProps {
@@ -16,9 +17,15 @@ interface ArticleContentProps {
 export function ArticleContent({ article, locale }: ArticleContentProps) {
   const t = useTranslations('article');
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Get actual content from article data
   const content = getLocalizedText(article.content, locale) || '';
+  const title = getLocalizedText(article.title, locale) || '';
+
+  // Check if content is long (more than 800 characters)
+  const isLongContent = content.length > 800;
+  const MAX_PREVIEW_LENGTH = 600;
 
   // Process content to highlight key terms and format properly
   const formatContent = (text: string) => {
@@ -106,12 +113,38 @@ export function ArticleContent({ article, locale }: ArticleContentProps) {
             className={cn(
               'prose prose-lg max-w-none',
               'font-serif',
-              'text-[1.0625rem]',
+              'text-[1.0625rem] leading-[1.85]',
+              'tracking-[0.01em]',
               'selection:bg-primary-100 selection:text-primary-900'
             )}
           >
-            {formatContent(content)}
+            {isLongContent
+              ? formatContent(content.slice(0, MAX_PREVIEW_LENGTH) + '...')
+              : formatContent(content)}
           </div>
+
+          {/* Read More Button for long content */}
+          {isLongContent && (
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className={cn(
+                  'inline-flex items-center gap-2 rounded-xl px-6 py-3',
+                  'bg-primary-600 text-white hover:bg-primary-700',
+                  'text-sm font-medium transition-all duration-200',
+                  'shadow-lg hover:shadow-xl',
+                  'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
+                )}
+              >
+                <Maximize2 className="h-4 w-4" />
+                {locale === 'uz'
+                  ? "To'liq matnni ko'rish"
+                  : locale === 'ru'
+                    ? 'Просмотреть полный текст'
+                    : 'View full text'}
+              </button>
+            </div>
+          )}
 
           {/* Article Reference */}
           <div className="mt-8 border-t border-gov-border pt-6">
@@ -121,6 +154,51 @@ export function ArticleContent({ article, locale }: ArticleContentProps) {
           </div>
         </div>
       </motion.div>
+
+      {/* Full Content Modal */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} size="full" title={title}>
+        <ModalHeader className="bg-primary-800 text-white">
+          <ModalTitle>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20">
+                <FileText className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <span className="text-lg text-white">{article.number}-modda</span>
+                <p className="mt-0.5 text-sm font-normal text-white/80">{title}</p>
+              </div>
+            </div>
+          </ModalTitle>
+        </ModalHeader>
+        <ModalBody className="max-h-[75vh] overflow-y-auto bg-gov-surface">
+          <div
+            className={cn(
+              'prose prose-lg max-w-none',
+              'font-serif',
+              'text-[1.0625rem] leading-[1.85]',
+              'tracking-[0.01em]',
+              'selection:bg-primary-100 selection:text-primary-900',
+              'p-2 md:p-4'
+            )}
+          >
+            {formatContent(content)}
+          </div>
+        </ModalBody>
+        <div className="border-t border-gov-border bg-gray-50 px-6 py-4">
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className={cn(
+              'flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3',
+              'bg-primary-700 text-white hover:bg-primary-800',
+              'font-medium transition-colors duration-200',
+              'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
+            )}
+          >
+            <X className="h-4 w-4" />
+            {locale === 'uz' ? 'Yopish' : locale === 'ru' ? 'Закрыть' : 'Close'}
+          </button>
+        </div>
+      </Modal>
     </motion.section>
   );
 }

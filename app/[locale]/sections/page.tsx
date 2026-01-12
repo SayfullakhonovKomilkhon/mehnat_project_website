@@ -45,8 +45,12 @@ export default async function SectionsPage({ params: { locale } }: SectionsPageP
               : '';
 
             return (
-              <Link key={section.id} href={`/${locale}/sections/${section.id}`} className="block">
-                <Card hover className="group h-full">
+              <Link
+                key={section.id}
+                href={`/${locale}/sections/${section.id}`}
+                className="block h-full"
+              >
+                <Card hover className="group flex h-full flex-col">
                   {/* Section Number */}
                   <div className="mb-3 flex items-center justify-between sm:mb-4">
                     <Badge variant="primary" size="md" className="text-xs sm:text-sm">
@@ -60,15 +64,13 @@ export default async function SectionsPage({ params: { locale } }: SectionsPageP
                     {title}
                   </h2>
 
-                  {/* Description */}
-                  {description && (
-                    <p className="mb-3 line-clamp-2 text-xs text-text-secondary sm:mb-4 sm:text-sm">
-                      {description}
-                    </p>
-                  )}
+                  {/* Description - grows to fill space */}
+                  <p className="line-clamp-2 flex-grow text-xs text-text-secondary sm:text-sm">
+                    {description || '\u00A0'}
+                  </p>
 
-                  {/* Stats */}
-                  <div className="flex items-center gap-3 border-t border-gov-border pt-3 sm:gap-4 sm:pt-4">
+                  {/* Stats - Always at bottom */}
+                  <div className="mt-3 flex items-center gap-3 border-t border-gov-border pt-3 sm:mt-4 sm:gap-4 sm:pt-4">
                     <div className="flex items-center gap-1 text-xs text-text-muted sm:gap-1.5 sm:text-sm">
                       <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       <span>

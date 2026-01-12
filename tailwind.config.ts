@@ -47,8 +47,9 @@ const config: Config = {
         },
       },
       fontFamily: {
-        heading: ['Plus Jakarta Sans', 'Manrope', 'system-ui', 'sans-serif'],
-        body: ['Inter', 'Source Sans 3', 'system-ui', 'sans-serif'],
+        heading: ['var(--font-heading)', 'Plus Jakarta Sans', 'Manrope', 'system-ui', 'sans-serif'],
+        body: ['var(--font-inter)', 'Inter', 'Source Sans 3', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-serif)', 'Source Serif 4', 'Georgia', 'Times New Roman', 'serif'],
       },
       fontSize: {
         xs: ['0.64rem', { lineHeight: '1rem' }],
@@ -66,14 +67,14 @@ const config: Config = {
         '128': '32rem',
       },
       borderRadius: {
-        'xl': '0.75rem',
+        xl: '0.75rem',
         '2xl': '1rem',
         '3xl': '1.5rem',
       },
       boxShadow: {
-        'card': '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+        card: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
         'card-hover': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-        'gov': '0 4px 6px -1px rgb(30 58 138 / 0.1), 0 2px 4px -2px rgb(30 58 138 / 0.1)',
+        gov: '0 4px 6px -1px rgb(30 58 138 / 0.1), 0 2px 4px -2px rgb(30 58 138 / 0.1)',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out',
@@ -100,8 +101,3 @@ const config: Config = {
 };
 
 export default config;
-
-
-
-
-

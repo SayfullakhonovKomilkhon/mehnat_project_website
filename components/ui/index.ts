@@ -13,7 +13,14 @@ export { Tooltip } from './Tooltip';
 
 // Feedback Components
 export { Alert, InlineAlert, BannerAlert } from './Alert';
-export { Skeleton, SkeletonText, SkeletonAvatar, SkeletonCard, SkeletonTableRow, SkeletonArticle } from './Skeleton';
+export {
+  Skeleton,
+  SkeletonText,
+  SkeletonAvatar,
+  SkeletonCard,
+  SkeletonTableRow,
+  SkeletonArticle,
+} from './Skeleton';
 
 // Loading Components
 export { PageLoader, InlinePageLoader } from './PageLoader';
@@ -37,3 +44,6 @@ export { AccessibilityPanel } from './AccessibilityPanel';
 
 // Images
 export { OptimizedImage, HeroImage, AvatarImage } from './OptimizedImage';
+
+// Text Components
+export { TruncatedText } from './TruncatedText';

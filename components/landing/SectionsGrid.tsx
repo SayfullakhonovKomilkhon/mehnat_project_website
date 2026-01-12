@@ -348,7 +348,7 @@ export async function SectionsGrid({ locale, showHeader = true, maxItems }: Sect
                       'card-interactive' // CSS-only hover animation
                     )}
                   >
-                    <div className="p-4 sm:p-6">
+                    <div className="flex h-full flex-col p-4 sm:p-6">
                       {/* Header Row */}
                       <div className="mb-3 flex items-start justify-between sm:mb-4">
                         {/* Roman Numeral */}
@@ -374,12 +374,12 @@ export async function SectionsGrid({ locale, showHeader = true, maxItems }: Sect
                       </h3>
 
                       {/* Description */}
-                      <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-text-secondary sm:mb-4 sm:text-sm">
+                      <p className="line-clamp-2 flex-grow text-xs leading-relaxed text-text-secondary sm:text-sm">
                         {getLocalizedDescription(section)}
                       </p>
 
-                      {/* Stats & Arrow */}
-                      <div className="flex items-center justify-between border-t border-gov-border pt-3 sm:pt-4">
+                      {/* Stats & Arrow - Always at bottom */}
+                      <div className="mt-3 flex items-center justify-between border-t border-gov-border pt-3 sm:mt-4 sm:pt-4">
                         <span className="text-xs text-text-muted sm:text-sm">
                           {getCountLabel(section.chaptersCount, section.articlesCount)}
                         </span>

@@ -1,4 +1,4 @@
-import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
+import { Inter, Plus_Jakarta_Sans, Source_Serif_4 } from 'next/font/google';
 
 // Body font - Inter with Cyrillic subset
 // Only load essential weights to reduce bundle size
@@ -22,10 +22,16 @@ export const plusJakartaSans = Plus_Jakarta_Sans({
   fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
 });
 
+// Legal/Article content font - Source Serif 4
+// Excellent readability for long legal texts with Cyrillic support
+export const sourceSerif = Source_Serif_4({
+  subsets: ['latin', 'cyrillic'],
+  display: 'swap',
+  variable: '--font-serif',
+  weight: ['400', '500', '600'],
+  preload: true,
+  fallback: ['Georgia', 'Times New Roman', 'serif'],
+});
+
 // Combined font class names
-export const fontVariables = `${inter.variable} ${plusJakartaSans.variable}`;
-
-
-
-
-
+export const fontVariables = `${inter.variable} ${plusJakartaSans.variable} ${sourceSerif.variable}`;
